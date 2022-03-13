@@ -29,6 +29,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/intstr"
+	"k8s.io/client-go/tools/record"
 	"reflect"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
@@ -45,7 +46,8 @@ import (
 // MailhogInstanceReconciler reconciles a MailhogInstance object
 type MailhogInstanceReconciler struct {
 	client.Client
-	Scheme *runtime.Scheme
+	Scheme   *runtime.Scheme
+	Recorder record.EventRecorder
 }
 
 const (
@@ -114,6 +116,7 @@ func init() {
 //+kubebuilder:rbac:groups="",resources=pods,verbs=get;list;watch
 //+kubebuilder:rbac:groups="",resources=services,verbs=*
 //+kubebuilder:rbac:groups=route.openshift.io,resources=routes,verbs=*
+//+kubebuilder:rbac:groups="",resources=events,verbs=create
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
@@ -185,6 +188,7 @@ func (r *MailhogInstanceReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 				}
 				logger.Info("updated existing deployment")
 				deploymentUpdate.Inc()
+				r.Recorder.Event(updatedDeployment, corev1.EventTypeNormal, "SuccessEvent", "deployment updated")
 			}
 		}
 	}
@@ -231,6 +235,7 @@ func (r *MailhogInstanceReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 				}
 				logger.Info("updated existing service")
 				serviceUpdate.Inc()
+				r.Recorder.Event(updatedService, corev1.EventTypeNormal, "SuccessEvent", "service updated")
 			}
 		}
 	}
@@ -279,6 +284,7 @@ func (r *MailhogInstanceReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 					}
 					logger.Info("updated existing route")
 					routeUpdate.Inc()
+					r.Recorder.Event(updatedRoute, corev1.EventTypeNormal, "SuccessEvent", "route updated")
 				}
 			}
 
