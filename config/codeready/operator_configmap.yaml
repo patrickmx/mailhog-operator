@@ -4,7 +4,7 @@ metadata:
   name: mailhog-operator-config
   namespace: mailhog-operator-system
 data:
-  config.yaml: |-
+  config.yml: |-
     apiVersion: mailhog.operators.patrick.mx/v1alpha1
     kind: OperatorConfig
     health:
