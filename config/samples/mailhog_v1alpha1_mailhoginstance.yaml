@@ -1,6 +1,10 @@
 apiVersion: mailhog.operators.patrick.mx/v1alpha1
 kind: MailhogInstance
 metadata:
-  name: mailhoginstance-sample
+  name: sample
 spec:
-  # TODO(user): Add fields here
+  image: 'mailhog/mailhog:latest'
+  replicas: 1
+  settings:
+    storage: memory
+  webTrafficInlet: route
