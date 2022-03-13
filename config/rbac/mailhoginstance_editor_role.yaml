@@ -1,0 +1,24 @@
+# permissions for end users to edit mailhoginstances.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: mailhoginstance-editor-role
+rules:
+- apiGroups:
+  - mailhog.operators.patrick.mx
+  resources:
+  - mailhoginstances
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - mailhog.operators.patrick.mx
+  resources:
+  - mailhoginstances/status
+  verbs:
+  - get

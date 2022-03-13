@@ -1,0 +1,20 @@
+# permissions for end users to view mailhoginstances.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: mailhoginstance-viewer-role
+rules:
+- apiGroups:
+  - mailhog.operators.patrick.mx
+  resources:
+  - mailhoginstances
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - mailhog.operators.patrick.mx
+  resources:
+  - mailhoginstances/status
+  verbs:
+  - get

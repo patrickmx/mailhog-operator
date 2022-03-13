@@ -1,0 +1,6 @@
+apiVersion: mailhog.operators.patrick.mx/v1alpha1
+kind: MailhogInstance
+metadata:
+  name: mailhoginstance-sample
+spec:
+  # TODO(user): Add fields here

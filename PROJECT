@@ -6,4 +6,14 @@ plugins:
   scorecard.sdk.operatorframework.io/v2: {}
 projectName: mailhog-operator
 repo: goimports.patrick.mx/mailhog-operator
+resources:
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: operators.patrick.mx
+  group: mailhog
+  kind: MailhogInstance
+  path: goimports.patrick.mx/mailhog-operator/api/v1alpha1
+  version: v1alpha1
 version: "3"
