@@ -20,6 +20,7 @@ import (
 	"context"
 	"github.com/banzaicloud/k8s-objectmatcher/patch"
 	routev1 "github.com/openshift/api/route/v1"
+	"github.com/prometheus/client_golang/prometheus"
 	mailhogv1alpha1 "goimports.patrick.mx/mailhog-operator/api/v1alpha1"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -34,6 +35,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/log"
+	"sigs.k8s.io/controller-runtime/pkg/metrics"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	"sigs.k8s.io/controller-runtime/pkg/source"
@@ -49,6 +51,61 @@ type MailhogInstanceReconciler struct {
 const (
 	lastApplied = "mailhog.operators.patrick.mx/last-applied"
 )
+
+var (
+	deploymentCreate = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Name: "mailhog_deployment_create",
+			Help: "Number of times a reconcile created a deployment",
+		},
+	)
+	deploymentUpdate = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Name: "mailhog_deployment_update",
+			Help: "Number of times a reconcile updated a deployment",
+		},
+	)
+	serviceCreate = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Name: "mailhog_service_create",
+			Help: "Number of times a reconcile created a service",
+		},
+	)
+	serviceUpdate = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Name: "mailhog_service_update",
+			Help: "Number of times a reconcile updated a service",
+		},
+	)
+	routeCreate = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Name: "mailhog_route_create",
+			Help: "Number of times a reconcile created a route",
+		},
+	)
+	routeUpdate = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Name: "mailhog_route_update",
+			Help: "Number of times a reconcile updated a route",
+		},
+	)
+	routeDelete = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Name: "mailhog_route_delete",
+			Help: "Number of times a reconcile deleted a route",
+		},
+	)
+	crUpdate = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Name: "mailhog_cr_update",
+			Help: "Number of times a reconcile updated a cr",
+		},
+	)
+)
+
+func init() {
+	metrics.Registry.MustRegister(deploymentCreate, deploymentUpdate, serviceCreate, serviceUpdate, routeCreate, routeUpdate, routeDelete, crUpdate)
+}
 
 //+kubebuilder:rbac:groups=mailhog.operators.patrick.mx,resources=mailhoginstances,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=mailhog.operators.patrick.mx,resources=mailhoginstances/status,verbs=get;update;patch
@@ -104,6 +161,7 @@ func (r *MailhogInstanceReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 					return ctrl.Result{}, err
 				}
 				logger.Info("created new deployment")
+				deploymentCreate.Inc()
 				return ctrl.Result{RequeueAfter: 10 * time.Second}, nil
 			} else {
 				logger.Error(err, "failed to get deployment")
@@ -126,6 +184,7 @@ func (r *MailhogInstanceReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 					return ctrl.Result{}, err
 				}
 				logger.Info("updated existing deployment")
+				deploymentUpdate.Inc()
 			}
 		}
 	}
@@ -148,6 +207,7 @@ func (r *MailhogInstanceReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 					return ctrl.Result{}, err
 				}
 				logger.Info("created new service")
+				serviceCreate.Inc()
 				return ctrl.Result{RequeueAfter: 10 * time.Second}, nil
 			} else {
 				logger.Error(err, "failed to get service")
@@ -170,6 +230,7 @@ func (r *MailhogInstanceReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 					return ctrl.Result{}, err
 				}
 				logger.Info("updated existing service")
+				serviceUpdate.Inc()
 			}
 		}
 	}
@@ -194,6 +255,7 @@ func (r *MailhogInstanceReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 						return ctrl.Result{}, err
 					}
 					logger.Info("created new route")
+					routeCreate.Inc()
 					return ctrl.Result{RequeueAfter: 10 * time.Second}, nil
 				} else {
 					logger.Error(err, "failed to get route")
@@ -216,6 +278,7 @@ func (r *MailhogInstanceReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 						return ctrl.Result{}, err
 					}
 					logger.Info("updated existing route")
+					routeUpdate.Inc()
 				}
 			}
 
@@ -237,6 +300,7 @@ func (r *MailhogInstanceReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 					return ctrl.Result{}, err
 				}
 				logger.Info("removed obsolete route")
+				routeDelete.Inc()
 				return ctrl.Result{RequeueAfter: 10 * time.Second}, nil
 			}
 		}
@@ -267,6 +331,7 @@ func (r *MailhogInstanceReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 					return ctrl.Result{}, err
 				}
 				logger.Info("updated cr status")
+				crUpdate.Inc()
 			}
 		}
 	}
