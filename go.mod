@@ -3,9 +3,11 @@ module goimports.patrick.mx/mailhog-operator
 go 1.17
 
 require (
+	github.com/banzaicloud/k8s-objectmatcher v1.8.0
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.17.0
 	github.com/openshift/api v0.0.0-20210910062324-a41d3573a3ba
+	k8s.io/api v0.23.0
 	k8s.io/apimachinery v0.23.0
 	k8s.io/client-go v0.23.0
 	sigs.k8s.io/controller-runtime v0.11.0
@@ -13,6 +15,7 @@ require (
 
 require (
 	cloud.google.com/go v0.81.0 // indirect
+	emperror.dev/errors v0.8.0 // indirect
 	github.com/Azure/go-autorest v14.2.0+incompatible // indirect
 	github.com/Azure/go-autorest/autorest v0.11.18 // indirect
 	github.com/Azure/go-autorest/autorest/adal v0.9.13 // indirect
@@ -63,7 +66,6 @@ require (
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
-	k8s.io/api v0.23.0 // indirect
 	k8s.io/apiextensions-apiserver v0.23.0 // indirect
 	k8s.io/component-base v0.23.0 // indirect
 	k8s.io/klog/v2 v2.30.0 // indirect
