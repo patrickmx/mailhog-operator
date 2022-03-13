@@ -41,7 +41,7 @@ type MailhogInstanceReconciler struct {
 }
 
 const (
-	lastApplied = "operators.patrick.mx/mailhog/last-applied"
+	lastApplied = "mailhog.operators.patrick.mx/last-applied"
 )
 
 //+kubebuilder:rbac:groups=mailhog.operators.patrick.mx,resources=mailhoginstances,verbs=get;list;watch;create;update;patch;delete
@@ -98,29 +98,30 @@ func (r *MailhogInstanceReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 					return ctrl.Result{}, err
 				}
 				logger.Info("created new deployment")
+				return ctrl.Result{RequeueAfter: 10 * time.Second}, nil
 			} else {
 				logger.Error(err, "failed to get deployment")
 				return ctrl.Result{}, err
 			}
-		}
+		} else {
 
-		// check if the existing deployment needs an update
-		updatedDeployment, updateNeeded, err := r.deploymentUpdates(cr, existingDeployment)
-		if err != nil {
-			logger.Error(err, "failure checking if a deployment update is needed")
-			return ctrl.Result{}, err
-		} else if updateNeeded {
-			if err = ctrl.SetControllerReference(cr, updatedDeployment, r.Scheme); err != nil {
-				logger.Error(err, "cant set owner reference of updated deployment")
+			// check if the existing deployment needs an update
+			updatedDeployment, updateNeeded, err := r.deploymentUpdates(cr, existingDeployment)
+			if err != nil {
+				logger.Error(err, "failure checking if a deployment update is needed")
 				return ctrl.Result{}, err
+			} else if updateNeeded {
+				if err = ctrl.SetControllerReference(cr, updatedDeployment, r.Scheme); err != nil {
+					logger.Error(err, "cant set owner reference of updated deployment")
+					return ctrl.Result{}, err
+				}
+				if err = r.Update(ctx, updatedDeployment); err != nil {
+					logger.Error(err, "cant update deployment")
+					return ctrl.Result{}, err
+				}
+				logger.Info("updated existing deployment")
 			}
-			if err = r.Update(ctx, updatedDeployment); err != nil {
-				logger.Error(err, "cant update deployment")
-				return ctrl.Result{}, err
-			}
-			logger.Info("updated existing deployment")
 		}
-
 	}
 
 	// Service related checks
@@ -141,27 +142,29 @@ func (r *MailhogInstanceReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 					return ctrl.Result{}, err
 				}
 				logger.Info("created new service")
+				return ctrl.Result{RequeueAfter: 10 * time.Second}, nil
 			} else {
 				logger.Error(err, "failed to get service")
 				return ctrl.Result{}, err
 			}
-		}
+		} else {
 
-		// check if the existing service needs an update
-		updatedService, updateNeeded, err := r.serviceUpdates(cr, existingService)
-		if err != nil {
-			logger.Error(err, "failure checking if a service update is needed")
-			return ctrl.Result{}, err
-		} else if updateNeeded {
-			if err = ctrl.SetControllerReference(cr, updatedService, r.Scheme); err != nil {
-				logger.Error(err, "cant set owner reference of updated service")
+			// check if the existing service needs an update
+			updatedService, updateNeeded, err := r.serviceUpdates(cr, existingService)
+			if err != nil {
+				logger.Error(err, "failure checking if a service update is needed")
 				return ctrl.Result{}, err
+			} else if updateNeeded {
+				if err = ctrl.SetControllerReference(cr, updatedService, r.Scheme); err != nil {
+					logger.Error(err, "cant set owner reference of updated service")
+					return ctrl.Result{}, err
+				}
+				if err = r.Update(ctx, updatedService); err != nil {
+					logger.Error(err, "cant update service")
+					return ctrl.Result{}, err
+				}
+				logger.Info("updated existing service")
 			}
-			if err = r.Update(ctx, updatedService); err != nil {
-				logger.Error(err, "cant update service")
-				return ctrl.Result{}, err
-			}
-			logger.Info("updated existing service")
 		}
 	}
 
@@ -185,27 +188,29 @@ func (r *MailhogInstanceReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 						return ctrl.Result{}, err
 					}
 					logger.Info("created new route")
+					return ctrl.Result{RequeueAfter: 10 * time.Second}, nil
 				} else {
 					logger.Error(err, "failed to get route")
 					return ctrl.Result{}, err
 				}
-			}
+			} else {
 
-			// check if the existing route needs an update
-			updatedRoute, updateNeeded, err := r.routeUpdates(cr, existingRoute)
-			if err != nil {
-				logger.Error(err, "failure checking if a route update is needed")
-				return ctrl.Result{}, err
-			} else if updateNeeded {
-				if err = ctrl.SetControllerReference(cr, updatedRoute, r.Scheme); err != nil {
-					logger.Error(err, "cant set owner reference of updated route")
+				// check if the existing route needs an update
+				updatedRoute, updateNeeded, err := r.routeUpdates(cr, existingRoute)
+				if err != nil {
+					logger.Error(err, "failure checking if a route update is needed")
 					return ctrl.Result{}, err
+				} else if updateNeeded {
+					if err = ctrl.SetControllerReference(cr, updatedRoute, r.Scheme); err != nil {
+						logger.Error(err, "cant set owner reference of updated route")
+						return ctrl.Result{}, err
+					}
+					if err = r.Update(ctx, updatedRoute); err != nil {
+						logger.Error(err, "cant update route")
+						return ctrl.Result{}, err
+					}
+					logger.Info("updated existing route")
 				}
-				if err = r.Update(ctx, updatedRoute); err != nil {
-					logger.Error(err, "cant update route")
-					return ctrl.Result{}, err
-				}
-				logger.Info("updated existing route")
 			}
 
 		} else {
@@ -225,6 +230,8 @@ func (r *MailhogInstanceReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 					logger.Error(err, "cant remove obsolete route")
 					return ctrl.Result{}, err
 				}
+				logger.Info("removed obsolete route")
+				return ctrl.Result{RequeueAfter: 10 * time.Second}, nil
 			}
 		}
 	}

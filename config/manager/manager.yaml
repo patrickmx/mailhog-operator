@@ -21,6 +21,7 @@ spec:
     metadata:
       annotations:
         kubectl.kubernetes.io/default-container: manager
+        alpha.image.policy.openshift.io/resolve-names: "*"
       labels:
         control-plane: controller-manager
     spec:
@@ -30,7 +31,8 @@ spec:
       - command:
         - /manager
         args:
-        - --leader-elect
+        - -config
+        - /operatorconfig/config.yml
         image: controller:latest
         name: manager
         securityContext:
@@ -47,8 +49,6 @@ spec:
             port: 8081
           initialDelaySeconds: 5
           periodSeconds: 10
-        # TODO(user): Configure the resources accordingly based on the project requirements.
-        # More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
         resources:
           limits:
             cpu: 500m
@@ -56,5 +56,12 @@ spec:
           requests:
             cpu: 10m
             memory: 64Mi
+        volumeMounts:
+          - mountPath: /operatorconfig
+            name: config
       serviceAccountName: controller-manager
       terminationGracePeriodSeconds: 10
+      volumes:
+        - name: config
+          configMap:
+            name: mailhog-operator-config

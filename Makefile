@@ -29,14 +29,14 @@ BUNDLE_METADATA_OPTS ?= $(BUNDLE_CHANNELS) $(BUNDLE_DEFAULT_CHANNEL)
 #
 # For example, running 'make bundle-build bundle-push catalog-build catalog-push' will build and push both
 # operators.patrick.mx/mailhog-operator-bundle:$VERSION and operators.patrick.mx/mailhog-operator-catalog:$VERSION.
-IMAGE_TAG_BASE ?= operators.patrick.mx/mailhog-operator
+IMAGE_TAG_BASE ?= default-route-openshift-image-registry.apps-crc.testing/mailhog-operator-system/mailhog
 
 # BUNDLE_IMG defines the image:tag used for the bundle.
 # You can use it as an arg. (E.g make bundle-build BUNDLE_IMG=<some-registry>/<project-name-bundle>:<tag>)
 BUNDLE_IMG ?= $(IMAGE_TAG_BASE)-bundle:v$(VERSION)
 
 # Image URL to use all building/pushing image targets
-IMG ?= controller:latest
+IMG ?= $(IMAGE_TAG_BASE):v$(VERSION)
 # ENVTEST_K8S_VERSION refers to the version of kubebuilder assets to be downloaded by envtest binary.
 ENVTEST_K8S_VERSION = 1.23
 
@@ -107,11 +107,43 @@ run: manifests generate fmt vet ## Run a controller from your host.
 
 .PHONY: docker-build
 docker-build: test ## Build docker image with the manager.
-	docker build -t ${IMG} .
+	podman build -t ${IMG} .
 
 .PHONY: docker-push
 docker-push: ## Push docker image with the manager.
-	docker push ${IMG}
+	podman push ${IMG}
+
+##@ CRC
+
+.PHONY: build-push-image-to-crc
+build-push-image-to-crc: docker-build ## push the image from the local podman to imagestream
+	$(KUSTOMIZE) build config/codeready | kubectl apply -f -
+	podman login -u kubeadmin -p $(oc whoami -t) default-route-openshift-image-registry.apps-crc.testing --tls-verify=false --authfile=~/.podmanauth
+	oc registry login --insecure=true
+	podman push --tls-verify=false --authfile=~/.podmanauth default-route-openshift-image-registry.apps-crc.testing/mailhog-operator-system/mailhog:v$(VERSION)
+
+.PHONY: crc-deploy
+crc-deploy: deploy build-push-image-to-crc
+	oc -n mailhog-operator-system patch deployment/mailhog-operator-controller-manager -p '{"spec":{"template":{"spec":{"containers":[{"name": "manager", "args":["-config","/operatorconfig/config.yml"]}]}}}}'
+	oc -n mailhog-operator-system patch deployment/mailhog-operator-controller-manager -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"last-restart\":\"`date +'%s'`\"}}}}}"
+
+##@ CRC Ad-Hoc Commands
+
+.PHONY: crc-images
+crc-images:
+	oc get is -n mailhog-operator-system
+
+.PHONY: crc-pods
+crc-pods:
+	oc get pods -n mailhog-operator-system
+
+.PHONY: crc-logs
+crc-logs:
+	oc -n mailhog-operator-system logs deployments/mailhog-controller-manager -c manager -f
+
+.PHONY: install-cert-manager
+install-cert-manager: ## yolo
+	kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.7.1/cert-manager.yaml
 
 ##@ Deployment
 
@@ -174,7 +206,7 @@ bundle: manifests kustomize ## Generate bundle manifests and metadata, then vali
 
 .PHONY: bundle-build
 bundle-build: ## Build the bundle image.
-	docker build -f bundle.Dockerfile -t $(BUNDLE_IMG) .
+	podman build -f bundle.Dockerfile -t $(BUNDLE_IMG) .
 
 .PHONY: bundle-push
 bundle-push: ## Push the bundle image.
@@ -214,7 +246,7 @@ endif
 # https://github.com/operator-framework/community-operators/blob/7f1438c/docs/packaging-operator.md#updating-your-existing-operator
 .PHONY: catalog-build
 catalog-build: opm ## Build a catalog image.
-	$(OPM) index add --container-tool docker --mode semver --tag $(CATALOG_IMG) --bundles $(BUNDLE_IMGS) $(FROM_INDEX_OPT)
+	$(OPM) index add --container-tool podman --mode semver --tag $(CATALOG_IMG) --bundles $(BUNDLE_IMGS) $(FROM_INDEX_OPT)
 
 # Push the catalog image.
 .PHONY: catalog-push

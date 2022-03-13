@@ -1,2 +1,6 @@
 resources:
 - mailhogInstance_console_example.yaml
+- developer_rolebinding.yaml
+- operator_imagestream.yaml
+- operator_configmap.yaml
+

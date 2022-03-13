@@ -1,0 +1,8 @@
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: mailhog
+  namespace: mailhog-operator-system
+spec:
+  lookupPolicy:
+    local: true
