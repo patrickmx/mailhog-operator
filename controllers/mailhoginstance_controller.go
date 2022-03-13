@@ -26,11 +26,17 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"reflect"
 	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/log"
+	"sigs.k8s.io/controller-runtime/pkg/predicate"
+	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+	"sigs.k8s.io/controller-runtime/pkg/source"
 	"time"
 )
 
@@ -577,6 +583,27 @@ func getPodNames(pods []corev1.Pod) []string {
 	return podNames
 }
 
+func (r *MailhogInstanceReconciler) findObjectsForPod(watchedPod client.Object) []reconcile.Request {
+	name := watchedPod.GetName()
+	ns := watchedPod.GetNamespace()
+	requests := make([]reconcile.Request, 1)
+
+	pod := &corev1.Pod{}
+	err := r.Get(context.TODO(), types.NamespacedName{Namespace: ns, Name: name}, pod)
+	if err != nil {
+		return []reconcile.Request{}
+	}
+
+	requests = append(requests, reconcile.Request{
+		NamespacedName: types.NamespacedName{
+			Namespace: ns,
+			Name:      pod.Labels["mailhog_cr"],
+		},
+	})
+
+	return requests
+}
+
 // SetupWithManager sets up the controller with the Manager.
 func (r *MailhogInstanceReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	patch.DefaultAnnotator = patch.NewAnnotator(lastApplied)
@@ -586,5 +613,10 @@ func (r *MailhogInstanceReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Owns(&appsv1.Deployment{}).
 		Owns(&corev1.Service{}).
 		Owns(&routev1.Route{}).
+		Watches(
+			&source.Kind{Type: &corev1.Pod{}},
+			handler.EnqueueRequestsFromMapFunc(r.findObjectsForPod),
+			builder.WithPredicates(predicate.ResourceVersionChangedPredicate{}),
+		).
 		Complete(r)
 }

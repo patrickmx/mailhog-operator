@@ -139,7 +139,7 @@ crc-pods:
 
 .PHONY: crc-logs
 crc-logs:
-	oc -n mailhog-operator-system logs deployments/mailhog-controller-manager -c manager -f
+	oc -n mailhog-operator-system logs deployment/mailhog-operator-controller-manager -c manager -f
 
 .PHONY: install-cert-manager
 install-cert-manager: ## yolo
