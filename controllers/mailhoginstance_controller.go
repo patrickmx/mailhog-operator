@@ -159,6 +159,10 @@ func (r *MailhogInstanceReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 					logger.Error(err, "failed to annotate deployment with initial state")
 					return ctrl.Result{}, err
 				}
+				if err = ctrl.SetControllerReference(cr, deployment, r.Scheme); err != nil {
+					logger.Error(err, "cant set owner reference of new deployment")
+					return ctrl.Result{}, err
+				}
 				if err = r.Create(ctx, deployment); err != nil {
 					logger.Error(err, "failed creating a new deployment")
 					return ctrl.Result{}, err
@@ -204,6 +208,10 @@ func (r *MailhogInstanceReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 				// annotate current version
 				if err = patch.DefaultAnnotator.SetLastAppliedAnnotation(service); err != nil {
 					logger.Error(err, "failed to annotate service with initial state")
+					return ctrl.Result{}, err
+				}
+				if err = ctrl.SetControllerReference(cr, service, r.Scheme); err != nil {
+					logger.Error(err, "cant set owner reference of new service")
 					return ctrl.Result{}, err
 				}
 				if err = r.Create(ctx, service); err != nil {
@@ -253,6 +261,10 @@ func (r *MailhogInstanceReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 					// annotate current version
 					if err = patch.DefaultAnnotator.SetLastAppliedAnnotation(route); err != nil {
 						logger.Error(err, "failed to annotate route with initial state")
+						return ctrl.Result{}, err
+					}
+					if err = ctrl.SetControllerReference(cr, route, r.Scheme); err != nil {
+						logger.Error(err, "cant set owner reference of new route")
 						return ctrl.Result{}, err
 					}
 					if err = r.Create(ctx, route); err != nil {
@@ -404,8 +416,6 @@ func (r *MailhogInstanceReconciler) deploymentNew(instance *mailhogv1alpha1.Mail
 		}
 	}
 
-	ctrl.SetControllerReference(instance, deployment, r.Scheme)
-
 	return deployment
 }
 
@@ -554,8 +564,6 @@ func (r *MailhogInstanceReconciler) serviceNew(instance *mailhogv1alpha1.Mailhog
 		},
 	}
 
-	ctrl.SetControllerReference(instance, service, r.Scheme)
-
 	return service
 }
 
@@ -612,8 +620,6 @@ func (r *MailhogInstanceReconciler) routeNew(instance *mailhogv1alpha1.MailhogIn
 		},
 	}
 
-	ctrl.SetControllerReference(instance, route, r.Scheme)
-
 	return route
 }
 
@@ -657,11 +663,10 @@ func getPodNames(pods []corev1.Pod) []string {
 func (r *MailhogInstanceReconciler) findObjectsForPod(watchedPod client.Object) []reconcile.Request {
 	name := watchedPod.GetName()
 	ns := watchedPod.GetNamespace()
-	requests := make([]reconcile.Request, 1)
+	requests := make([]reconcile.Request, 0)
 
 	pod := &corev1.Pod{}
-	err := r.Get(context.TODO(), types.NamespacedName{Namespace: ns, Name: name}, pod)
-	if err != nil {
+	if err := r.Get(context.TODO(), types.NamespacedName{Namespace: ns, Name: name}, pod); err != nil {
 		return []reconcile.Request{}
 	}
 
