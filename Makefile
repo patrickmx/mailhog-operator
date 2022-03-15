@@ -141,7 +141,7 @@ build-push-image-to-crc: docker-build ## push the image from the local podman to
 
 .PHONY: crc-deploy
 crc-deploy: deploy build-push-image-to-crc
-	oc -n mailhog-operator-system patch deployment/mailhog-operator-controller-manager -p '{"spec":{"template":{"spec":{"containers":[{"name": "manager", "args":["-config","/operatorconfig/config.yml"]}]}}}}'
+	oc -n mailhog-operator-system patch deployment/mailhog-operator-controller-manager -p '{"spec":{"template":{"spec":{"containers":[{"name": "manager", "args":["-config","/operatorconfig/config.yml","--zap-devel=false"]}]}}}}'
 	oc -n mailhog-operator-system patch deployment/mailhog-operator-controller-manager -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"last-restart\":\"`date +'%s'`\"}}}}}"
 
 ##@ CRC Ad-Hoc Commands
