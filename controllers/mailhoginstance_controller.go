@@ -109,9 +109,10 @@ func init() {
 	metrics.Registry.MustRegister(deploymentCreate, deploymentUpdate, serviceCreate, serviceUpdate, routeCreate, routeUpdate, routeDelete, crUpdate)
 }
 
-//+kubebuilder:rbac:groups=mailhog.operators.patrick.mx,resources=mailhoginstances,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=mailhog.operators.patrick.mx,resources=mailhoginstances/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=mailhog.operators.patrick.mx,resources=mailhoginstances/finalizers,verbs=update
+//+kubebuilder:rbac:groups=mailhog.operators.patrick.mx,resources=mailhoginstances,verbs=*
+//+kubebuilder:rbac:groups=mailhog.operators.patrick.mx,resources=mailhoginstances/status,verbs=*
+//+kubebuilder:rbac:groups=mailhog.operators.patrick.mx,resources=mailhoginstances/scale,verbs=*
+//+kubebuilder:rbac:groups=mailhog.operators.patrick.mx,resources=mailhoginstances/finalizers,verbs=*
 //+kubebuilder:rbac:groups=apps,resources=deployments,verbs=*
 //+kubebuilder:rbac:groups="",resources=pods,verbs=get;list;watch
 //+kubebuilder:rbac:groups="",resources=services,verbs=*

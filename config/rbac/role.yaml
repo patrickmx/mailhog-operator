@@ -36,27 +36,25 @@ rules:
   resources:
   - mailhoginstances
   verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
+  - '*'
 - apiGroups:
   - mailhog.operators.patrick.mx
   resources:
   - mailhoginstances/finalizers
   verbs:
-  - update
+  - '*'
+- apiGroups:
+  - mailhog.operators.patrick.mx
+  resources:
+  - mailhoginstances/scale
+  verbs:
+  - '*'
 - apiGroups:
   - mailhog.operators.patrick.mx
   resources:
   - mailhoginstances/status
   verbs:
-  - get
-  - patch
-  - update
+  - '*'
 - apiGroups:
   - route.openshift.io
   resources:
