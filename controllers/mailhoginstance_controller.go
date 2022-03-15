@@ -55,6 +55,9 @@ const (
 )
 
 var (
+	// default ReconcileAfter value if used
+	requeueTime = time.Duration(30) * time.Second
+	// metrics counters
 	deploymentCreate = prometheus.NewCounter(
 		prometheus.CounterOpts{
 			Name: "mailhog_deployment_create",
@@ -170,7 +173,7 @@ func (r *MailhogInstanceReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 				}
 				logger.Info("created new deployment")
 				deploymentCreate.Inc()
-				return ctrl.Result{RequeueAfter: 10 * time.Second}, nil
+				return ctrl.Result{RequeueAfter: requeueTime}, nil
 			} else {
 				logger.Error(err, "failed to get deployment")
 				return ctrl.Result{}, err
@@ -221,7 +224,7 @@ func (r *MailhogInstanceReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 				}
 				logger.Info("created new service")
 				serviceCreate.Inc()
-				return ctrl.Result{RequeueAfter: 10 * time.Second}, nil
+				return ctrl.Result{RequeueAfter: requeueTime}, nil
 			} else {
 				logger.Error(err, "failed to get service")
 				return ctrl.Result{}, err
@@ -274,7 +277,7 @@ func (r *MailhogInstanceReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 					}
 					logger.Info("created new route")
 					routeCreate.Inc()
-					return ctrl.Result{RequeueAfter: 10 * time.Second}, nil
+					return ctrl.Result{RequeueAfter: requeueTime}, nil
 				} else {
 					logger.Error(err, "failed to get route")
 					return ctrl.Result{}, err
@@ -320,7 +323,7 @@ func (r *MailhogInstanceReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 				}
 				logger.Info("removed obsolete route")
 				routeDelete.Inc()
-				return ctrl.Result{RequeueAfter: 10 * time.Second}, nil
+				return ctrl.Result{RequeueAfter: requeueTime}, nil
 			}
 		}
 	}
@@ -357,7 +360,7 @@ func (r *MailhogInstanceReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 		}
 	}
 
-	return ctrl.Result{RequeueAfter: time.Minute}, nil
+	return ctrl.Result{RequeueAfter: requeueTime}, nil
 }
 
 func (r *MailhogInstanceReconciler) deploymentNew(instance *mailhogv1alpha1.MailhogInstance) (newDeployment *appsv1.Deployment) {
