@@ -344,6 +344,8 @@ func (r *MailhogInstanceReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 				return ctrl.Result{}, err
 			} else {
 				mailhogUpdate.Status.Pods = podNames
+				mailhogUpdate.Status.PodCount = len(podNames)
+				mailhogUpdate.Status.LabelSelector = textLabelsForCr(cr.Name)
 				if err := r.Status().Update(ctx, mailhogUpdate); err != nil {
 					logger.Error(err, "Failed to update cr status")
 					return ctrl.Result{}, err
@@ -650,6 +652,10 @@ func (r *MailhogInstanceReconciler) routeUpdates(instance *mailhogv1alpha1.Mailh
 
 func labelsForCr(name string) map[string]string {
 	return map[string]string{"app": "mailhog", "mailhog_cr": name}
+}
+
+func textLabelsForCr(name string) string {
+	return "app=mailhog,mailhog_cr=" + name
 }
 
 func getPodNames(pods []corev1.Pod) []string {

@@ -15,7 +15,17 @@ spec:
     singular: mailhoginstance
   scope: Namespaced
   versions:
-  - name: v1alpha1
+  - additionalPrinterColumns:
+    - jsonPath: .spec.image
+      name: Image
+      type: string
+    - jsonPath: .spec.replicas
+      name: Replicas
+      type: integer
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha1
     schema:
       openAPIV3Schema:
         description: MailhogInstance is the Schema for the mailhoginstances API
@@ -102,6 +112,14 @@ spec:
           status:
             description: MailhogInstanceStatus defines the observed state of MailhogInstance
             properties:
+              labelSelector:
+                description: LabelSelector is the labelselector which can be used
+                  by HPA
+                type: string
+              podCount:
+                description: PodCount is the amount of last seen pods belonging to
+                  this cr
+                type: integer
               pods:
                 description: Pods all the podnames owned by the cr
                 items:
@@ -112,6 +130,10 @@ spec:
     served: true
     storage: true
     subresources:
+      scale:
+        labelSelectorPath: .status.labelSelector
+        specReplicasPath: .spec.replicas
+        statusReplicasPath: .status.podCount
       status: {}
 status:
   acceptedNames:

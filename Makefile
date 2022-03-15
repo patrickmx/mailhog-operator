@@ -79,6 +79,12 @@ help: ## Display this help.
 manifests: controller-gen ## Generate WebhookConfiguration, ClusterRole and CustomResourceDefinition objects.
 	$(CONTROLLER_GEN) rbac:roleName=manager-role crd webhook paths="./..." output:crd:artifacts:config=config/crd/bases
 
+.PHONY: manifests-dryrun
+manifests-dryrun: manifests
+	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
+	mkdir -p dry-run
+	$(KUSTOMIZE) build config/default > dry-run/manifests.yaml
+
 .PHONY: generate
 generate: controller-gen ## Generate code containing DeepCopy, DeepCopyInto, and DeepCopyObject method implementations.
 	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt" paths="./..."
@@ -108,6 +114,13 @@ build: generate fmt vet ## Build manager binary.
 .PHONY: run
 run: manifests generate fmt vet ## Run a controller from your host.
 	go run ./main.go
+
+# Run with Delve for development purposes against the configured Kubernetes cluster in ~/.kube/config
+# Delve is a debugger for the Go programming language. More info: https://github.com/go-delve/delve
+.PHONY: debug
+debug: generate fmt vet manifests
+	go build -gcflags "all=-trimpath=$(shell go env GOPATH)" -o bin/manager main.go
+	dlv --listen=:2345 --headless=true --api-version=2 --accept-multiclient exec ./bin/manager
 
 .PHONY: docker-build
 docker-build: test ## Build docker image with the manager.

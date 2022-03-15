@@ -119,12 +119,24 @@ type MailhogInstanceStatus struct {
 	// Pods all the podnames owned by the cr
 	//
 	Pods []string `json:"pods,omitempty"`
+
+	// PodCount is the amount of last seen pods belonging to this cr
+	//
+	PodCount int `json:"podCount,omitempty"`
+
+	// LabelSelector is the labelselector which can be used by HPA
+	//
+	LabelSelector string `json:"labelSelector,omitempty"`
 }
 
-//+kubebuilder:object:root=true
-//+kubebuilder:subresource:status
-
 // MailhogInstance is the Schema for the mailhoginstances API
+//
+//+kubebuilder:object:root=true
+//+kubebuilder:printcolumn:name="Image",type=string,JSONPath=`.spec.image`
+//+kubebuilder:printcolumn:name="Replicas",type=integer,JSONPath=`.spec.replicas`
+//+kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
+//+kubebuilder:subresource:status
+//+kubebuilder:subresource:scale:specpath=.spec.replicas,statuspath=.status.podCount,selectorpath=.status.labelSelector
 type MailhogInstance struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
