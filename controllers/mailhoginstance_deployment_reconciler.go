@@ -11,6 +11,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 	"time"
 )
 
@@ -27,71 +28,103 @@ func (r *MailhogInstanceReconciler) ensureDeployment(ctx context.Context, cr *ma
 
 	// Deployment related checks
 	{
-		// check if a deployment exists, if not create it
-		existingDeployment := &appsv1.Deployment{}
-		if err = r.Get(ctx, name, existingDeployment); err != nil {
-			if errors.IsNotFound(err) {
-				// create new deployment
-				deployment := r.deploymentNew(cr)
-				// annotate current version
-				if err = patch.DefaultAnnotator.SetLastAppliedAnnotation(deployment); err != nil {
-					logger.Error(err, "failed to annotate deployment with initial state")
+
+		if cr.Spec.BackingResource == "deployment" {
+
+			// check if a deployment exists, if not create it
+			existingDeployment := &appsv1.Deployment{}
+			if err = r.Get(ctx, name, existingDeployment); err != nil {
+				if errors.IsNotFound(err) {
+					// create new deployment
+					deployment := r.deploymentNew(cr)
+					// annotate current version
+					if err = patch.DefaultAnnotator.SetLastAppliedAnnotation(deployment); err != nil {
+						logger.Error(err, "failed to annotate deployment with initial state")
+						return &DeploymentReturn{
+							Err: err,
+						}
+					}
+					if err = ctrl.SetControllerReference(cr, deployment, r.Scheme); err != nil {
+						logger.Error(err, "cant set owner reference of new deployment")
+						return &DeploymentReturn{
+							Err: err,
+						}
+					}
+					if err = r.Create(ctx, deployment); err != nil {
+						logger.Error(err, "failed creating a new deployment")
+						return &DeploymentReturn{
+							Err: err,
+						}
+					}
+					logger.Info("created new deployment")
+					deploymentCreate.Inc()
+					return &DeploymentReturn{
+						RequeueAfter: requeueTime,
+					}
+				} else {
+					logger.Error(err, "failed to get deployment")
 					return &DeploymentReturn{
 						Err: err,
 					}
-				}
-				if err = ctrl.SetControllerReference(cr, deployment, r.Scheme); err != nil {
-					logger.Error(err, "cant set owner reference of new deployment")
-					return &DeploymentReturn{
-						Err: err,
-					}
-				}
-				if err = r.Create(ctx, deployment); err != nil {
-					logger.Error(err, "failed creating a new deployment")
-					return &DeploymentReturn{
-						Err: err,
-					}
-				}
-				logger.Info("created new deployment")
-				deploymentCreate.Inc()
-				return &DeploymentReturn{
-					RequeueAfter: requeueTime,
 				}
 			} else {
-				logger.Error(err, "failed to get deployment")
-				return &DeploymentReturn{
-					Err: err,
+
+				// check if the existing deployment needs an update
+				updatedDeployment, updateNeeded, err := r.deploymentUpdates(cr, existingDeployment)
+				if err != nil {
+					logger.Error(err, "failure checking if a deployment update is needed")
+					return &DeploymentReturn{
+						Err: err,
+					}
+				} else if updateNeeded {
+					if err = ctrl.SetControllerReference(cr, updatedDeployment, r.Scheme); err != nil {
+						logger.Error(err, "cant set owner reference of updated deployment")
+						return &DeploymentReturn{
+							Err: err,
+						}
+					}
+					if err = r.Update(ctx, updatedDeployment); err != nil {
+						logger.Error(err, "cant update deployment")
+						return &DeploymentReturn{
+							Err: err,
+						}
+					}
+					logger.Info("updated existing deployment")
+					deploymentUpdate.Inc()
+					r.Recorder.Event(updatedDeployment, corev1.EventTypeNormal, "SuccessEvent", "deployment updated")
+					return &DeploymentReturn{
+						RequeueAfter: requeueTime,
+					}
 				}
 			}
 		} else {
 
-			// check if the existing deployment needs an update
-			updatedDeployment, updateNeeded, err := r.deploymentUpdates(cr, existingDeployment)
-			if err != nil {
-				logger.Error(err, "failure checking if a deployment update is needed")
-				return &DeploymentReturn{
-					Err: err,
-				}
-			} else if updateNeeded {
-				if err = ctrl.SetControllerReference(cr, updatedDeployment, r.Scheme); err != nil {
-					logger.Error(err, "cant set owner reference of updated deployment")
+			toBeDeletedDeployment := &appsv1.Deployment{}
+			if err = r.Get(ctx, name, toBeDeletedDeployment); err != nil {
+				if !errors.IsNotFound(err) {
+					logger.Error(err, "cant get to-be-removed deployment")
 					return &DeploymentReturn{
 						Err: err,
 					}
 				}
-				if err = r.Update(ctx, updatedDeployment); err != nil {
-					logger.Error(err, "cant update deployment")
+			} else {
+				graceSeconds := int64(100)
+				deleteOptions := client.DeleteOptions{
+					GracePeriodSeconds: &graceSeconds,
+				}
+				if err = r.Delete(ctx, toBeDeletedDeployment, &deleteOptions); err != nil {
+					logger.Error(err, "cant remove obsolete deployment")
 					return &DeploymentReturn{
 						Err: err,
 					}
 				}
-				logger.Info("updated existing deployment")
-				deploymentUpdate.Inc()
-				r.Recorder.Event(updatedDeployment, corev1.EventTypeNormal, "SuccessEvent", "deployment updated")
+				logger.Info("removed obsolete deployment")
+				deploymentConfigDelete.Inc()
 				return &DeploymentReturn{
 					RequeueAfter: requeueTime,
 				}
 			}
+
 		}
 	}
 

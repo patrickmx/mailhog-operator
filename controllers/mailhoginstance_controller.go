@@ -63,6 +63,8 @@ var (
 //+kubebuilder:rbac:groups="",resources=pods,verbs=get;list;watch
 //+kubebuilder:rbac:groups="",resources=services,verbs=*
 //+kubebuilder:rbac:groups=route.openshift.io,resources=routes,verbs=*
+//+kubebuilder:rbac:groups=apps.openshift.io,resources=deploymentconfigs,verbs=*
+//+kubebuilder:rbac:groups=apps.openshift.io,resources=deploymentconfigs/status,verbs=*
 //+kubebuilder:rbac:groups="",resources=events,verbs=create
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
@@ -96,6 +98,17 @@ func (r *MailhogInstanceReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 	// Deployment related checks
 	{
 		if wantsReturn := r.ensureDeployment(ctx, cr, logger); wantsReturn != nil {
+			if wantsReturn.Err != nil {
+				return ctrl.Result{}, err
+			} else {
+				return ctrl.Result{RequeueAfter: wantsReturn.RequeueAfter}, nil
+			}
+		}
+	}
+
+	// DeploymentConfig related checks
+	{
+		if wantsReturn := r.ensureDeploymentConfig(ctx, cr, logger); wantsReturn != nil {
 			if wantsReturn.Err != nil {
 				return ctrl.Result{}, err
 			} else {

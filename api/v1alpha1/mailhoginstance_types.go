@@ -52,6 +52,13 @@ type MailhogInstanceSpec struct {
 	//+kubebuilder:default:="none"
 	//+kubebuilder:validation:Enum=none;route
 	WebTrafficInlet string `json:"webTrafficInlet,omitempty"`
+
+	// BackingResource controls if a deploymentConfig or deployment is used
+	//
+	//+kubebuilder:validation:Required
+	//+kubebuilder:default:="deployment"
+	//+kubebuilder:validation:Enum=deployment;deploymentConfig
+	BackingResource string `json:"backingResource,omitempty"`
 }
 
 // MailhogInstanceSettingsSpec are settings related to the mailhog instance

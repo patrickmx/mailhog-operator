@@ -101,12 +101,15 @@ func (r *MailhogInstanceReconciler) ensureService(ctx context.Context, cr *mailh
 
 func (r *MailhogInstanceReconciler) serviceNew(instance *mailhogv1alpha1.MailhogInstance) (newService *corev1.Service) {
 	labels := labelsForCr(instance.Name)
+	if instance.Spec.BackingResource == "deploymentConfig" {
+		labels["deploymentconfig"] = instance.Name
+	}
 
 	service := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      instance.Name,
 			Namespace: instance.Namespace,
-			Labels:    labels,
+			Labels:    labelsForCr(instance.Name),
 		},
 		Spec: corev1.ServiceSpec{
 			Selector: labels,

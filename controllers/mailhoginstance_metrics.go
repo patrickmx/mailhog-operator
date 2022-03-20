@@ -18,6 +18,30 @@ var (
 			Help: "Number of times a reconcile updated a deployment",
 		},
 	)
+	deploymentDelete = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Name: "mailhog_deployment_delete",
+			Help: "Number of times a reconcile deleted a deployment",
+		},
+	)
+	deploymentConfigCreate = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Name: "mailhog_deploymentconfig_create",
+			Help: "Number of times a reconcile created a deploymentConfig",
+		},
+	)
+	deploymentConfigUpdate = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Name: "mailhog_deploymentconfig_update",
+			Help: "Number of times a reconcile updated a deploymentConfig",
+		},
+	)
+	deploymentConfigDelete = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Name: "mailhog_deploymentconfig_delete",
+			Help: "Number of times a reconcile deleted a deploymentConfig",
+		},
+	)
 	serviceCreate = prometheus.NewCounter(
 		prometheus.CounterOpts{
 			Name: "mailhog_service_create",
@@ -57,5 +81,9 @@ var (
 )
 
 func init() {
-	metrics.Registry.MustRegister(deploymentCreate, deploymentUpdate, serviceCreate, serviceUpdate, routeCreate, routeUpdate, routeDelete, crUpdate)
+	metrics.Registry.MustRegister(deploymentCreate, deploymentUpdate, deploymentDelete)
+	metrics.Registry.MustRegister(deploymentConfigCreate, deploymentConfigUpdate, deploymentConfigDelete)
+	metrics.Registry.MustRegister(serviceCreate, serviceUpdate)
+	metrics.Registry.MustRegister(routeCreate, routeUpdate, routeDelete)
+	metrics.Registry.MustRegister(crUpdate)
 }
