@@ -18,9 +18,12 @@ package controllers
 
 import (
 	"context"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 	"path/filepath"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"testing"
+	"time"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -108,4 +111,57 @@ var _ = AfterSuite(func() {
 	By("tearing down the test environment")
 	err := testEnv.Stop()
 	Expect(err).NotTo(HaveOccurred())
+})
+
+var _ = Describe("CronJob controller", func() {
+
+	const (
+		name  = "testee"
+		ns    = "default"
+		image = "test/test:previous"
+
+		timeout  = time.Second * 10
+		interval = time.Millisecond * 250
+	)
+
+	Context("When creating a mailhog cr", func() {
+		It("should create the resources", func() {
+			By("creating a new mailhog cr")
+			ctx := context.Background()
+			mailhog := &mailhogv1alpha1.MailhogInstance{
+				TypeMeta: metav1.TypeMeta{
+					APIVersion: "mailhog.operators.patrick.mx/v1alpha1",
+					Kind:       "MailhogInstance",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      name,
+					Namespace: ns,
+				},
+				Spec: mailhogv1alpha1.MailhogInstanceSpec{
+					Replicas: 2,
+					Image:    image,
+					Settings: mailhogv1alpha1.MailhogInstanceSettingsSpec{
+						Hostname: "mailhogci",
+						Storage:  "memory",
+					},
+					WebTrafficInlet: "none",
+					BackingResource: "deployment",
+				},
+			}
+			Expect(k8sClient.Create(ctx, mailhog)).Should(Succeed())
+
+			lookup := types.NamespacedName{Name: name, Namespace: ns}
+			createdInstance := &mailhogv1alpha1.MailhogInstance{}
+			Eventually(func() bool {
+				err := k8sClient.Get(ctx, lookup, createdInstance)
+				if err != nil {
+					return false
+				}
+				return true
+			}, timeout, interval).Should(BeTrue())
+			Expect(createdInstance.Spec.Image).Should(Equal(image))
+
+		})
+	})
+
 })
