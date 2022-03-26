@@ -107,8 +107,8 @@ test: manifests generate fmt vet envtest ## Run tests.
 	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) -p path)" go test ./... -coverprofile cover.out
 
 .PHONY: lint
-lint: manifests generate fmt vet sec
-	golangci-lint run -E asciicheck,exportloopref,gocritic,gocyclo,godox,gosec,makezero,predeclared,unparam
+lint: manifests generate fmt vet sec golangci-lint
+	$(GOLANGCILINT) run
 
 ##@ Build
 
@@ -209,6 +209,11 @@ GOSEC = $(shell pwd)/bin/gosec
 .PHONY: gosec
 gosec: ## Download gosec locally if necessary. https://github.com/securego/gosec
 	$(call go-install-tool,$(GOSEC),github.com/securego/gosec/v2/cmd/gosec@latest)
+
+GOLANGCILINT = $(shell pwd)/bin/golangci-lint
+.PHONY: golangci-lint
+golangci-lint: ## Download golangci-lint locally if necessary. https://golangci-lint.run/
+	$(call go-install-tool,$(GOLANGCILINT),github.com/golangci/golangci-lint/cmd/golangci-lint@v1.45.2)
 
 
 # go-get-tool will 'go get' any package $2 and install it to $1.
