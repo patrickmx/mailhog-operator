@@ -94,8 +94,12 @@ fmt: gofumpt ## Run go fmt against code.
 	$(GOFUMPT) -l -w .
 
 .PHONY: vet
-vet: ## Run go vet against code.
+vet: tidy ## Run go vet against code.
 	go vet ./...
+
+.PHONY: tidy
+tidy: ## Run go vet against code.
+	go mod tidy
 
 .PHONY: sec
 sec: gosec ## Run gosec
