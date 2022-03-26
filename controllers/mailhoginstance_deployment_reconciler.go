@@ -29,7 +29,7 @@ func (r *MailhogInstanceReconciler) ensureDeployment(ctx context.Context, cr *ma
 
 	// Deployment related checks
 	{
-		if cr.Spec.BackingResource == "deployment" {
+		if cr.Spec.BackingResource == mailhogv1alpha1.DeploymentBacking {
 
 			// check if a deployment exists, if not create it
 			existingDeployment := &appsv1.Deployment{}

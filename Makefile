@@ -103,7 +103,7 @@ sec: gosec ## Run gosec
 
 
 .PHONY: test
-test: manifests generate fmt vet envtest ## Run tests.
+test: manifests generate fmt vet envtest lint ## Run tests.
 	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) -p path)" go test ./... -coverprofile cover.out
 
 .PHONY: lint
@@ -117,7 +117,7 @@ lint-strict: manifests generate fmt vet sec golangci-lint
 ##@ Build
 
 .PHONY: build
-build: generate fmt vet ## Build manager binary.
+build: generate fmt vet lint ## Build manager binary.
 	go build -o bin/manager main.go
 
 .PHONY: run

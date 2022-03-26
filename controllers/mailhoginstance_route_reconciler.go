@@ -30,7 +30,7 @@ func (r *MailhogInstanceReconciler) ensureRoute(ctx context.Context, cr *mailhog
 
 	// Route related checks
 	{
-		if cr.Spec.WebTrafficInlet == "route" {
+		if cr.Spec.WebTrafficInlet == mailhogv1alpha1.RouteTrafficInlet {
 
 			// check if a route exists, if not create it
 			existingRoute := &routev1.Route{}

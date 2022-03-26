@@ -31,7 +31,7 @@ func (r *MailhogInstanceReconciler) ensureDeploymentConfig(ctx context.Context, 
 
 	// DeploymentConfig check
 	{
-		if cr.Spec.BackingResource == "deploymentConfig" {
+		if cr.Spec.BackingResource == mailhogv1alpha1.DeploymentConfigBacking {
 
 			// check if a DC already exists, if not create it
 			existingDeploymentConfig := &ocappsv1.DeploymentConfig{}
