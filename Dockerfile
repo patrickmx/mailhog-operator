@@ -9,7 +9,9 @@ COPY go.sum go.sum
 # and so that source changes don't invalidate our downloaded layer
 RUN go mod download
 
+# All files are added here so that go embeds the correct vcs head status
 COPY .gitignore ./.gitignore
+COPY .github/ ./.github/
 COPY . .
 COPY .git/ ./.git/
 
