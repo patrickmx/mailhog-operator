@@ -9,13 +9,9 @@ COPY go.sum go.sum
 # and so that source changes don't invalidate our downloaded layer
 RUN go mod download
 
-# Copy the go source
-#COPY main.go main.go
-#COPY api/ api/
-#COPY controllers/ controllers/
+COPY .gitignore ./.gitignore
 COPY . .
 COPY .git/ ./.git/
-COPY .gitignore ./.gitignore
 
 # Build
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -tags . -o manager
@@ -26,6 +22,8 @@ FROM scratch
 WORKDIR /
 COPY --from=builder /workspace/manager .
 COPY --from=builder /workspace/manager-version .
+COPY --from=builder /workspace/config/codeready/config.yml /operatorconfig/config.yml
 USER 65532:65532
 EXPOSE 8080
 ENTRYPOINT ["/manager"]
+CMD ["-config", "/operatorconfig/config.yml"]
