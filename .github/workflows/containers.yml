@@ -1,6 +1,7 @@
 name: containers
 
-on: [push, tags]
+on:
+  push
 
 jobs:
   build:
