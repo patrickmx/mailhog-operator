@@ -105,7 +105,7 @@ spec:
                         description: Db MongoDB database name for message storage
                         type: string
                       uri:
-                        description: Uri MongoDB host and port
+                        description: URI MongoDB host and port
                         type: string
                     type: object
                 type: object

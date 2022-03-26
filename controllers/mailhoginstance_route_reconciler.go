@@ -2,6 +2,8 @@ package controllers
 
 import (
 	"context"
+	"time"
+
 	"github.com/banzaicloud/k8s-objectmatcher/patch"
 	"github.com/go-logr/logr"
 	routev1 "github.com/openshift/api/route/v1"
@@ -13,7 +15,6 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"time"
 )
 
 type (
@@ -170,7 +171,6 @@ func (r *MailhogInstanceReconciler) routeUpdates(instance *mailhogv1alpha1.Mailh
 	}
 
 	patchResult, err := patch.DefaultPatchMaker.Calculate(oldRoute, newRoute, opts...)
-
 	if err != nil {
 		return oldRoute, false, err
 	}
@@ -184,5 +184,4 @@ func (r *MailhogInstanceReconciler) routeUpdates(instance *mailhogv1alpha1.Mailh
 	}
 
 	return oldRoute, false, nil
-
 }

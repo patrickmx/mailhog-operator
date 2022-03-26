@@ -8,73 +8,73 @@ import (
 var (
 	deploymentCreate = prometheus.NewCounter(
 		prometheus.CounterOpts{
-			Name: "mailhog_deployment_create",
+			Name: "mailhog_deployment_create_total",
 			Help: "Number of times a reconcile created a deployment",
 		},
 	)
 	deploymentUpdate = prometheus.NewCounter(
 		prometheus.CounterOpts{
-			Name: "mailhog_deployment_update",
+			Name: "mailhog_deployment_update_total",
 			Help: "Number of times a reconcile updated a deployment",
 		},
 	)
 	deploymentDelete = prometheus.NewCounter(
 		prometheus.CounterOpts{
-			Name: "mailhog_deployment_delete",
+			Name: "mailhog_deployment_delete_total",
 			Help: "Number of times a reconcile deleted a deployment",
 		},
 	)
 	deploymentConfigCreate = prometheus.NewCounter(
 		prometheus.CounterOpts{
-			Name: "mailhog_deploymentconfig_create",
+			Name: "mailhog_deploymentconfig_create_total",
 			Help: "Number of times a reconcile created a deploymentConfig",
 		},
 	)
 	deploymentConfigUpdate = prometheus.NewCounter(
 		prometheus.CounterOpts{
-			Name: "mailhog_deploymentconfig_update",
+			Name: "mailhog_deploymentconfig_update_total",
 			Help: "Number of times a reconcile updated a deploymentConfig",
 		},
 	)
 	deploymentConfigDelete = prometheus.NewCounter(
 		prometheus.CounterOpts{
-			Name: "mailhog_deploymentconfig_delete",
+			Name: "mailhog_deploymentconfig_delete_total",
 			Help: "Number of times a reconcile deleted a deploymentConfig",
 		},
 	)
 	serviceCreate = prometheus.NewCounter(
 		prometheus.CounterOpts{
-			Name: "mailhog_service_create",
+			Name: "mailhog_service_create_total",
 			Help: "Number of times a reconcile created a service",
 		},
 	)
 	serviceUpdate = prometheus.NewCounter(
 		prometheus.CounterOpts{
-			Name: "mailhog_service_update",
+			Name: "mailhog_service_update_total",
 			Help: "Number of times a reconcile updated a service",
 		},
 	)
 	routeCreate = prometheus.NewCounter(
 		prometheus.CounterOpts{
-			Name: "mailhog_route_create",
+			Name: "mailhog_route_create_total",
 			Help: "Number of times a reconcile created a route",
 		},
 	)
 	routeUpdate = prometheus.NewCounter(
 		prometheus.CounterOpts{
-			Name: "mailhog_route_update",
+			Name: "mailhog_route_update_total",
 			Help: "Number of times a reconcile updated a route",
 		},
 	)
 	routeDelete = prometheus.NewCounter(
 		prometheus.CounterOpts{
-			Name: "mailhog_route_delete",
+			Name: "mailhog_route_delete_total",
 			Help: "Number of times a reconcile deleted a route",
 		},
 	)
 	crUpdate = prometheus.NewCounter(
 		prometheus.CounterOpts{
-			Name: "mailhog_cr_update",
+			Name: "mailhog_cr_update_total",
 			Help: "Number of times a reconcile updated a cr",
 		},
 	)

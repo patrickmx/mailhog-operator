@@ -14,11 +14,9 @@ linters:
     - bidichk
     - bodyclose
     - contextcheck
-    - cyclop
     - deadcode
     - depguard
     - dogsled
-    - dupl
     - durationcheck
     - errcheck
     - errname
@@ -27,17 +25,13 @@ linters:
     - exportloopref
     - forbidigo
     - forcetypeassert
-    - funlen
-    - gocognit
     - goconst
     - gocritic
     - gocyclo
     - godox
     - goerr113
-    - gofmt
     - gofumpt
     - goheader
-    - goimports
     - gomoddirectives
     - gomodguard
     - goprintffuncname
@@ -48,7 +42,6 @@ linters:
     - importas
     - ineffassign
     - ireturn
-    - lll
     - makezero
     - misspell
     - nilerr
@@ -58,7 +51,6 @@ linters:
     - prealloc
     - predeclared
     - promlinter
-    - revive
     - rowserrcheck
     - sqlclosecheck
     - staticcheck
@@ -74,16 +66,20 @@ linters:
     - unused
     - varcheck
     - wastedassign
+output:
+  print-issued-lines: false
+  sort-results: true
 severity:
   default-severity: error
   rules:
     - linters:
         - dupl
         - gofumpt
-        - goimports
         - funlen
         - gochecknoinits
         - goconst
+        - gocognit
+        - cyclop
         - lll
         - promlinter
         - revive

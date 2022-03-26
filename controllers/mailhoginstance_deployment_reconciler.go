@@ -2,6 +2,8 @@ package controllers
 
 import (
 	"context"
+	"time"
+
 	"github.com/banzaicloud/k8s-objectmatcher/patch"
 	"github.com/go-logr/logr"
 	mailhogv1alpha1 "goimports.patrick.mx/mailhog-operator/api/v1alpha1"
@@ -12,7 +14,6 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"time"
 )
 
 type (
@@ -28,7 +29,6 @@ func (r *MailhogInstanceReconciler) ensureDeployment(ctx context.Context, cr *ma
 
 	// Deployment related checks
 	{
-
 		if cr.Spec.BackingResource == "deployment" {
 
 			// check if a deployment exists, if not create it
@@ -157,7 +157,7 @@ func (r *MailhogInstanceReconciler) deploymentNew(instance *mailhogv1alpha1.Mail
 				},
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{
-						corev1.Container{
+						{
 							Name:  "mailhog",
 							Image: image,
 							Ports: ports,
@@ -170,19 +170,22 @@ func (r *MailhogInstanceReconciler) deploymentNew(instance *mailhogv1alpha1.Mail
 		},
 	}
 
-	if instance.Spec.Settings.Storage == "maildir" {
+	if instance.Spec.Settings.Storage == mailhogv1alpha1.MaildirStorage {
+		const (
+			volumeName = "maildir-storage"
+		)
 		if instance.Spec.Settings.StorageMaildir.Path != "" {
 			podVolumes := make([]corev1.Volume, 0)
 			containerVolMounts := make([]corev1.VolumeMount, 0)
 
 			podVolumes = append(podVolumes, corev1.Volume{
-				Name: "maildir-storage",
+				Name: volumeName,
 				VolumeSource: corev1.VolumeSource{
 					EmptyDir: &corev1.EmptyDirVolumeSource{},
 				},
 			})
 			containerVolMounts = append(containerVolMounts, corev1.VolumeMount{
-				Name:      "maildir-storage",
+				Name:      volumeName,
 				MountPath: instance.Spec.Settings.StorageMaildir.Path,
 			})
 
@@ -202,7 +205,6 @@ func (r *MailhogInstanceReconciler) deploymentUpdates(instance *mailhogv1alpha1.
 	}
 
 	patchResult, err := patch.DefaultPatchMaker.Calculate(oldDeployment, newDeployment, opts...)
-
 	if err != nil {
 		return oldDeployment, false, err
 	}
@@ -216,5 +218,4 @@ func (r *MailhogInstanceReconciler) deploymentUpdates(instance *mailhogv1alpha1.
 	}
 
 	return oldDeployment, false, nil
-
 }

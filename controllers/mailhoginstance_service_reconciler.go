@@ -2,6 +2,8 @@ package controllers
 
 import (
 	"context"
+	"time"
+
 	"github.com/banzaicloud/k8s-objectmatcher/patch"
 	"github.com/go-logr/logr"
 	mailhogv1alpha1 "goimports.patrick.mx/mailhog-operator/api/v1alpha1"
@@ -11,7 +13,6 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	ctrl "sigs.k8s.io/controller-runtime"
-	"time"
 )
 
 type (
@@ -114,7 +115,7 @@ func (r *MailhogInstanceReconciler) serviceNew(instance *mailhogv1alpha1.Mailhog
 		Spec: corev1.ServiceSpec{
 			Selector: labels,
 			Ports: []corev1.ServicePort{
-				corev1.ServicePort{
+				{
 					Port: 1025,
 					Name: "smtp",
 					TargetPort: intstr.IntOrString{
@@ -122,7 +123,7 @@ func (r *MailhogInstanceReconciler) serviceNew(instance *mailhogv1alpha1.Mailhog
 						IntVal: 1025,
 					},
 				},
-				corev1.ServicePort{
+				{
 					Port: 8025,
 					Name: "http",
 					TargetPort: intstr.IntOrString{
@@ -139,7 +140,6 @@ func (r *MailhogInstanceReconciler) serviceNew(instance *mailhogv1alpha1.Mailhog
 }
 
 func (r *MailhogInstanceReconciler) serviceUpdates(instance *mailhogv1alpha1.MailhogInstance, oldService *corev1.Service) (updatedService *corev1.Service, updateNeeded bool, err error) {
-
 	newService := r.serviceNew(instance)
 
 	opts := []patch.CalculateOption{
@@ -147,7 +147,6 @@ func (r *MailhogInstanceReconciler) serviceUpdates(instance *mailhogv1alpha1.Mai
 	}
 
 	patchResult, err := patch.DefaultPatchMaker.Calculate(oldService, newService, opts...)
-
 	if err != nil {
 		return oldService, false, err
 	}
@@ -161,5 +160,4 @@ func (r *MailhogInstanceReconciler) serviceUpdates(instance *mailhogv1alpha1.Mai
 	}
 
 	return oldService, false, nil
-
 }

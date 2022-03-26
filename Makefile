@@ -90,8 +90,8 @@ generate: controller-gen ## Generate code containing DeepCopy, DeepCopyInto, and
 	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt" paths="./..."
 
 .PHONY: fmt
-fmt: ## Run go fmt against code.
-	go fmt ./...
+fmt: gofumpt ## Run go fmt against code.
+	$(GOFUMPT) -l -w .
 
 .PHONY: vet
 vet: ## Run go vet against code.
@@ -109,6 +109,10 @@ test: manifests generate fmt vet envtest ## Run tests.
 .PHONY: lint
 lint: manifests generate fmt vet sec golangci-lint
 	$(GOLANGCILINT) run
+
+.PHONY: lint-strict
+lint-strict: manifests generate fmt vet sec golangci-lint
+	$(GOLANGCILINT) run -E funlen,revive,dupl,lll,gocognit,cyclop
 
 ##@ Build
 
@@ -215,6 +219,10 @@ GOLANGCILINT = $(shell pwd)/bin/golangci-lint
 golangci-lint: ## Download golangci-lint locally if necessary. https://golangci-lint.run/
 	$(call go-install-tool,$(GOLANGCILINT),github.com/golangci/golangci-lint/cmd/golangci-lint@v1.45.2)
 
+GOFUMPT = $(shell pwd)/bin/gofumpt
+.PHONY: gofumpt
+gofumpt: ## Download golangci-lint locally if necessary. https://golangci-lint.run/
+	$(call go-install-tool,$(GOFUMPT),mvdan.cc/gofumpt@latest)
 
 # go-get-tool will 'go get' any package $2 and install it to $1.
 PROJECT_DIR := $(shell dirname $(abspath $(lastword $(MAKEFILE_LIST))))

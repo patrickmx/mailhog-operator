@@ -2,6 +2,9 @@ package controllers
 
 import (
 	"context"
+	"testing"
+	"time"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	ocappsv1 "github.com/openshift/api/apps/v1"
@@ -13,18 +16,14 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
-	"k8s.io/client-go/rest"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
-	"testing"
-	"time"
 )
 
 var (
-	cfg       *rest.Config
 	k8sClient client.Client
 	ctx       context.Context
 	cancel    context.CancelFunc
@@ -55,7 +54,6 @@ var _ = BeforeSuite(func() {
 
 	err = ocappsv1.AddToScheme(scheme)
 	Expect(err).NotTo(HaveOccurred())
-
 })
 
 var _ = AfterSuite(func() {
@@ -63,7 +61,6 @@ var _ = AfterSuite(func() {
 })
 
 var _ = Describe("CronJob controller", func() {
-
 	const (
 		name  = "testee"
 		ns    = "default"
@@ -103,7 +100,6 @@ var _ = Describe("CronJob controller", func() {
 				return true
 			}, timeout, interval).Should(BeTrue())
 			Expect(createdDeployment.Spec.Template.Spec.Containers[0].Image).Should(Equal(image))
-
 		})
 	})
 
@@ -187,7 +183,6 @@ var _ = Describe("CronJob controller", func() {
 			Expect(createdObject.Spec.To.Name).Should(Equal(name))
 		})
 	})
-
 })
 
 func mailhogTestingCr(nsname types.NamespacedName, image string, inlet string, deployment string) *mailhogv1alpha1.MailhogInstance {

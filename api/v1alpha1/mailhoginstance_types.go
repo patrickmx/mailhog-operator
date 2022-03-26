@@ -22,9 +22,18 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+type (
+	StorageSetting string
+)
+
+const (
+	MemoryStorage  StorageSetting = "memory"
+	MaildirStorage StorageSetting = "maildir"
+	MongoDBStorage StorageSetting = "mongodb"
+)
+
 // MailhogInstanceSpec defines the desired state of MailhogInstance
 type MailhogInstanceSpec struct {
-
 	// Image is the mailhog image to be used
 	//
 	//+kubebuilder:validation:Required
@@ -63,7 +72,6 @@ type MailhogInstanceSpec struct {
 
 // MailhogInstanceSettingsSpec are settings related to the mailhog instance
 type MailhogInstanceSettingsSpec struct {
-
 	// Hostname is the hostname for smtp ehlo/helo
 	//
 	//+kubebuilder:validation:Optional
@@ -79,7 +87,7 @@ type MailhogInstanceSettingsSpec struct {
 	//+kubebuilder:validation:Enum=memory;maildir;mongodb
 	//+kubebuilder:validation:Optional
 	//+kubebuilder:default:="memory"
-	Storage string `json:"storage,omitempty"`
+	Storage StorageSetting `json:"storage,omitempty"`
 
 	// StorageMongoDb are only used when storage is set to mongodb
 	//
@@ -94,7 +102,6 @@ type MailhogInstanceSettingsSpec struct {
 
 // MailhogStorageMaildirSpec are settings applicable if the storage backend is maildir
 type MailhogStorageMaildirSpec struct {
-
 	// Path Maildir path (for maildir storage backend)
 	//
 	//+kubebuilder:validation:Optional
@@ -103,11 +110,10 @@ type MailhogStorageMaildirSpec struct {
 
 // MailhogStorageMongoDbSpec are settings applicable if the storage backend is mongodb
 type MailhogStorageMongoDbSpec struct {
-
-	// Uri MongoDB host and port
+	// URI MongoDB host and port
 	//
 	//+kubebuilder:validation:Optional
-	Uri string `json:"uri,omitempty"`
+	URI string `json:"uri,omitempty"`
 
 	// Db MongoDB database name for message storage
 	//
@@ -122,7 +128,6 @@ type MailhogStorageMongoDbSpec struct {
 
 // MailhogInstanceStatus defines the observed state of MailhogInstance
 type MailhogInstanceStatus struct {
-
 	// Pods all the podnames owned by the cr
 	//
 	Pods []string `json:"pods,omitempty"`

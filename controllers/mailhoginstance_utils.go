@@ -7,12 +7,12 @@ import (
 
 func portsForCr() (p []corev1.ContainerPort) {
 	return []corev1.ContainerPort{
-		corev1.ContainerPort{
+		{
 			Name:          "http",
 			ContainerPort: 8025,
 			Protocol:      "TCP",
 		},
-		corev1.ContainerPort{
+		{
 			Name:          "smtp",
 			ContainerPort: 1025,
 			Protocol:      "TCP",
@@ -39,15 +39,15 @@ func envForCr(crs *mailhogv1alpha1.MailhogInstance) (e []corev1.EnvVar) {
 	if crs.Spec.Settings.Storage != "" {
 		e = append(e, corev1.EnvVar{
 			Name:  "MH_STORAGE",
-			Value: crs.Spec.Settings.Storage,
+			Value: string(crs.Spec.Settings.Storage),
 		})
 	}
 
-	if crs.Spec.Settings.Storage == "mongodb" {
-		if crs.Spec.Settings.StorageMongoDb.Uri != "" {
+	if crs.Spec.Settings.Storage == mailhogv1alpha1.MongoDBStorage {
+		if crs.Spec.Settings.StorageMongoDb.URI != "" {
 			e = append(e, corev1.EnvVar{
 				Name:  "MH_MONGO_URI",
-				Value: crs.Spec.Settings.StorageMongoDb.Uri,
+				Value: crs.Spec.Settings.StorageMongoDb.URI,
 			})
 		}
 
@@ -66,7 +66,7 @@ func envForCr(crs *mailhogv1alpha1.MailhogInstance) (e []corev1.EnvVar) {
 		}
 	}
 
-	if crs.Spec.Settings.Storage == "maildir" {
+	if crs.Spec.Settings.Storage == mailhogv1alpha1.MaildirStorage {
 		if crs.Spec.Settings.StorageMaildir.Path != "" {
 			e = append(e, corev1.EnvVar{
 				Name:  "MH_MAILDIR_PATH",
@@ -101,7 +101,7 @@ func textLabelsForCr(name string) string {
 }
 
 func getPodNames(pods []corev1.Pod) []string {
-	var podNames []string
+	podNames := make([]string, 0)
 	for _, pod := range pods {
 		podNames = append(podNames, pod.Name)
 	}
