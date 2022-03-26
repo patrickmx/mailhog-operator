@@ -16,14 +16,16 @@ COPY . .
 COPY .git/ ./.git/
 
 # Build
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -tags . -o manager
-RUN go version -m ./manager > manager-version
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -tags . -o manager && \
+    go version -m ./manager > manager-version && \
+    tail manager-version && \
+    sha256sum manager > manager.sha256 && \
+    cat manager.sha256
 
 
 FROM scratch
 WORKDIR /
-COPY --from=builder /workspace/manager .
-COPY --from=builder /workspace/manager-version .
+COPY --from=builder /workspace/manager /workspace/manager.sha256 /workspace/manager-version /
 COPY --from=builder /workspace/config/codeready/config.yml /operatorconfig/config.yml
 USER 65532:65532
 EXPOSE 8080
