@@ -1,5 +1,5 @@
 # Build the manager binary
-FROM docker.io/library/golang:1.17 as builder
+FROM docker.io/library/golang:1.18 as builder
 
 WORKDIR /workspace
 # Copy the Go Modules manifests
@@ -10,17 +10,22 @@ COPY go.sum go.sum
 RUN go mod download
 
 # Copy the go source
-COPY main.go main.go
-COPY api/ api/
-COPY controllers/ controllers/
+#COPY main.go main.go
+#COPY api/ api/
+#COPY controllers/ controllers/
+COPY . .
+COPY .git/ ./.git/
+COPY .gitignore ./.gitignore
 
 # Build
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -o manager main.go
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -tags . -o manager
+RUN go version -m ./manager > manager-version
 
 
 FROM scratch
 WORKDIR /
 COPY --from=builder /workspace/manager .
+COPY --from=builder /workspace/manager-version .
 USER 65532:65532
 EXPOSE 8080
 ENTRYPOINT ["/manager"]

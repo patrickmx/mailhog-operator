@@ -121,7 +121,7 @@ lint-strict: manifests generate fmt vet sec golangci-lint
 
 .PHONY: build
 build: generate fmt vet lint ## Build manager binary.
-	go build -o bin/manager main.go
+	go build -tags . -o bin/manager
 
 .PHONY: run
 run: manifests generate fmt vet ## Run a controller from your host.
