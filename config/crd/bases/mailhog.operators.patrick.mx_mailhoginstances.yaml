@@ -73,9 +73,12 @@ spec:
                   corsOrigin:
                     description: CorsOrigin if set, this value is added into the Access-Control-Allow-Origin
                       header returned by the API
+                    nullable: true
                     type: string
                   hostname:
                     description: Hostname is the hostname for smtp ehlo/helo
+                    format: hostname
+                    nullable: true
                     type: string
                   storage:
                     default: memory
@@ -88,24 +91,39 @@ spec:
                   storageMaildir:
                     description: StorageMaildir is only used when storage is set to
                       maildir
+                    nullable: true
                     properties:
                       path:
                         description: Path Maildir path (for maildir storage backend)
+                        minLength: 3
+                        nullable: true
+                        pattern: ^(/)([\S]+(/)?)+$
                         type: string
                     type: object
                   storageMongoDb:
                     description: StorageMongoDb are only used when storage is set
                       to mongodb
+                    nullable: true
                     properties:
                       collection:
                         description: Collection MongoDB collection name for message
                           storage
+                        minLength: 2
+                        nullable: true
+                        pattern: ^[\w-_]+$
                         type: string
                       db:
                         description: Db MongoDB database name for message storage
+                        minLength: 2
+                        nullable: true
+                        pattern: ^[\w-_]+$
                         type: string
                       uri:
                         description: URI MongoDB host and port
+                        format: uri
+                        minLength: 3
+                        nullable: true
+                        pattern: ^(mongodb:(?:\/{2})?)((\w+?):(\w+?)@|:?@?)(\w+?):(\d+).*$
                         type: string
                     type: object
                 type: object
@@ -118,20 +136,24 @@ spec:
                 type: string
             type: object
           status:
-            description: MailhogInstanceStatus defines the observed state of MailhogInstance
+            description: Status last observed status
+            nullable: true
             properties:
               labelSelector:
                 description: LabelSelector is the labelselector which can be used
                   by HPA
+                nullable: true
                 type: string
               podCount:
                 description: PodCount is the amount of last seen pods belonging to
                   this cr
+                nullable: true
                 type: integer
               pods:
                 description: Pods all the podnames owned by the cr
                 items:
                   type: string
+                nullable: true
                 type: array
             type: object
         type: object

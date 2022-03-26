@@ -83,11 +83,16 @@ type MailhogInstanceSettingsSpec struct {
 	// Hostname is the hostname for smtp ehlo/helo
 	//
 	//+kubebuilder:validation:Optional
+	//+kubebuilder:validation:Format=hostname
+	//+optional
+	//+nullable
 	Hostname string `json:"hostname,omitempty"`
 
 	// CorsOrigin if set, this value is added into the Access-Control-Allow-Origin header returned by the API
 	//
 	//+kubebuilder:validation:Optional
+	//+optional
+	//+nullable
 	CorsOrigin string `json:"corsOrigin,omitempty"`
 
 	// Storage which storage backend to use, eg memory
@@ -100,11 +105,15 @@ type MailhogInstanceSettingsSpec struct {
 	// StorageMongoDb are only used when storage is set to mongodb
 	//
 	//+kubebuilder:validation:Optional
+	//+optional
+	//+nullable
 	StorageMongoDb MailhogStorageMongoDbSpec `json:"storageMongoDb,omitempty"`
 
 	// StorageMaildir is only used when storage is set to maildir
 	//
 	//+kubebuilder:validation:Optional
+	//+optional
+	//+nullable
 	StorageMaildir MailhogStorageMaildirSpec `json:"storageMaildir,omitempty"`
 }
 
@@ -113,6 +122,10 @@ type MailhogStorageMaildirSpec struct {
 	// Path Maildir path (for maildir storage backend)
 	//
 	//+kubebuilder:validation:Optional
+	//+kubebuilder:validation:MinLength:=3
+	//+kubebuilder:validation:Pattern:=`^(/)([\S]+(/)?)+$`
+	//+optional
+	//+nullable
 	Path string `json:"path,omitempty"`
 }
 
@@ -121,16 +134,29 @@ type MailhogStorageMongoDbSpec struct {
 	// URI MongoDB host and port
 	//
 	//+kubebuilder:validation:Optional
+	//+kubebuilder:validation:MinLength:=3
+	//+kubebuilder:validation:Pattern:=`^(mongodb:(?:\/{2})?)((\w+?):(\w+?)@|:?@?)(\w+?):(\d+).*$`
+	//+kubebuilder:validation:Format=uri
+	//+optional
+	//+nullable
 	URI string `json:"uri,omitempty"`
 
 	// Db MongoDB database name for message storage
 	//
 	//+kubebuilder:validation:Optional
+	//+kubebuilder:validation:MinLength:=2
+	//+kubebuilder:validation:Pattern:=`^[\w-_]+$`
+	//+optional
+	//+nullable
 	Db string `json:"db,omitempty"`
 
 	// Collection MongoDB collection name for message storage
 	//
 	//+kubebuilder:validation:Optional
+	//+kubebuilder:validation:MinLength:=2
+	//+kubebuilder:validation:Pattern:=`^[\w-_]+$`
+	//+optional
+	//+nullable
 	Collection string `json:"collection,omitempty"`
 }
 
@@ -138,14 +164,23 @@ type MailhogStorageMongoDbSpec struct {
 type MailhogInstanceStatus struct {
 	// Pods all the podnames owned by the cr
 	//
+	//+kubebuilder:validation:Optional
+	//+optional
+	//+nullable
 	Pods []string `json:"pods,omitempty"`
 
 	// PodCount is the amount of last seen pods belonging to this cr
 	//
+	//+kubebuilder:validation:Optional
+	//+optional
+	//+nullable
 	PodCount int `json:"podCount,omitempty"`
 
 	// LabelSelector is the labelselector which can be used by HPA
 	//
+	//+kubebuilder:validation:Optional
+	//+optional
+	//+nullable
 	LabelSelector string `json:"labelSelector,omitempty"`
 }
 
@@ -161,7 +196,13 @@ type MailhogInstance struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   MailhogInstanceSpec   `json:"spec,omitempty"`
+	Spec MailhogInstanceSpec `json:"spec,omitempty"`
+
+	// Status last observed status
+	//
+	//+kubebuilder:validation:Optional
+	//+optional
+	//+nullable
 	Status MailhogInstanceStatus `json:"status,omitempty"`
 }
 
