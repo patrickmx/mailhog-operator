@@ -25,7 +25,7 @@ jobs:
         uses: redhat-actions/buildah-build@v2
         with:
           image: ${{ env.MANAGER_IMAGE_NAME }}
-          tags: ${{ github.sha }} latest ${{GITHUB_REF#refs/*/}} develop
+          tags: ${{ github.sha }} latest ${{env.GITHUB_REF#refs/*/}} develop
           containerfiles: |
             ./Dockerfile
 
@@ -42,7 +42,7 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/v')
         with:
           image: ${{ env.MANAGER_IMAGE_NAME }}
-          tags: latest ${{GITHUB_REF#refs/*/}} develop
+          tags: latest ${{env.GITHUB_REF#refs/*/}} develop
           registry: ${{ env.REGISTRY }}
 
       - name: manager tag successfully pushed
