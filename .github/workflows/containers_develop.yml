@@ -2,7 +2,7 @@ name: containers
 
 on:
   push:
-    branches
+    branches:
 
 jobs:
   build:

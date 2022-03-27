@@ -2,7 +2,7 @@ name: containers
 
 on:
   push:
-    tags
+    tags:
 
 jobs:
   build:
