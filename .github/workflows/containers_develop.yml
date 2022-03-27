@@ -1,7 +1,8 @@
 name: containers
 
 on:
-  push
+  push:
+    branches
 
 jobs:
   build:
@@ -22,7 +23,7 @@ jobs:
         uses: redhat-actions/buildah-build@v2
         with:
           image: ${{ env.MANAGER_IMAGE_NAME }}
-          tags: ${{ github.sha }}
+          tags: ${{ github.sha }} develop
           containerfiles: |
             ./Dockerfile
 
@@ -38,23 +39,9 @@ jobs:
         id: manager-develop-push-to-ghcr
         uses: redhat-actions/push-to-registry@v2
         with:
-          image: ${{ env.MANAGER_IMAGE_NAME }}:${{ github.sha }}
-          tags: develop ${{ github.sha }}
+          image: ${{ env.MANAGER_IMAGE_NAME }}
+          tags: develop
           registry: ${{ env.REGISTRY }}
 
       - name: manager develop successfully pushed
         run: echo "manager develop image pushed to ${{ steps.manager-develop-push-to-ghcr.outputs.registry-paths }}"
-
-
-      - name: push manager tag image to GHCR
-        id: manager-tag-push-to-ghcr
-        uses: redhat-actions/push-to-registry@v2
-        if: startsWith(github.ref, 'refs/tags/v')
-        with:
-          image: ${{ env.MANAGER_IMAGE_NAME }}:${{ github.sha }}
-          tags: latest ${GITHUB_REF#refs/*/}
-          registry: ${{ env.REGISTRY }}
-
-      - name: manager tag successfully pushed
-        if: startsWith(github.ref, 'refs/tags/v')
-        run: echo "manager image pushed to ${{ steps.manager-tag-push-to-ghcr.outputs.registry-paths }}"
