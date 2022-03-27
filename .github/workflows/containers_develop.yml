@@ -3,6 +3,7 @@ name: containers
 on:
   push:
     branches:
+      - "**"
 
 jobs:
   build:
