@@ -78,6 +78,24 @@ var (
 			Help: "Number of times a reconcile updated a cr",
 		},
 	)
+	confMapCreate = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Name: "mailhog_configmap_create_total",
+			Help: "Number of times a reconcile created a ConfigMap",
+		},
+	)
+	confMapUpdate = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Name: "mailhog_configmap_update_total",
+			Help: "Number of times a reconcile updated a ConfigMap",
+		},
+	)
+	confMapDelete = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Name: "mailhog_configmap_delete_total",
+			Help: "Number of times a reconcile deleted a ConfigMap",
+		},
+	)
 )
 
 func init() {
@@ -86,4 +104,5 @@ func init() {
 	metrics.Registry.MustRegister(serviceCreate, serviceUpdate)
 	metrics.Registry.MustRegister(routeCreate, routeUpdate, routeDelete)
 	metrics.Registry.MustRegister(crUpdate)
+	metrics.Registry.MustRegister(confMapCreate, confMapUpdate, confMapDelete)
 }

@@ -62,6 +62,7 @@ var requeueTime = time.Duration(30) * time.Second
 //+kubebuilder:rbac:groups=apps,resources=deployments,verbs=*
 //+kubebuilder:rbac:groups="",resources=pods,verbs=get;list;watch
 //+kubebuilder:rbac:groups="",resources=services,verbs=*
+//+kubebuilder:rbac:groups="",resources=configmaps,verbs=*
 //+kubebuilder:rbac:groups=route.openshift.io,resources=routes,verbs=*
 //+kubebuilder:rbac:groups=apps.openshift.io,resources=deploymentconfigs,verbs=*
 //+kubebuilder:rbac:groups=apps.openshift.io,resources=deploymentconfigs/status,verbs=*
@@ -139,6 +140,17 @@ func (r *MailhogInstanceReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 		}
 	}
 
+	// ConfigMap Checks
+	{
+		if wantsReturn := r.ensureConfigMap(ctx, cr, logger); wantsReturn != nil {
+			if wantsReturn.Err != nil {
+				return ctrl.Result{}, err
+			} else {
+				return ctrl.Result{RequeueAfter: wantsReturn.RequeueAfter}, nil
+			}
+		}
+	}
+
 	// Update CR Status
 	{
 		podList := &corev1.PodList{}
@@ -203,6 +215,7 @@ func (r *MailhogInstanceReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Owns(&appsv1.Deployment{}).
 		Owns(&corev1.Service{}).
 		Owns(&routev1.Route{}).
+		Owns(&corev1.ConfigMap{}).
 		Watches(
 			&source.Kind{Type: &corev1.Pod{}},
 			handler.EnqueueRequestsFromMapFunc(r.findObjectsForPod),

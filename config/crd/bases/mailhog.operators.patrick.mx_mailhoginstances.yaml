@@ -75,6 +75,78 @@ spec:
                       header returned by the API
                     nullable: true
                     type: string
+                  files:
+                    description: Files that configure more in-depth settings that
+                      require an additional configmap
+                    nullable: true
+                    properties:
+                      smtpUpstreams:
+                        description: SmtpUpstreams Intercepted emails can be forwarded
+                          to upstreams via the UI
+                        items:
+                          properties:
+                            email:
+                              description: Email the target Email address where the
+                                mail will be resent to
+                              minLength: 4
+                              type: string
+                            host:
+                              description: Host SMTP target Host hostname
+                              minLength: 2
+                              type: string
+                            mechanism:
+                              description: Mechanism the SMTP login Mechanism used.
+                                This is _required_ when providing upstream user /
+                                password credentials
+                              enum:
+                              - PLAIN
+                              - CRAMMD5
+                              minLength: 4
+                              nullable: true
+                              type: string
+                            name:
+                              description: Name the Name this server will be shown
+                                under in the UI
+                              minLength: 2
+                              type: string
+                            password:
+                              description: Password the Password used for SMTP authentication
+                              nullable: true
+                              type: string
+                            port:
+                              description: Port SMTP target Port
+                              minLength: 2
+                              type: string
+                            save:
+                              default: true
+                              description: Save is an option provided for compat reasons
+                                with mailhogs struct, just set it to true
+                              type: boolean
+                            username:
+                              description: Username the Username used for SMTP authentication
+                              nullable: true
+                              type: string
+                          type: object
+                        nullable: true
+                        type: array
+                      webUsers:
+                        description: WebUsers If WebUsers are defined, UI/API Access
+                          will be protected with basic auth
+                        items:
+                          properties:
+                            name:
+                              description: Name is the username
+                              minLength: 2
+                              type: string
+                            passwordHash:
+                              description: PasswordHash is the bcrypt hash of the
+                                user's password
+                              minLength: 3
+                              type: string
+                          type: object
+                        nullable: true
+                        type: array
+                    type: object
                   hostname:
                     description: Hostname is the hostname for smtp ehlo/helo
                     format: hostname

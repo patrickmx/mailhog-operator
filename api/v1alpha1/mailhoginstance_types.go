@@ -115,6 +115,98 @@ type MailhogInstanceSettingsSpec struct {
 	//+optional
 	//+nullable
 	StorageMaildir MailhogStorageMaildirSpec `json:"storageMaildir,omitempty"`
+
+	// Files that configure more in-depth settings that require an additional configmap
+	//
+	//+kubebuilder:validation:Optional
+	//+optional
+	//+nullable
+	Files *MailhogFilesSpec `json:"files,omitempty"`
+}
+
+type MailhogFilesSpec struct {
+	// SmtpUpstreams Intercepted emails can be forwarded to upstreams via the UI
+	//
+	//+kubebuilder:validation:Optional
+	//+optional
+	//+nullable
+	SmtpUpstreams []MailhogUpstreamSpec `json:"smtpUpstreams,omitempty"`
+
+	// WebUsers If WebUsers are defined, UI/API Access will be protected with basic auth
+	//
+	//+kubebuilder:validation:Optional
+	//+optional
+	//+nullable
+	WebUsers []MailhogWebUserSpec `json:"webUsers,omitempty"`
+}
+
+type MailhogUpstreamSpec struct {
+	// Name the Name this server will be shown under in the UI
+	//
+	//+kubebuilder:validation:Required
+	//+kubebuilder:validation:MinLength=2
+	Name string `json:"name,omitempty"`
+
+	// Save is an option provided for compat reasons with mailhogs struct, just set it to true
+	//
+	//+kubebuilder:validation:Required
+	//+kubebuilder:default:=true
+	Save bool `json:"save,omitempty"`
+
+	// Email the target Email address where the mail will be resent to
+	//
+	//+kubebuilder:validation:Required
+	//+kubebuilder:validation:MinLength=4
+	Email string `json:"email,omitempty"`
+
+	// Host SMTP target Host hostname
+	//
+	//+kubebuilder:validation:Required
+	//+kubebuilder:validation:MinLength=2
+	Host string `json:"host,omitempty"`
+
+	// Port SMTP target Port
+	//
+	//+kubebuilder:validation:Required
+	//+kubebuilder:validation:MinLength=2
+	Port string `json:"port,omitempty"`
+
+	// Username the Username used for SMTP authentication
+	//
+	//+kubebuilder:validation:Optional
+	//+optional
+	//+nullable
+	Username string `json:"username,omitempty"`
+
+	// Password the Password used for SMTP authentication
+	//
+	//+kubebuilder:validation:Optional
+	//+optional
+	//+nullable
+	Password string `json:"password,omitempty"`
+
+	// Mechanism the SMTP login Mechanism used. This is _required_ when providing upstream user / password credentials
+	//
+	//+kubebuilder:validation:Optional
+	//+kubebuilder:validation:MinLength=4
+	//+kubebuilder:validation:Enum=PLAIN;CRAMMD5
+	//+optional
+	//+nullable
+	Mechanism string `json:"mechanism,omitempty"`
+}
+
+type MailhogWebUserSpec struct {
+	// Name is the username
+	//
+	//+kubebuilder:validation:Required
+	//+kubebuilder:validation:MinLength=2
+	Name string `json:"name,omitempty"`
+
+	// PasswordHash is the bcrypt hash of the user's password
+	//
+	//+kubebuilder:validation:Required
+	//+kubebuilder:validation:MinLength=3
+	PasswordHash string `json:"passwordHash,omitempty"`
 }
 
 // MailhogStorageMaildirSpec are settings applicable if the storage backend is maildir

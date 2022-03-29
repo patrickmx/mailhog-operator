@@ -89,8 +89,28 @@ func envForCr(crs *mailhogv1alpha1.MailhogInstance) (e []corev1.EnvVar) {
 		})
 	}
 
+	if crs.Spec.Settings.Files != nil {
+		if len(crs.Spec.Settings.Files.SmtpUpstreams) > 0 {
+			e = append(e, corev1.EnvVar{
+				Name:  "MH_OUTGOING_SMTP",
+				Value: settingsFilesMount + "/upstream.servers.json",
+			})
+		}
+
+		if len(crs.Spec.Settings.Files.WebUsers) > 0 {
+			e = append(e, corev1.EnvVar{
+				Name:  "MH_AUTH_FILE",
+				Value: settingsFilesMount + "/users.list.bcrypt",
+			})
+		}
+	}
+
 	return
 }
+
+const (
+	settingsFilesMount = "/mailhog/settings/files"
+)
 
 func labelsForCr(name string) map[string]string {
 	return map[string]string{"app": "mailhog", "mailhog_cr": name}

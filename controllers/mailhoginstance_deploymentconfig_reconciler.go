@@ -225,28 +225,47 @@ func (r *MailhogInstanceReconciler) deploymentConfigNew(instance *mailhogv1alpha
 		},
 	}
 
-	if instance.Spec.Settings.Storage == mailhogv1alpha1.MaildirStorage {
+	if instance.Spec.Settings.Storage == mailhogv1alpha1.MaildirStorage || instance.Spec.Settings.Files != nil {
 		const (
-			volumeName = "maildir-storage"
+			storageVolumeName  = "maildir-storage"
+			settingsVolumeName = "settings-files"
 		)
-		if instance.Spec.Settings.StorageMaildir.Path != "" {
-			podVolumes := make([]corev1.Volume, 0)
-			containerVolMounts := make([]corev1.VolumeMount, 0)
+		podVolumes := make([]corev1.Volume, 0)
+		containerVolMounts := make([]corev1.VolumeMount, 0)
+		if instance.Spec.Settings.StorageMaildir.Path != "" && instance.Spec.Settings.Storage == mailhogv1alpha1.MaildirStorage {
 
 			podVolumes = append(podVolumes, corev1.Volume{
-				Name: volumeName,
+				Name: storageVolumeName,
 				VolumeSource: corev1.VolumeSource{
 					EmptyDir: &corev1.EmptyDirVolumeSource{},
 				},
 			})
 			containerVolMounts = append(containerVolMounts, corev1.VolumeMount{
-				Name:      volumeName,
+				Name:      storageVolumeName,
 				MountPath: instance.Spec.Settings.StorageMaildir.Path,
 			})
 
-			deploymentConfig.Spec.Template.Spec.Volumes = podVolumes
-			deploymentConfig.Spec.Template.Spec.Containers[0].VolumeMounts = containerVolMounts
 		}
+		if instance.Spec.Settings.Files != nil {
+			podVolumes = append(podVolumes, corev1.Volume{
+				Name: settingsVolumeName,
+				VolumeSource: corev1.VolumeSource{
+					ConfigMap: &corev1.ConfigMapVolumeSource{
+						LocalObjectReference: corev1.LocalObjectReference{
+							Name: instance.Name,
+						},
+					},
+				},
+			})
+			containerVolMounts = append(containerVolMounts, corev1.VolumeMount{
+				Name:      settingsVolumeName,
+				MountPath: settingsFilesMount,
+			})
+
+		}
+
+		deploymentConfig.Spec.Template.Spec.Volumes = podVolumes
+		deploymentConfig.Spec.Template.Spec.Containers[0].VolumeMounts = containerVolMounts
 	}
 
 	return deploymentConfig
