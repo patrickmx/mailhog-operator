@@ -18,7 +18,6 @@ package controllers
 
 import (
 	"context"
-	"reflect"
 	"time"
 
 	"github.com/banzaicloud/k8s-objectmatcher/patch"
@@ -153,32 +152,11 @@ func (r *MailhogInstanceReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 
 	// Update CR Status
 	{
-		podList := &corev1.PodList{}
-		listOpts := []client.ListOption{
-			client.InNamespace(cr.Namespace),
-			client.MatchingLabels(labelsForCr(cr.Name)),
-		}
-		if err = r.List(ctx, podList, listOpts...); err != nil {
-			logger.Error(err, "Failed to list pods")
-			return ctrl.Result{}, err
-		}
-		podNames := getPodNames(podList.Items)
-
-		if !reflect.DeepEqual(podNames, cr.Status.Pods) {
-			mailhogUpdate := &mailhogv1alpha1.MailhogInstance{}
-			if err := r.Get(ctx, req.NamespacedName, mailhogUpdate); err != nil {
-				logger.Error(err, "Failed to get latest cr version before update")
+		if wantsReturn := r.ensureStatus(ctx, cr, logger); wantsReturn != nil {
+			if wantsReturn.Err != nil {
 				return ctrl.Result{}, err
 			} else {
-				mailhogUpdate.Status.Pods = podNames
-				mailhogUpdate.Status.PodCount = len(podNames)
-				mailhogUpdate.Status.LabelSelector = textLabelsForCr(cr.Name)
-				if err := r.Status().Update(ctx, mailhogUpdate); err != nil {
-					logger.Error(err, "Failed to update cr status")
-					return ctrl.Result{}, err
-				}
-				logger.Info("updated cr status")
-				crUpdate.Inc()
+				return ctrl.Result{RequeueAfter: wantsReturn.RequeueAfter}, nil
 			}
 		}
 	}
