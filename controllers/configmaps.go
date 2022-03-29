@@ -3,7 +3,6 @@ package controllers
 import (
 	"context"
 	"encoding/json"
-	"time"
 
 	"github.com/banzaicloud/k8s-objectmatcher/patch"
 	"github.com/go-logr/logr"
@@ -16,14 +15,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-type (
-	ConfigMapReturn struct {
-		RequeueAfter time.Duration
-		Err          error
-	}
-)
-
-func (r *MailhogInstanceReconciler) ensureConfigMap(ctx context.Context, cr *mailhogv1alpha1.MailhogInstance, logger logr.Logger) *ConfigMapReturn {
+func (r *MailhogInstanceReconciler) ensureConfigMap(ctx context.Context, cr *mailhogv1alpha1.MailhogInstance, logger logr.Logger) *ReturnIndicator {
 	var err error
 	name := types.NamespacedName{Name: cr.Name, Namespace: cr.Namespace}
 
@@ -35,30 +27,30 @@ func (r *MailhogInstanceReconciler) ensureConfigMap(ctx context.Context, cr *mai
 					cm := r.configMapNew(cr)
 					if err = patch.DefaultAnnotator.SetLastAppliedAnnotation(cm); err != nil {
 						logger.Error(err, "failed to annotate new configmap with initial state")
-						return &ConfigMapReturn{
+						return &ReturnIndicator{
 							Err: err,
 						}
 					}
 					if err = ctrl.SetControllerReference(cr, cm, r.Scheme); err != nil {
 						logger.Error(err, "failed to set controller ref for new configmap")
-						return &ConfigMapReturn{
+						return &ReturnIndicator{
 							Err: err,
 						}
 					}
 					if err = r.Create(ctx, cm); err != nil {
 						logger.Error(err, "failed to create new configmap")
-						return &ConfigMapReturn{
+						return &ReturnIndicator{
 							Err: err,
 						}
 					}
 					logger.Info("created new configmap")
 					confMapCreate.Inc()
-					return &ConfigMapReturn{
+					return &ReturnIndicator{
 						RequeueAfter: requeueTime,
 					}
 				} else {
 					logger.Error(err, "unknown error while checking for service existence")
-					return &ConfigMapReturn{
+					return &ReturnIndicator{
 						Err: err,
 					}
 				}
@@ -67,26 +59,26 @@ func (r *MailhogInstanceReconciler) ensureConfigMap(ctx context.Context, cr *mai
 				updatedCM, updateNeeded, err := r.configMapUpdates(cr, existingCM)
 				if err != nil {
 					logger.Error(err, "failed check if update is needed")
-					return &ConfigMapReturn{
+					return &ReturnIndicator{
 						Err: err,
 					}
 				} else if updateNeeded {
 					if err = ctrl.SetControllerReference(cr, updatedCM, r.Scheme); err != nil {
 						logger.Error(err, "error setting owner ref on new configmap")
-						return &ConfigMapReturn{
+						return &ReturnIndicator{
 							Err: err,
 						}
 					}
 					if err = r.Update(ctx, updatedCM); err != nil {
 						logger.Error(err, "cant update configmap")
-						return &ConfigMapReturn{
+						return &ReturnIndicator{
 							Err: err,
 						}
 					}
 					logger.Info("updated existing configmap")
 					confMapUpdate.Inc()
 					r.Recorder.Event(updatedCM, corev1.EventTypeNormal, "SuccessEvent", "configmap updated")
-					return &ConfigMapReturn{
+					return &ReturnIndicator{
 						RequeueAfter: requeueTime,
 					}
 				}
@@ -97,7 +89,7 @@ func (r *MailhogInstanceReconciler) ensureConfigMap(ctx context.Context, cr *mai
 			if err = r.Get(ctx, name, toBeDeletedCM); err != nil {
 				if !errors.IsNotFound(err) {
 					logger.Error(err, "cant check for to-be-removed configmap")
-					return &ConfigMapReturn{
+					return &ReturnIndicator{
 						Err: err,
 					}
 				}
@@ -108,13 +100,13 @@ func (r *MailhogInstanceReconciler) ensureConfigMap(ctx context.Context, cr *mai
 				}
 				if err = r.Delete(ctx, toBeDeletedCM, &deleteOptions); err != nil {
 					logger.Error(err, "cant remove obsolete configmap")
-					return &ConfigMapReturn{
+					return &ReturnIndicator{
 						Err: err,
 					}
 				}
 				logger.Info("removed obsolete configmap")
 				confMapDelete.Inc()
-				return &ConfigMapReturn{
+				return &ReturnIndicator{
 					RequeueAfter: requeueTime,
 				}
 			}

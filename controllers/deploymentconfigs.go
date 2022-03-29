@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"context"
-	"time"
 
 	"github.com/banzaicloud/k8s-objectmatcher/patch"
 	"github.com/go-logr/logr"
@@ -18,14 +17,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-type (
-	DeploymentConfigReturn struct {
-		RequeueAfter time.Duration
-		Err          error
-	}
-)
-
-func (r *MailhogInstanceReconciler) ensureDeploymentConfig(ctx context.Context, cr *mailhogv1alpha1.MailhogInstance, logger logr.Logger) *DeploymentConfigReturn {
+func (r *MailhogInstanceReconciler) ensureDeploymentConfig(ctx context.Context, cr *mailhogv1alpha1.MailhogInstance, logger logr.Logger) *ReturnIndicator {
 	var err error
 	name := types.NamespacedName{Name: cr.Name, Namespace: cr.Namespace}
 
@@ -40,30 +32,30 @@ func (r *MailhogInstanceReconciler) ensureDeploymentConfig(ctx context.Context, 
 					deploymentConfig := r.deploymentConfigNew(cr)
 					if err = patch.DefaultAnnotator.SetLastAppliedAnnotation(deploymentConfig); err != nil {
 						logger.Error(err, "cant annotate deploymentConfig with lastApplied state")
-						return &DeploymentConfigReturn{
+						return &ReturnIndicator{
 							Err: err,
 						}
 					}
 					if err = ctrl.SetControllerReference(cr, deploymentConfig, r.Scheme); err != nil {
 						logger.Error(err, "cant set owner reference of new deploymentConfig")
-						return &DeploymentConfigReturn{
+						return &ReturnIndicator{
 							Err: err,
 						}
 					}
 					if err = r.Create(ctx, deploymentConfig); err != nil {
 						logger.Error(err, "failed creating deploymentConfig")
-						return &DeploymentConfigReturn{
+						return &ReturnIndicator{
 							Err: err,
 						}
 					}
 					logger.Info("created new DeploymentConfig")
 					deploymentConfigCreate.Inc()
-					return &DeploymentConfigReturn{
+					return &ReturnIndicator{
 						RequeueAfter: requeueTime,
 					}
 				} else {
 					logger.Error(err, "failed to get deploymentConfig")
-					return &DeploymentConfigReturn{
+					return &ReturnIndicator{
 						Err: err,
 					}
 				}
@@ -73,26 +65,26 @@ func (r *MailhogInstanceReconciler) ensureDeploymentConfig(ctx context.Context, 
 				updatedDeploymentConfig, updateNeeded, err := r.deploymentConfigUpdates(cr, existingDeploymentConfig)
 				if err != nil {
 					logger.Error(err, "failed to check if deploymentConfig needs an update")
-					return &DeploymentConfigReturn{
+					return &ReturnIndicator{
 						Err: err,
 					}
 				} else if updateNeeded {
 					if err = ctrl.SetControllerReference(cr, updatedDeploymentConfig, r.Scheme); err != nil {
 						logger.Error(err, "cant set owner reference of updated deploymentConfig")
-						return &DeploymentConfigReturn{
+						return &ReturnIndicator{
 							Err: err,
 						}
 					}
 					if err = r.Update(ctx, updatedDeploymentConfig); err != nil {
 						logger.Error(err, "cant update deploymentConfig")
-						return &DeploymentConfigReturn{
+						return &ReturnIndicator{
 							Err: err,
 						}
 					}
 					logger.Info("updated existing deploymentConfig")
 					deploymentConfigUpdate.Inc()
 					r.Recorder.Event(updatedDeploymentConfig, corev1.EventTypeNormal, "SuccessEvent", "deploymentConfig updated")
-					return &DeploymentConfigReturn{
+					return &ReturnIndicator{
 						RequeueAfter: requeueTime,
 					}
 				}
@@ -103,7 +95,7 @@ func (r *MailhogInstanceReconciler) ensureDeploymentConfig(ctx context.Context, 
 			if err = r.Get(ctx, name, toBeDeletedDeploymentConfig); err != nil {
 				if !errors.IsNotFound(err) {
 					logger.Error(err, "cant get to-be-removed deploymentConfig")
-					return &DeploymentConfigReturn{
+					return &ReturnIndicator{
 						Err: err,
 					}
 				}
@@ -114,13 +106,13 @@ func (r *MailhogInstanceReconciler) ensureDeploymentConfig(ctx context.Context, 
 				}
 				if err = r.Delete(ctx, toBeDeletedDeploymentConfig, &deleteOptions); err != nil {
 					logger.Error(err, "cont remove obsolete deploymentConfig")
-					return &DeploymentConfigReturn{
+					return &ReturnIndicator{
 						Err: err,
 					}
 				}
 				logger.Info("removed obsolete deploymentConfig")
 				deploymentConfigDelete.Inc()
-				return &DeploymentConfigReturn{
+				return &ReturnIndicator{
 					RequeueAfter: requeueTime,
 				}
 			}

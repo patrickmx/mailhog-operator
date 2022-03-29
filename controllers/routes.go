@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"context"
-	"time"
 
 	"github.com/banzaicloud/k8s-objectmatcher/patch"
 	"github.com/go-logr/logr"
@@ -17,14 +16,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-type (
-	RouteReturn struct {
-		RequeueAfter time.Duration
-		Err          error
-	}
-)
-
-func (r *MailhogInstanceReconciler) ensureRoute(ctx context.Context, cr *mailhogv1alpha1.MailhogInstance, logger logr.Logger) *RouteReturn {
+func (r *MailhogInstanceReconciler) ensureRoute(ctx context.Context, cr *mailhogv1alpha1.MailhogInstance, logger logr.Logger) *ReturnIndicator {
 	var err error
 	name := types.NamespacedName{Name: cr.Name, Namespace: cr.Namespace}
 
@@ -41,30 +33,30 @@ func (r *MailhogInstanceReconciler) ensureRoute(ctx context.Context, cr *mailhog
 					// annotate current version
 					if err = patch.DefaultAnnotator.SetLastAppliedAnnotation(route); err != nil {
 						logger.Error(err, "failed to annotate route with initial state")
-						return &RouteReturn{
+						return &ReturnIndicator{
 							Err: err,
 						}
 					}
 					if err = ctrl.SetControllerReference(cr, route, r.Scheme); err != nil {
 						logger.Error(err, "cant set owner reference of new route")
-						return &RouteReturn{
+						return &ReturnIndicator{
 							Err: err,
 						}
 					}
 					if err = r.Create(ctx, route); err != nil {
 						logger.Error(err, "failed creating a new route")
-						return &RouteReturn{
+						return &ReturnIndicator{
 							Err: err,
 						}
 					}
 					logger.Info("created new route")
 					routeCreate.Inc()
-					return &RouteReturn{
+					return &ReturnIndicator{
 						RequeueAfter: requeueTime,
 					}
 				} else {
 					logger.Error(err, "failed to get route")
-					return &RouteReturn{
+					return &ReturnIndicator{
 						Err: err,
 					}
 				}
@@ -74,26 +66,26 @@ func (r *MailhogInstanceReconciler) ensureRoute(ctx context.Context, cr *mailhog
 				updatedRoute, updateNeeded, err := r.routeUpdates(cr, existingRoute)
 				if err != nil {
 					logger.Error(err, "failure checking if a route update is needed")
-					return &RouteReturn{
+					return &ReturnIndicator{
 						Err: err,
 					}
 				} else if updateNeeded {
 					if err = ctrl.SetControllerReference(cr, updatedRoute, r.Scheme); err != nil {
 						logger.Error(err, "cant set owner reference of updated route")
-						return &RouteReturn{
+						return &ReturnIndicator{
 							Err: err,
 						}
 					}
 					if err = r.Update(ctx, updatedRoute); err != nil {
 						logger.Error(err, "cant update route")
-						return &RouteReturn{
+						return &ReturnIndicator{
 							Err: err,
 						}
 					}
 					logger.Info("updated existing route")
 					routeUpdate.Inc()
 					r.Recorder.Event(updatedRoute, corev1.EventTypeNormal, "SuccessEvent", "route updated")
-					return &RouteReturn{
+					return &ReturnIndicator{
 						RequeueAfter: requeueTime,
 					}
 				}
@@ -105,7 +97,7 @@ func (r *MailhogInstanceReconciler) ensureRoute(ctx context.Context, cr *mailhog
 			if err = r.Get(ctx, name, toBeDeletedRoute); err != nil {
 				if !errors.IsNotFound(err) {
 					logger.Error(err, "cant get to-be-removed route")
-					return &RouteReturn{
+					return &ReturnIndicator{
 						Err: err,
 					}
 				}
@@ -116,13 +108,13 @@ func (r *MailhogInstanceReconciler) ensureRoute(ctx context.Context, cr *mailhog
 				}
 				if err = r.Delete(ctx, toBeDeletedRoute, &deleteOptions); err != nil {
 					logger.Error(err, "cant remove obsolete route")
-					return &RouteReturn{
+					return &ReturnIndicator{
 						Err: err,
 					}
 				}
 				logger.Info("removed obsolete route")
 				routeDelete.Inc()
-				return &RouteReturn{
+				return &ReturnIndicator{
 					RequeueAfter: requeueTime,
 				}
 			}

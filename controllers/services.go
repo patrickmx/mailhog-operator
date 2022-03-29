@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"context"
-	"time"
 
 	"github.com/banzaicloud/k8s-objectmatcher/patch"
 	"github.com/go-logr/logr"
@@ -15,14 +14,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 )
 
-type (
-	ServiceReturn struct {
-		RequeueAfter time.Duration
-		Err          error
-	}
-)
-
-func (r *MailhogInstanceReconciler) ensureService(ctx context.Context, cr *mailhogv1alpha1.MailhogInstance, logger logr.Logger) *ServiceReturn {
+func (r *MailhogInstanceReconciler) ensureService(ctx context.Context, cr *mailhogv1alpha1.MailhogInstance, logger logr.Logger) *ReturnIndicator {
 	var err error
 	name := types.NamespacedName{Name: cr.Name, Namespace: cr.Namespace}
 
@@ -37,30 +29,30 @@ func (r *MailhogInstanceReconciler) ensureService(ctx context.Context, cr *mailh
 				// annotate current version
 				if err = patch.DefaultAnnotator.SetLastAppliedAnnotation(service); err != nil {
 					logger.Error(err, "failed to annotate service with initial state")
-					return &ServiceReturn{
+					return &ReturnIndicator{
 						Err: err,
 					}
 				}
 				if err = ctrl.SetControllerReference(cr, service, r.Scheme); err != nil {
 					logger.Error(err, "cant set owner reference of new service")
-					return &ServiceReturn{
+					return &ReturnIndicator{
 						Err: err,
 					}
 				}
 				if err = r.Create(ctx, service); err != nil {
 					logger.Error(err, "failed creating a new service")
-					return &ServiceReturn{
+					return &ReturnIndicator{
 						Err: err,
 					}
 				}
 				logger.Info("created new service")
 				serviceCreate.Inc()
-				return &ServiceReturn{
+				return &ReturnIndicator{
 					RequeueAfter: requeueTime,
 				}
 			} else {
 				logger.Error(err, "failed to get service")
-				return &ServiceReturn{
+				return &ReturnIndicator{
 					Err: err,
 				}
 			}
@@ -70,26 +62,26 @@ func (r *MailhogInstanceReconciler) ensureService(ctx context.Context, cr *mailh
 			updatedService, updateNeeded, err := r.serviceUpdates(cr, existingService)
 			if err != nil {
 				logger.Error(err, "failure checking if a service update is needed")
-				return &ServiceReturn{
+				return &ReturnIndicator{
 					Err: err,
 				}
 			} else if updateNeeded {
 				if err = ctrl.SetControllerReference(cr, updatedService, r.Scheme); err != nil {
 					logger.Error(err, "cant set owner reference of updated service")
-					return &ServiceReturn{
+					return &ReturnIndicator{
 						Err: err,
 					}
 				}
 				if err = r.Update(ctx, updatedService); err != nil {
 					logger.Error(err, "cant update service")
-					return &ServiceReturn{
+					return &ReturnIndicator{
 						Err: err,
 					}
 				}
 				logger.Info("updated existing service")
 				serviceUpdate.Inc()
 				r.Recorder.Event(updatedService, corev1.EventTypeNormal, "SuccessEvent", "service updated")
-				return &ServiceReturn{
+				return &ReturnIndicator{
 					RequeueAfter: requeueTime,
 				}
 			}
