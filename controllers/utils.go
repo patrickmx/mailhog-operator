@@ -119,7 +119,12 @@ const (
 )
 
 func labelsForCr(name string) map[string]string {
-	return map[string]string{"app": "mailhog", "mailhog_cr": name}
+	return map[string]string{
+		"app":                        "mailhog",
+		"mailhog_cr":                 name,
+		"app.kubernetes.io/name":     "mailhog",
+		"app.kubernetes.io/instance": name,
+	}
 }
 
 func textLabelsForCr(name string) string {
