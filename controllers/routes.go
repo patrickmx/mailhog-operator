@@ -20,98 +20,95 @@ func (r *MailhogInstanceReconciler) ensureRoute(ctx context.Context, cr *mailhog
 	var err error
 	name := types.NamespacedName{Name: cr.Name, Namespace: cr.Namespace}
 
-	// Route related checks
-	{
-		if cr.Spec.WebTrafficInlet == mailhogv1alpha1.RouteTrafficInlet {
+	if cr.Spec.WebTrafficInlet == mailhogv1alpha1.RouteTrafficInlet {
 
-			// check if a route exists, if not create it
-			existingRoute := &routev1.Route{}
-			if err = r.Get(ctx, name, existingRoute); err != nil {
-				if errors.IsNotFound(err) {
-					// create new route
-					route := r.routeNew(cr)
-					// annotate current version
-					if err = patch.DefaultAnnotator.SetLastAppliedAnnotation(route); err != nil {
-						logger.Error(err, "failed to annotate route with initial state")
-						return &ReturnIndicator{
-							Err: err,
-						}
-					}
-					if err = ctrl.SetControllerReference(cr, route, r.Scheme); err != nil {
-						logger.Error(err, "cant set owner reference of new route")
-						return &ReturnIndicator{
-							Err: err,
-						}
-					}
-					if err = r.Create(ctx, route); err != nil {
-						logger.Error(err, "failed creating a new route")
-						return &ReturnIndicator{
-							Err: err,
-						}
-					}
-					logger.Info("created new route")
-					routeCreate.Inc()
-					return &ReturnIndicator{}
-				} else {
-					logger.Error(err, "failed to get route")
+		// check if a route exists, if not create it
+		existingRoute := &routev1.Route{}
+		if err = r.Get(ctx, name, existingRoute); err != nil {
+			if errors.IsNotFound(err) {
+				// create new route
+				route := r.routeNew(cr)
+				// annotate current version
+				if err = patch.DefaultAnnotator.SetLastAppliedAnnotation(route); err != nil {
+					logger.Error(err, "failed to annotate route with initial state")
 					return &ReturnIndicator{
 						Err: err,
 					}
 				}
-			} else {
-
-				// check if the existing route needs an update
-				updatedRoute, updateNeeded, err := r.routeUpdates(cr, existingRoute)
-				if err != nil {
-					logger.Error(err, "failure checking if a route update is needed")
+				if err = ctrl.SetControllerReference(cr, route, r.Scheme); err != nil {
+					logger.Error(err, "cant set owner reference of new route")
 					return &ReturnIndicator{
 						Err: err,
 					}
-				} else if updateNeeded {
-					if err = ctrl.SetControllerReference(cr, updatedRoute, r.Scheme); err != nil {
-						logger.Error(err, "cant set owner reference of updated route")
-						return &ReturnIndicator{
-							Err: err,
-						}
+				}
+				if err = r.Create(ctx, route); err != nil {
+					logger.Error(err, "failed creating a new route")
+					return &ReturnIndicator{
+						Err: err,
 					}
-					if err = r.Update(ctx, updatedRoute); err != nil {
-						logger.Error(err, "cant update route")
-						return &ReturnIndicator{
-							Err: err,
-						}
-					}
-					logger.Info("updated existing route")
-					routeUpdate.Inc()
-					r.Recorder.Event(updatedRoute, corev1.EventTypeNormal, "SuccessEvent", "route updated")
-					return &ReturnIndicator{}
+				}
+				logger.Info("created new route")
+				routeCreate.Inc()
+				return &ReturnIndicator{}
+			} else {
+				logger.Error(err, "failed to get route")
+				return &ReturnIndicator{
+					Err: err,
 				}
 			}
-
 		} else {
 
-			toBeDeletedRoute := &routev1.Route{}
-			if err = r.Get(ctx, name, toBeDeletedRoute); err != nil {
-				if !errors.IsNotFound(err) {
-					logger.Error(err, "cant get to-be-removed route")
+			// check if the existing route needs an update
+			updatedRoute, updateNeeded, err := r.routeUpdates(cr, existingRoute)
+			if err != nil {
+				logger.Error(err, "failure checking if a route update is needed")
+				return &ReturnIndicator{
+					Err: err,
+				}
+			} else if updateNeeded {
+				if err = ctrl.SetControllerReference(cr, updatedRoute, r.Scheme); err != nil {
+					logger.Error(err, "cant set owner reference of updated route")
 					return &ReturnIndicator{
 						Err: err,
 					}
 				}
-			} else {
-				graceSeconds := int64(100)
-				deleteOptions := client.DeleteOptions{
-					GracePeriodSeconds: &graceSeconds,
-				}
-				if err = r.Delete(ctx, toBeDeletedRoute, &deleteOptions); err != nil {
-					logger.Error(err, "cant remove obsolete route")
+				if err = r.Update(ctx, updatedRoute); err != nil {
+					logger.Error(err, "cant update route")
 					return &ReturnIndicator{
 						Err: err,
 					}
 				}
-				logger.Info("removed obsolete route")
-				routeDelete.Inc()
+				logger.Info("updated existing route")
+				routeUpdate.Inc()
+				r.Recorder.Event(updatedRoute, corev1.EventTypeNormal, "SuccessEvent", "route updated")
 				return &ReturnIndicator{}
 			}
+		}
+
+	} else {
+
+		toBeDeletedRoute := &routev1.Route{}
+		if err = r.Get(ctx, name, toBeDeletedRoute); err != nil {
+			if !errors.IsNotFound(err) {
+				logger.Error(err, "cant get to-be-removed route")
+				return &ReturnIndicator{
+					Err: err,
+				}
+			}
+		} else {
+			graceSeconds := int64(100)
+			deleteOptions := client.DeleteOptions{
+				GracePeriodSeconds: &graceSeconds,
+			}
+			if err = r.Delete(ctx, toBeDeletedRoute, &deleteOptions); err != nil {
+				logger.Error(err, "cant remove obsolete route")
+				return &ReturnIndicator{
+					Err: err,
+				}
+			}
+			logger.Info("removed obsolete route")
+			routeDelete.Inc()
+			return &ReturnIndicator{}
 		}
 	}
 

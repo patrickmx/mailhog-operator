@@ -20,95 +20,92 @@ func (r *MailhogInstanceReconciler) ensureDeploymentConfig(ctx context.Context, 
 	var err error
 	name := types.NamespacedName{Name: cr.Name, Namespace: cr.Namespace}
 
-	// DeploymentConfig check
-	{
-		if cr.Spec.BackingResource == mailhogv1alpha1.DeploymentConfigBacking {
+	if cr.Spec.BackingResource == mailhogv1alpha1.DeploymentConfigBacking {
 
-			// check if a DC already exists, if not create it
-			existingDeploymentConfig := &ocappsv1.DeploymentConfig{}
-			if err = r.Get(ctx, name, existingDeploymentConfig); err != nil {
-				if errors.IsNotFound(err) {
-					deploymentConfig := r.deploymentConfigNew(cr)
-					if err = patch.DefaultAnnotator.SetLastAppliedAnnotation(deploymentConfig); err != nil {
-						logger.Error(err, "cant annotate deploymentConfig with lastApplied state")
-						return &ReturnIndicator{
-							Err: err,
-						}
-					}
-					if err = ctrl.SetControllerReference(cr, deploymentConfig, r.Scheme); err != nil {
-						logger.Error(err, "cant set owner reference of new deploymentConfig")
-						return &ReturnIndicator{
-							Err: err,
-						}
-					}
-					if err = r.Create(ctx, deploymentConfig); err != nil {
-						logger.Error(err, "failed creating deploymentConfig")
-						return &ReturnIndicator{
-							Err: err,
-						}
-					}
-					logger.Info("created new DeploymentConfig")
-					deploymentConfigCreate.Inc()
-					return &ReturnIndicator{}
-				} else {
-					logger.Error(err, "failed to get deploymentConfig")
+		// check if a DC already exists, if not create it
+		existingDeploymentConfig := &ocappsv1.DeploymentConfig{}
+		if err = r.Get(ctx, name, existingDeploymentConfig); err != nil {
+			if errors.IsNotFound(err) {
+				deploymentConfig := r.deploymentConfigNew(cr)
+				if err = patch.DefaultAnnotator.SetLastAppliedAnnotation(deploymentConfig); err != nil {
+					logger.Error(err, "cant annotate deploymentConfig with lastApplied state")
 					return &ReturnIndicator{
 						Err: err,
 					}
 				}
-			} else {
-
-				// check if the existing DC needs an update
-				updatedDeploymentConfig, updateNeeded, err := r.deploymentConfigUpdates(cr, existingDeploymentConfig)
-				if err != nil {
-					logger.Error(err, "failed to check if deploymentConfig needs an update")
+				if err = ctrl.SetControllerReference(cr, deploymentConfig, r.Scheme); err != nil {
+					logger.Error(err, "cant set owner reference of new deploymentConfig")
 					return &ReturnIndicator{
 						Err: err,
 					}
-				} else if updateNeeded {
-					if err = ctrl.SetControllerReference(cr, updatedDeploymentConfig, r.Scheme); err != nil {
-						logger.Error(err, "cant set owner reference of updated deploymentConfig")
-						return &ReturnIndicator{
-							Err: err,
-						}
+				}
+				if err = r.Create(ctx, deploymentConfig); err != nil {
+					logger.Error(err, "failed creating deploymentConfig")
+					return &ReturnIndicator{
+						Err: err,
 					}
-					if err = r.Update(ctx, updatedDeploymentConfig); err != nil {
-						logger.Error(err, "cant update deploymentConfig")
-						return &ReturnIndicator{
-							Err: err,
-						}
-					}
-					logger.Info("updated existing deploymentConfig")
-					deploymentConfigUpdate.Inc()
-					r.Recorder.Event(updatedDeploymentConfig, corev1.EventTypeNormal, "SuccessEvent", "deploymentConfig updated")
-					return &ReturnIndicator{}
+				}
+				logger.Info("created new DeploymentConfig")
+				deploymentConfigCreate.Inc()
+				return &ReturnIndicator{}
+			} else {
+				logger.Error(err, "failed to get deploymentConfig")
+				return &ReturnIndicator{
+					Err: err,
 				}
 			}
 		} else {
 
-			toBeDeletedDeploymentConfig := &ocappsv1.DeploymentConfig{}
-			if err = r.Get(ctx, name, toBeDeletedDeploymentConfig); err != nil {
-				if !errors.IsNotFound(err) {
-					logger.Error(err, "cant get to-be-removed deploymentConfig")
+			// check if the existing DC needs an update
+			updatedDeploymentConfig, updateNeeded, err := r.deploymentConfigUpdates(cr, existingDeploymentConfig)
+			if err != nil {
+				logger.Error(err, "failed to check if deploymentConfig needs an update")
+				return &ReturnIndicator{
+					Err: err,
+				}
+			} else if updateNeeded {
+				if err = ctrl.SetControllerReference(cr, updatedDeploymentConfig, r.Scheme); err != nil {
+					logger.Error(err, "cant set owner reference of updated deploymentConfig")
 					return &ReturnIndicator{
 						Err: err,
 					}
 				}
-			} else {
-				graceSeconds := int64(100)
-				deleteOptions := client.DeleteOptions{
-					GracePeriodSeconds: &graceSeconds,
-				}
-				if err = r.Delete(ctx, toBeDeletedDeploymentConfig, &deleteOptions); err != nil {
-					logger.Error(err, "cont remove obsolete deploymentConfig")
+				if err = r.Update(ctx, updatedDeploymentConfig); err != nil {
+					logger.Error(err, "cant update deploymentConfig")
 					return &ReturnIndicator{
 						Err: err,
 					}
 				}
-				logger.Info("removed obsolete deploymentConfig")
-				deploymentConfigDelete.Inc()
+				logger.Info("updated existing deploymentConfig")
+				deploymentConfigUpdate.Inc()
+				r.Recorder.Event(updatedDeploymentConfig, corev1.EventTypeNormal, "SuccessEvent", "deploymentConfig updated")
 				return &ReturnIndicator{}
 			}
+		}
+	} else {
+
+		toBeDeletedDeploymentConfig := &ocappsv1.DeploymentConfig{}
+		if err = r.Get(ctx, name, toBeDeletedDeploymentConfig); err != nil {
+			if !errors.IsNotFound(err) {
+				logger.Error(err, "cant get to-be-removed deploymentConfig")
+				return &ReturnIndicator{
+					Err: err,
+				}
+			}
+		} else {
+			graceSeconds := int64(100)
+			deleteOptions := client.DeleteOptions{
+				GracePeriodSeconds: &graceSeconds,
+			}
+			if err = r.Delete(ctx, toBeDeletedDeploymentConfig, &deleteOptions); err != nil {
+				logger.Error(err, "cont remove obsolete deploymentConfig")
+				return &ReturnIndicator{
+					Err: err,
+				}
+			}
+			logger.Info("removed obsolete deploymentConfig")
+			deploymentConfigDelete.Inc()
+			return &ReturnIndicator{}
 		}
 	}
 

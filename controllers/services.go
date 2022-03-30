@@ -18,69 +18,66 @@ func (r *MailhogInstanceReconciler) ensureService(ctx context.Context, cr *mailh
 	var err error
 	name := types.NamespacedName{Name: cr.Name, Namespace: cr.Namespace}
 
-	// Service related checks
-	{
-		// check if a service exists, if not create it
-		existingService := &corev1.Service{}
-		if err = r.Get(ctx, name, existingService); err != nil {
-			if errors.IsNotFound(err) {
-				// create new service
-				service := r.serviceNew(cr)
-				// annotate current version
-				if err = patch.DefaultAnnotator.SetLastAppliedAnnotation(service); err != nil {
-					logger.Error(err, "failed to annotate service with initial state")
-					return &ReturnIndicator{
-						Err: err,
-					}
-				}
-				if err = ctrl.SetControllerReference(cr, service, r.Scheme); err != nil {
-					logger.Error(err, "cant set owner reference of new service")
-					return &ReturnIndicator{
-						Err: err,
-					}
-				}
-				if err = r.Create(ctx, service); err != nil {
-					logger.Error(err, "failed creating a new service")
-					return &ReturnIndicator{
-						Err: err,
-					}
-				}
-				logger.Info("created new service")
-				serviceCreate.Inc()
-				return &ReturnIndicator{}
-			} else {
-				logger.Error(err, "failed to get service")
+	// check if a service exists, if not create it
+	existingService := &corev1.Service{}
+	if err = r.Get(ctx, name, existingService); err != nil {
+		if errors.IsNotFound(err) {
+			// create new service
+			service := r.serviceNew(cr)
+			// annotate current version
+			if err = patch.DefaultAnnotator.SetLastAppliedAnnotation(service); err != nil {
+				logger.Error(err, "failed to annotate service with initial state")
 				return &ReturnIndicator{
 					Err: err,
 				}
 			}
+			if err = ctrl.SetControllerReference(cr, service, r.Scheme); err != nil {
+				logger.Error(err, "cant set owner reference of new service")
+				return &ReturnIndicator{
+					Err: err,
+				}
+			}
+			if err = r.Create(ctx, service); err != nil {
+				logger.Error(err, "failed creating a new service")
+				return &ReturnIndicator{
+					Err: err,
+				}
+			}
+			logger.Info("created new service")
+			serviceCreate.Inc()
+			return &ReturnIndicator{}
 		} else {
+			logger.Error(err, "failed to get service")
+			return &ReturnIndicator{
+				Err: err,
+			}
+		}
+	} else {
 
-			// check if the existing service needs an update
-			updatedService, updateNeeded, err := r.serviceUpdates(cr, existingService)
-			if err != nil {
-				logger.Error(err, "failure checking if a service update is needed")
+		// check if the existing service needs an update
+		updatedService, updateNeeded, err := r.serviceUpdates(cr, existingService)
+		if err != nil {
+			logger.Error(err, "failure checking if a service update is needed")
+			return &ReturnIndicator{
+				Err: err,
+			}
+		} else if updateNeeded {
+			if err = ctrl.SetControllerReference(cr, updatedService, r.Scheme); err != nil {
+				logger.Error(err, "cant set owner reference of updated service")
 				return &ReturnIndicator{
 					Err: err,
 				}
-			} else if updateNeeded {
-				if err = ctrl.SetControllerReference(cr, updatedService, r.Scheme); err != nil {
-					logger.Error(err, "cant set owner reference of updated service")
-					return &ReturnIndicator{
-						Err: err,
-					}
-				}
-				if err = r.Update(ctx, updatedService); err != nil {
-					logger.Error(err, "cant update service")
-					return &ReturnIndicator{
-						Err: err,
-					}
-				}
-				logger.Info("updated existing service")
-				serviceUpdate.Inc()
-				r.Recorder.Event(updatedService, corev1.EventTypeNormal, "SuccessEvent", "service updated")
-				return &ReturnIndicator{}
 			}
+			if err = r.Update(ctx, updatedService); err != nil {
+				logger.Error(err, "cant update service")
+				return &ReturnIndicator{
+					Err: err,
+				}
+			}
+			logger.Info("updated existing service")
+			serviceUpdate.Inc()
+			r.Recorder.Event(updatedService, corev1.EventTypeNormal, "SuccessEvent", "service updated")
+			return &ReturnIndicator{}
 		}
 	}
 

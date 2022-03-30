@@ -19,91 +19,89 @@ func (r *MailhogInstanceReconciler) ensureConfigMap(ctx context.Context, cr *mai
 	var err error
 	name := types.NamespacedName{Name: cr.Name, Namespace: cr.Namespace}
 
-	{
-		if cr.Spec.Settings.Files != nil {
-			existingCM := &corev1.ConfigMap{}
-			if err = r.Get(ctx, name, existingCM); err != nil {
-				if errors.IsNotFound(err) {
-					cm := r.configMapNew(cr)
-					if err = patch.DefaultAnnotator.SetLastAppliedAnnotation(cm); err != nil {
-						logger.Error(err, "failed to annotate new configmap with initial state")
-						return &ReturnIndicator{
-							Err: err,
-						}
-					}
-					if err = ctrl.SetControllerReference(cr, cm, r.Scheme); err != nil {
-						logger.Error(err, "failed to set controller ref for new configmap")
-						return &ReturnIndicator{
-							Err: err,
-						}
-					}
-					if err = r.Create(ctx, cm); err != nil {
-						logger.Error(err, "failed to create new configmap")
-						return &ReturnIndicator{
-							Err: err,
-						}
-					}
-					logger.Info("created new configmap")
-					confMapCreate.Inc()
-					return &ReturnIndicator{}
-				} else {
-					logger.Error(err, "unknown error while checking for service existence")
+	if cr.Spec.Settings.Files != nil {
+		existingCM := &corev1.ConfigMap{}
+		if err = r.Get(ctx, name, existingCM); err != nil {
+			if errors.IsNotFound(err) {
+				cm := r.configMapNew(cr)
+				if err = patch.DefaultAnnotator.SetLastAppliedAnnotation(cm); err != nil {
+					logger.Error(err, "failed to annotate new configmap with initial state")
 					return &ReturnIndicator{
 						Err: err,
 					}
 				}
-			} else {
-				// check if update is needed
-				updatedCM, updateNeeded, err := r.configMapUpdates(cr, existingCM)
-				if err != nil {
-					logger.Error(err, "failed check if update is needed")
+				if err = ctrl.SetControllerReference(cr, cm, r.Scheme); err != nil {
+					logger.Error(err, "failed to set controller ref for new configmap")
 					return &ReturnIndicator{
 						Err: err,
 					}
-				} else if updateNeeded {
-					if err = ctrl.SetControllerReference(cr, updatedCM, r.Scheme); err != nil {
-						logger.Error(err, "error setting owner ref on new configmap")
-						return &ReturnIndicator{
-							Err: err,
-						}
+				}
+				if err = r.Create(ctx, cm); err != nil {
+					logger.Error(err, "failed to create new configmap")
+					return &ReturnIndicator{
+						Err: err,
 					}
-					if err = r.Update(ctx, updatedCM); err != nil {
-						logger.Error(err, "cant update configmap")
-						return &ReturnIndicator{
-							Err: err,
-						}
-					}
-					logger.Info("updated existing configmap")
-					confMapUpdate.Inc()
-					r.Recorder.Event(updatedCM, corev1.EventTypeNormal, "SuccessEvent", "configmap updated")
-					return &ReturnIndicator{}
+				}
+				logger.Info("created new configmap")
+				confMapCreate.Inc()
+				return &ReturnIndicator{}
+			} else {
+				logger.Error(err, "unknown error while checking for service existence")
+				return &ReturnIndicator{
+					Err: err,
 				}
 			}
-
 		} else {
-			toBeDeletedCM := &corev1.ConfigMap{}
-			if err = r.Get(ctx, name, toBeDeletedCM); err != nil {
-				if !errors.IsNotFound(err) {
-					logger.Error(err, "cant check for to-be-removed configmap")
+			// check if update is needed
+			updatedCM, updateNeeded, err := r.configMapUpdates(cr, existingCM)
+			if err != nil {
+				logger.Error(err, "failed check if update is needed")
+				return &ReturnIndicator{
+					Err: err,
+				}
+			} else if updateNeeded {
+				if err = ctrl.SetControllerReference(cr, updatedCM, r.Scheme); err != nil {
+					logger.Error(err, "error setting owner ref on new configmap")
 					return &ReturnIndicator{
 						Err: err,
 					}
 				}
-			} else {
-				graceSeconds := int64(100)
-				deleteOptions := client.DeleteOptions{
-					GracePeriodSeconds: &graceSeconds,
-				}
-				if err = r.Delete(ctx, toBeDeletedCM, &deleteOptions); err != nil {
-					logger.Error(err, "cant remove obsolete configmap")
+				if err = r.Update(ctx, updatedCM); err != nil {
+					logger.Error(err, "cant update configmap")
 					return &ReturnIndicator{
 						Err: err,
 					}
 				}
-				logger.Info("removed obsolete configmap")
-				confMapDelete.Inc()
+				logger.Info("updated existing configmap")
+				confMapUpdate.Inc()
+				r.Recorder.Event(updatedCM, corev1.EventTypeNormal, "SuccessEvent", "configmap updated")
 				return &ReturnIndicator{}
 			}
+		}
+
+	} else {
+		toBeDeletedCM := &corev1.ConfigMap{}
+		if err = r.Get(ctx, name, toBeDeletedCM); err != nil {
+			if !errors.IsNotFound(err) {
+				logger.Error(err, "cant check for to-be-removed configmap")
+				return &ReturnIndicator{
+					Err: err,
+				}
+			}
+		} else {
+			graceSeconds := int64(100)
+			deleteOptions := client.DeleteOptions{
+				GracePeriodSeconds: &graceSeconds,
+			}
+			if err = r.Delete(ctx, toBeDeletedCM, &deleteOptions); err != nil {
+				logger.Error(err, "cant remove obsolete configmap")
+				return &ReturnIndicator{
+					Err: err,
+				}
+			}
+			logger.Info("removed obsolete configmap")
+			confMapDelete.Inc()
+			return &ReturnIndicator{}
 		}
 	}
 
