@@ -161,7 +161,8 @@ func (r *MailhogInstanceReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 		}
 	}
 
-	return ctrl.Result{RequeueAfter: requeueTime}, nil
+	logger.Info("reconciliation finished, nothing to do")
+	return ctrl.Result{}, nil
 }
 
 func (r *MailhogInstanceReconciler) findObjectsForPod(watchedPod client.Object) []reconcile.Request {
