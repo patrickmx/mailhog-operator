@@ -52,7 +52,7 @@ const (
 )
 
 // default ReconcileAfter value if used
-var requeueTime = time.Duration(30) * time.Second
+var requeueTime = time.Duration(10) * time.Second
 
 //+kubebuilder:rbac:groups=mailhog.operators.patrick.mx,resources=mailhoginstances,verbs=*
 //+kubebuilder:rbac:groups=mailhog.operators.patrick.mx,resources=mailhoginstances/status,verbs=*
@@ -101,7 +101,7 @@ func (r *MailhogInstanceReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 			if wantsReturn.Err != nil {
 				return ctrl.Result{}, err
 			} else {
-				return ctrl.Result{RequeueAfter: wantsReturn.RequeueAfter}, nil
+				return ctrl.Result{RequeueAfter: requeueTime}, nil
 			}
 		}
 	}
@@ -112,7 +112,7 @@ func (r *MailhogInstanceReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 			if wantsReturn.Err != nil {
 				return ctrl.Result{}, err
 			} else {
-				return ctrl.Result{RequeueAfter: wantsReturn.RequeueAfter}, nil
+				return ctrl.Result{RequeueAfter: requeueTime}, nil
 			}
 		}
 	}
@@ -123,7 +123,7 @@ func (r *MailhogInstanceReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 			if wantsReturn.Err != nil {
 				return ctrl.Result{}, err
 			} else {
-				return ctrl.Result{RequeueAfter: wantsReturn.RequeueAfter}, nil
+				return ctrl.Result{RequeueAfter: requeueTime}, nil
 			}
 		}
 	}
@@ -134,7 +134,7 @@ func (r *MailhogInstanceReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 			if wantsReturn.Err != nil {
 				return ctrl.Result{}, err
 			} else {
-				return ctrl.Result{RequeueAfter: wantsReturn.RequeueAfter}, nil
+				return ctrl.Result{RequeueAfter: requeueTime}, nil
 			}
 		}
 	}
@@ -145,7 +145,7 @@ func (r *MailhogInstanceReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 			if wantsReturn.Err != nil {
 				return ctrl.Result{}, err
 			} else {
-				return ctrl.Result{RequeueAfter: wantsReturn.RequeueAfter}, nil
+				return ctrl.Result{RequeueAfter: requeueTime}, nil
 			}
 		}
 	}
@@ -156,7 +156,7 @@ func (r *MailhogInstanceReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 			if wantsReturn.Err != nil {
 				return ctrl.Result{}, err
 			} else {
-				return ctrl.Result{RequeueAfter: wantsReturn.RequeueAfter}, nil
+				return ctrl.Result{RequeueAfter: requeueTime}, nil
 			}
 		}
 	}

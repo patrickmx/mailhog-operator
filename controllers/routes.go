@@ -51,9 +51,7 @@ func (r *MailhogInstanceReconciler) ensureRoute(ctx context.Context, cr *mailhog
 					}
 					logger.Info("created new route")
 					routeCreate.Inc()
-					return &ReturnIndicator{
-						RequeueAfter: requeueTime,
-					}
+					return &ReturnIndicator{}
 				} else {
 					logger.Error(err, "failed to get route")
 					return &ReturnIndicator{
@@ -85,9 +83,7 @@ func (r *MailhogInstanceReconciler) ensureRoute(ctx context.Context, cr *mailhog
 					logger.Info("updated existing route")
 					routeUpdate.Inc()
 					r.Recorder.Event(updatedRoute, corev1.EventTypeNormal, "SuccessEvent", "route updated")
-					return &ReturnIndicator{
-						RequeueAfter: requeueTime,
-					}
+					return &ReturnIndicator{}
 				}
 			}
 
@@ -114,9 +110,7 @@ func (r *MailhogInstanceReconciler) ensureRoute(ctx context.Context, cr *mailhog
 				}
 				logger.Info("removed obsolete route")
 				routeDelete.Inc()
-				return &ReturnIndicator{
-					RequeueAfter: requeueTime,
-				}
+				return &ReturnIndicator{}
 			}
 		}
 	}

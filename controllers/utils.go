@@ -1,16 +1,13 @@
 package controllers
 
 import (
-	"time"
-
 	mailhogv1alpha1 "goimports.patrick.mx/mailhog-operator/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 )
 
 type (
 	ReturnIndicator struct {
-		Err          error
-		RequeueAfter time.Duration
+		Err error
 	}
 )
 

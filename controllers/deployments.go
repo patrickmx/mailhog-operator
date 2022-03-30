@@ -50,9 +50,7 @@ func (r *MailhogInstanceReconciler) ensureDeployment(ctx context.Context, cr *ma
 					}
 					logger.Info("created new deployment")
 					deploymentCreate.Inc()
-					return &ReturnIndicator{
-						RequeueAfter: requeueTime,
-					}
+					return &ReturnIndicator{}
 				} else {
 					logger.Error(err, "failed to get deployment")
 					return &ReturnIndicator{
@@ -84,9 +82,7 @@ func (r *MailhogInstanceReconciler) ensureDeployment(ctx context.Context, cr *ma
 					logger.Info("updated existing deployment")
 					deploymentUpdate.Inc()
 					r.Recorder.Event(updatedDeployment, corev1.EventTypeNormal, "SuccessEvent", "deployment updated")
-					return &ReturnIndicator{
-						RequeueAfter: requeueTime,
-					}
+					return &ReturnIndicator{}
 				}
 			}
 		} else {
@@ -112,9 +108,7 @@ func (r *MailhogInstanceReconciler) ensureDeployment(ctx context.Context, cr *ma
 				}
 				logger.Info("removed obsolete deployment")
 				deploymentConfigDelete.Inc()
-				return &ReturnIndicator{
-					RequeueAfter: requeueTime,
-				}
+				return &ReturnIndicator{}
 			}
 
 		}

@@ -50,6 +50,7 @@ func (r *MailhogInstanceReconciler) ensureStatus(ctx context.Context, cr *mailho
 				}
 				logger.Info("updated cr status")
 				crUpdate.Inc()
+				return &ReturnIndicator{}
 			}
 		}
 	}

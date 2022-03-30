@@ -47,9 +47,7 @@ func (r *MailhogInstanceReconciler) ensureService(ctx context.Context, cr *mailh
 				}
 				logger.Info("created new service")
 				serviceCreate.Inc()
-				return &ReturnIndicator{
-					RequeueAfter: requeueTime,
-				}
+				return &ReturnIndicator{}
 			} else {
 				logger.Error(err, "failed to get service")
 				return &ReturnIndicator{
@@ -81,9 +79,7 @@ func (r *MailhogInstanceReconciler) ensureService(ctx context.Context, cr *mailh
 				logger.Info("updated existing service")
 				serviceUpdate.Inc()
 				r.Recorder.Event(updatedService, corev1.EventTypeNormal, "SuccessEvent", "service updated")
-				return &ReturnIndicator{
-					RequeueAfter: requeueTime,
-				}
+				return &ReturnIndicator{}
 			}
 		}
 	}
