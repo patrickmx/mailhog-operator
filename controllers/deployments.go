@@ -125,12 +125,9 @@ func (r *MailhogInstanceReconciler) ensureDeployment(ctx context.Context, cr *ma
 }
 
 func (r *MailhogInstanceReconciler) deploymentNew(instance *mailhogv1alpha1.MailhogInstance) (newDeployment *appsv1.Deployment) {
+	podTemplate := r.podTemplate(instance)
 	labels := labelsForCr(instance.Name)
-	env := envForCr(instance)
-	ports := portsForCr()
-	image := instance.Spec.Image
 	replicas := instance.Spec.Replicas
-	isExplicitlyFalse := false
 
 	deployment := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
@@ -143,66 +140,8 @@ func (r *MailhogInstanceReconciler) deploymentNew(instance *mailhogv1alpha1.Mail
 			Selector: &metav1.LabelSelector{
 				MatchLabels: labels,
 			},
-			Template: corev1.PodTemplateSpec{
-				ObjectMeta: metav1.ObjectMeta{
-					Labels: labels,
-				},
-				Spec: corev1.PodSpec{
-					Containers: []corev1.Container{
-						{
-							Name:  "mailhog",
-							Image: image,
-							Ports: ports,
-							Env:   env,
-						},
-					},
-					AutomountServiceAccountToken: &isExplicitlyFalse,
-				},
-			},
+			Template: podTemplate,
 		},
-	}
-
-	if instance.Spec.Settings.Storage == mailhogv1alpha1.MaildirStorage || instance.Spec.Settings.Files != nil {
-		const (
-			storageVolumeName  = "maildir-storage"
-			settingsVolumeName = "settings-files"
-		)
-		podVolumes := make([]corev1.Volume, 0)
-		containerVolMounts := make([]corev1.VolumeMount, 0)
-		if instance.Spec.Settings.StorageMaildir.Path != "" && instance.Spec.Settings.Storage == mailhogv1alpha1.MaildirStorage {
-
-			podVolumes = append(podVolumes, corev1.Volume{
-				Name: storageVolumeName,
-				VolumeSource: corev1.VolumeSource{
-					EmptyDir: &corev1.EmptyDirVolumeSource{},
-				},
-			})
-			containerVolMounts = append(containerVolMounts, corev1.VolumeMount{
-				Name:      storageVolumeName,
-				MountPath: instance.Spec.Settings.StorageMaildir.Path,
-			})
-
-		}
-		if instance.Spec.Settings.Files != nil {
-			podVolumes = append(podVolumes, corev1.Volume{
-				Name: settingsVolumeName,
-				VolumeSource: corev1.VolumeSource{
-					ConfigMap: &corev1.ConfigMapVolumeSource{
-						LocalObjectReference: corev1.LocalObjectReference{
-							Name: instance.Name,
-						},
-					},
-				},
-			})
-			containerVolMounts = append(containerVolMounts, corev1.VolumeMount{
-				Name:      settingsVolumeName,
-				MountPath: settingsFilesMount,
-			})
-
-		}
-
-		deployment.Spec.Template.Spec.Volumes = podVolumes
-		deployment.Spec.Template.Spec.Containers[0].VolumeMounts = containerVolMounts
 	}
 
 	return deployment
