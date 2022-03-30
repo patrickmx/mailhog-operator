@@ -96,68 +96,56 @@ func (r *MailhogInstanceReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 	}
 
 	// Deployment related checks
-	{
-		if wantsReturn := r.ensureDeployment(ctx, cr, logger); wantsReturn != nil {
-			if wantsReturn.Err != nil {
-				return ctrl.Result{}, err
-			} else {
-				return ctrl.Result{RequeueAfter: requeueTime}, nil
-			}
+	if wantsReturn := r.ensureDeployment(ctx, cr, logger); wantsReturn != nil {
+		if wantsReturn.Err != nil {
+			return ctrl.Result{}, err
+		} else {
+			return ctrl.Result{RequeueAfter: requeueTime}, nil
 		}
 	}
 
 	// DeploymentConfig related checks
-	{
-		if wantsReturn := r.ensureDeploymentConfig(ctx, cr, logger); wantsReturn != nil {
-			if wantsReturn.Err != nil {
-				return ctrl.Result{}, err
-			} else {
-				return ctrl.Result{RequeueAfter: requeueTime}, nil
-			}
+	if wantsReturn := r.ensureDeploymentConfig(ctx, cr, logger); wantsReturn != nil {
+		if wantsReturn.Err != nil {
+			return ctrl.Result{}, err
+		} else {
+			return ctrl.Result{RequeueAfter: requeueTime}, nil
 		}
 	}
 
 	// Service related checks
-	{
-		if wantsReturn := r.ensureService(ctx, cr, logger); wantsReturn != nil {
-			if wantsReturn.Err != nil {
-				return ctrl.Result{}, err
-			} else {
-				return ctrl.Result{RequeueAfter: requeueTime}, nil
-			}
+	if wantsReturn := r.ensureService(ctx, cr, logger); wantsReturn != nil {
+		if wantsReturn.Err != nil {
+			return ctrl.Result{}, err
+		} else {
+			return ctrl.Result{RequeueAfter: requeueTime}, nil
 		}
 	}
 
 	// Route related checks
-	{
-		if wantsReturn := r.ensureRoute(ctx, cr, logger); wantsReturn != nil {
-			if wantsReturn.Err != nil {
-				return ctrl.Result{}, err
-			} else {
-				return ctrl.Result{RequeueAfter: requeueTime}, nil
-			}
+	if wantsReturn := r.ensureRoute(ctx, cr, logger); wantsReturn != nil {
+		if wantsReturn.Err != nil {
+			return ctrl.Result{}, err
+		} else {
+			return ctrl.Result{RequeueAfter: requeueTime}, nil
 		}
 	}
 
 	// ConfigMap Checks
-	{
-		if wantsReturn := r.ensureConfigMap(ctx, cr, logger); wantsReturn != nil {
-			if wantsReturn.Err != nil {
-				return ctrl.Result{}, err
-			} else {
-				return ctrl.Result{RequeueAfter: requeueTime}, nil
-			}
+	if wantsReturn := r.ensureConfigMap(ctx, cr, logger); wantsReturn != nil {
+		if wantsReturn.Err != nil {
+			return ctrl.Result{}, err
+		} else {
+			return ctrl.Result{RequeueAfter: requeueTime}, nil
 		}
 	}
 
 	// Update CR Status
-	{
-		if wantsReturn := r.ensureStatus(ctx, cr, logger); wantsReturn != nil {
-			if wantsReturn.Err != nil {
-				return ctrl.Result{}, err
-			} else {
-				return ctrl.Result{RequeueAfter: requeueTime}, nil
-			}
+	if wantsReturn := r.ensureStatus(ctx, cr, logger); wantsReturn != nil {
+		if wantsReturn.Err != nil {
+			return ctrl.Result{}, err
+		} else {
+			return ctrl.Result{RequeueAfter: requeueTime}, nil
 		}
 	}
 
