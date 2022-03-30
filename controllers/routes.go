@@ -119,19 +119,19 @@ func (r *MailhogInstanceReconciler) ensureRoute(ctx context.Context, cr *mailhog
 	return nil
 }
 
-func (r *MailhogInstanceReconciler) routeNew(instance *mailhogv1alpha1.MailhogInstance) (newRoute *routev1.Route) {
-	labels := labelsForCr(instance.Name)
+func (r *MailhogInstanceReconciler) routeNew(cr *mailhogv1alpha1.MailhogInstance) (newRoute *routev1.Route) {
+	labels := labelsForCr(cr.Name)
 
 	route := &routev1.Route{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      instance.Name,
-			Namespace: instance.Namespace,
+			Name:      cr.Name,
+			Namespace: cr.Namespace,
 			Labels:    labels,
 		},
 		Spec: routev1.RouteSpec{
 			To: routev1.RouteTargetReference{
 				Kind: "Service",
-				Name: instance.Name,
+				Name: cr.Name,
 			},
 			Port: &routev1.RoutePort{
 				TargetPort: intstr.IntOrString{
@@ -149,8 +149,8 @@ func (r *MailhogInstanceReconciler) routeNew(instance *mailhogv1alpha1.MailhogIn
 	return route
 }
 
-func (r *MailhogInstanceReconciler) routeUpdates(instance *mailhogv1alpha1.MailhogInstance, oldRoute *routev1.Route) (updatedRoute *routev1.Route, updateNeeded bool, err error) {
-	newRoute := r.routeNew(instance)
+func (r *MailhogInstanceReconciler) routeUpdates(cr *mailhogv1alpha1.MailhogInstance, oldRoute *routev1.Route) (updatedRoute *routev1.Route, updateNeeded bool, err error) {
+	newRoute := r.routeNew(cr)
 
 	opts := []patch.CalculateOption{
 		patch.IgnoreStatusFields(),

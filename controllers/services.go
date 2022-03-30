@@ -88,17 +88,17 @@ func (r *MailhogInstanceReconciler) ensureService(ctx context.Context, cr *mailh
 	return nil
 }
 
-func (r *MailhogInstanceReconciler) serviceNew(instance *mailhogv1alpha1.MailhogInstance) (newService *corev1.Service) {
-	labels := labelsForCr(instance.Name)
-	if instance.Spec.BackingResource == "deploymentConfig" {
-		labels["deploymentconfig"] = instance.Name
+func (r *MailhogInstanceReconciler) serviceNew(cr *mailhogv1alpha1.MailhogInstance) (newService *corev1.Service) {
+	labels := labelsForCr(cr.Name)
+	if cr.Spec.BackingResource == "deploymentConfig" {
+		labels["deploymentconfig"] = cr.Name
 	}
 
 	service := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      instance.Name,
-			Namespace: instance.Namespace,
-			Labels:    labelsForCr(instance.Name),
+			Name:      cr.Name,
+			Namespace: cr.Namespace,
+			Labels:    labelsForCr(cr.Name),
 		},
 		Spec: corev1.ServiceSpec{
 			Selector: labels,
@@ -127,8 +127,8 @@ func (r *MailhogInstanceReconciler) serviceNew(instance *mailhogv1alpha1.Mailhog
 	return service
 }
 
-func (r *MailhogInstanceReconciler) serviceUpdates(instance *mailhogv1alpha1.MailhogInstance, oldService *corev1.Service) (updatedService *corev1.Service, updateNeeded bool, err error) {
-	newService := r.serviceNew(instance)
+func (r *MailhogInstanceReconciler) serviceUpdates(cr *mailhogv1alpha1.MailhogInstance, oldService *corev1.Service) (updatedService *corev1.Service, updateNeeded bool, err error) {
+	newService := r.serviceNew(cr)
 
 	opts := []patch.CalculateOption{
 		patch.IgnoreStatusFields(),

@@ -118,15 +118,15 @@ func (r *MailhogInstanceReconciler) ensureDeployment(ctx context.Context, cr *ma
 	return nil
 }
 
-func (r *MailhogInstanceReconciler) deploymentNew(instance *mailhogv1alpha1.MailhogInstance) (newDeployment *appsv1.Deployment) {
-	podTemplate := r.podTemplate(instance)
-	labels := labelsForCr(instance.Name)
-	replicas := instance.Spec.Replicas
+func (r *MailhogInstanceReconciler) deploymentNew(cr *mailhogv1alpha1.MailhogInstance) (newDeployment *appsv1.Deployment) {
+	podTemplate := r.podTemplate(cr)
+	labels := labelsForCr(cr.Name)
+	replicas := cr.Spec.Replicas
 
 	deployment := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      instance.Name,
-			Namespace: instance.Namespace,
+			Name:      cr.Name,
+			Namespace: cr.Namespace,
 			Labels:    labels,
 		},
 		Spec: appsv1.DeploymentSpec{
@@ -141,8 +141,8 @@ func (r *MailhogInstanceReconciler) deploymentNew(instance *mailhogv1alpha1.Mail
 	return deployment
 }
 
-func (r *MailhogInstanceReconciler) deploymentUpdates(instance *mailhogv1alpha1.MailhogInstance, oldDeployment *appsv1.Deployment) (updatedDeployment *appsv1.Deployment, updateNeeded bool, err error) {
-	newDeployment := r.deploymentNew(instance)
+func (r *MailhogInstanceReconciler) deploymentUpdates(cr *mailhogv1alpha1.MailhogInstance, oldDeployment *appsv1.Deployment) (updatedDeployment *appsv1.Deployment, updateNeeded bool, err error) {
+	newDeployment := r.deploymentNew(cr)
 
 	opts := []patch.CalculateOption{
 		patch.IgnoreStatusFields(),

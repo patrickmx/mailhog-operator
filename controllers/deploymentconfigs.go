@@ -116,21 +116,21 @@ func (r *MailhogInstanceReconciler) ensureDeploymentConfig(ctx context.Context, 
 	return nil
 }
 
-func (r *MailhogInstanceReconciler) deploymentConfigNew(instance *mailhogv1alpha1.MailhogInstance) (newDeployment *ocappsv1.DeploymentConfig) {
-	podTemplate := r.podTemplate(instance)
-	labels := labelsForCr(instance.Name)
-	labels["deploymentconfig"] = instance.Name
-	podTemplate.Labels["deploymentconfig"] = instance.Name
-	replicas := instance.Spec.Replicas
+func (r *MailhogInstanceReconciler) deploymentConfigNew(cr *mailhogv1alpha1.MailhogInstance) (newDeployment *ocappsv1.DeploymentConfig) {
+	podTemplate := r.podTemplate(cr)
+	labels := labelsForCr(cr.Name)
+	labels["deploymentconfig"] = cr.Name
+	podTemplate.Labels["deploymentconfig"] = cr.Name
+	replicas := cr.Spec.Replicas
 	tenMinutes := int64(600)
 	none := intstr.FromInt(0)
 	two := intstr.FromInt(2)
 
 	deploymentConfig := &ocappsv1.DeploymentConfig{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      instance.Name,
-			Namespace: instance.Namespace,
-			Labels:    labelsForCr(instance.Name),
+			Name:      cr.Name,
+			Namespace: cr.Namespace,
+			Labels:    labelsForCr(cr.Name),
 		},
 		Spec: ocappsv1.DeploymentConfigSpec{
 			Replicas:        replicas,
