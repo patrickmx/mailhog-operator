@@ -45,38 +45,36 @@ func (r *MailhogInstanceReconciler) ensureConfigMap(ctx context.Context, cr *mai
 				logger.Info("created new configmap")
 				confMapCreate.Inc()
 				return &ReturnIndicator{}
-			} else {
-				logger.Error(err, "unknown error while checking for service existence")
+			}
+			logger.Error(err, "unknown error while checking for service existence")
+			return &ReturnIndicator{
+				Err: err,
+			}
+		}
+		// check if update is needed
+		updatedCM, updateNeeded, err := r.configMapUpdates(cr, existingCM)
+		if err != nil {
+			logger.Error(err, "failed check if update is needed")
+			return &ReturnIndicator{
+				Err: err,
+			}
+		} else if updateNeeded {
+			if err = ctrl.SetControllerReference(cr, updatedCM, r.Scheme); err != nil {
+				logger.Error(err, "error setting owner ref on new configmap")
 				return &ReturnIndicator{
 					Err: err,
 				}
 			}
-		} else {
-			// check if update is needed
-			updatedCM, updateNeeded, err := r.configMapUpdates(cr, existingCM)
-			if err != nil {
-				logger.Error(err, "failed check if update is needed")
+			if err = r.Update(ctx, updatedCM); err != nil {
+				logger.Error(err, "cant update configmap")
 				return &ReturnIndicator{
 					Err: err,
 				}
-			} else if updateNeeded {
-				if err = ctrl.SetControllerReference(cr, updatedCM, r.Scheme); err != nil {
-					logger.Error(err, "error setting owner ref on new configmap")
-					return &ReturnIndicator{
-						Err: err,
-					}
-				}
-				if err = r.Update(ctx, updatedCM); err != nil {
-					logger.Error(err, "cant update configmap")
-					return &ReturnIndicator{
-						Err: err,
-					}
-				}
-				logger.Info("updated existing configmap")
-				confMapUpdate.Inc()
-				r.Recorder.Event(updatedCM, corev1.EventTypeNormal, "SuccessEvent", "configmap updated")
-				return &ReturnIndicator{}
 			}
+			logger.Info("updated existing configmap")
+			confMapUpdate.Inc()
+			r.Recorder.Event(updatedCM, corev1.EventTypeNormal, "SuccessEvent", "configmap updated")
+			return &ReturnIndicator{}
 		}
 
 	} else {
@@ -159,9 +157,8 @@ func (r *MailhogInstanceReconciler) configMapUpdates(cr *mailhogv1alpha1.Mailhog
 	if !patchResult.IsEmpty() {
 		if err := patch.DefaultAnnotator.SetLastAppliedAnnotation(newCM); err != nil {
 			return newCM, true, err
-		} else {
-			return newCM, true, nil
 		}
+		return newCM, true, nil
 	}
 
 	return oldCM, false, nil

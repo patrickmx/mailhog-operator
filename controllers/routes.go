@@ -50,39 +50,37 @@ func (r *MailhogInstanceReconciler) ensureRoute(ctx context.Context, cr *mailhog
 				logger.Info("created new route")
 				routeCreate.Inc()
 				return &ReturnIndicator{}
-			} else {
-				logger.Error(err, "failed to get route")
-				return &ReturnIndicator{
-					Err: err,
-				}
 			}
-		} else {
+			logger.Error(err, "failed to get route")
+			return &ReturnIndicator{
+				Err: err,
+			}
+		}
 
-			// check if the existing route needs an update
-			updatedRoute, updateNeeded, err := r.routeUpdates(cr, existingRoute)
-			if err != nil {
-				logger.Error(err, "failure checking if a route update is needed")
+		// check if the existing route needs an update
+		updatedRoute, updateNeeded, err := r.routeUpdates(cr, existingRoute)
+		if err != nil {
+			logger.Error(err, "failure checking if a route update is needed")
+			return &ReturnIndicator{
+				Err: err,
+			}
+		} else if updateNeeded {
+			if err = ctrl.SetControllerReference(cr, updatedRoute, r.Scheme); err != nil {
+				logger.Error(err, "cant set owner reference of updated route")
 				return &ReturnIndicator{
 					Err: err,
 				}
-			} else if updateNeeded {
-				if err = ctrl.SetControllerReference(cr, updatedRoute, r.Scheme); err != nil {
-					logger.Error(err, "cant set owner reference of updated route")
-					return &ReturnIndicator{
-						Err: err,
-					}
-				}
-				if err = r.Update(ctx, updatedRoute); err != nil {
-					logger.Error(err, "cant update route")
-					return &ReturnIndicator{
-						Err: err,
-					}
-				}
-				logger.Info("updated existing route")
-				routeUpdate.Inc()
-				r.Recorder.Event(updatedRoute, corev1.EventTypeNormal, "SuccessEvent", "route updated")
-				return &ReturnIndicator{}
 			}
+			if err = r.Update(ctx, updatedRoute); err != nil {
+				logger.Error(err, "cant update route")
+				return &ReturnIndicator{
+					Err: err,
+				}
+			}
+			logger.Info("updated existing route")
+			routeUpdate.Inc()
+			r.Recorder.Event(updatedRoute, corev1.EventTypeNormal, "SuccessEvent", "route updated")
+			return &ReturnIndicator{}
 		}
 
 	} else {
@@ -161,9 +159,8 @@ func (r *MailhogInstanceReconciler) routeUpdates(cr *mailhogv1alpha1.MailhogInst
 	if !patchResult.IsEmpty() {
 		if err := patch.DefaultAnnotator.SetLastAppliedAnnotation(newRoute); err != nil {
 			return newRoute, true, err
-		} else {
-			return newRoute, true, nil
 		}
+		return newRoute, true, nil
 	}
 
 	return oldRoute, false, nil

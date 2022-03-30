@@ -78,9 +78,8 @@ func (r *MailhogInstanceReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 	if req.NamespacedName.Name == "" {
 		logger.Info("empty round, stopping")
 		return ctrl.Result{}, nil
-	} else {
-		logger.Info("starting reconcile")
 	}
+	logger.Info("starting reconcile")
 
 	// Get latest CR version
 	cr := &mailhogv1alpha1.MailhogInstance{}
@@ -97,54 +96,51 @@ func (r *MailhogInstanceReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 	if wantsReturn := r.ensureDeployment(ctx, cr, logger); wantsReturn != nil {
 		if wantsReturn.Err != nil {
 			return ctrl.Result{}, err
-		} else {
-			return ctrl.Result{RequeueAfter: requeueTime}, nil
 		}
+		return ctrl.Result{RequeueAfter: requeueTime}, nil
+
 	}
 
 	// DeploymentConfig related checks
 	if wantsReturn := r.ensureDeploymentConfig(ctx, cr, logger); wantsReturn != nil {
 		if wantsReturn.Err != nil {
 			return ctrl.Result{}, err
-		} else {
-			return ctrl.Result{RequeueAfter: requeueTime}, nil
 		}
+		return ctrl.Result{RequeueAfter: requeueTime}, nil
+
 	}
 
 	// Service related checks
 	if wantsReturn := r.ensureService(ctx, cr, logger); wantsReturn != nil {
 		if wantsReturn.Err != nil {
 			return ctrl.Result{}, err
-		} else {
-			return ctrl.Result{RequeueAfter: requeueTime}, nil
 		}
+		return ctrl.Result{RequeueAfter: requeueTime}, nil
+
 	}
 
 	// Route related checks
 	if wantsReturn := r.ensureRoute(ctx, cr, logger); wantsReturn != nil {
 		if wantsReturn.Err != nil {
 			return ctrl.Result{}, err
-		} else {
-			return ctrl.Result{RequeueAfter: requeueTime}, nil
 		}
+		return ctrl.Result{RequeueAfter: requeueTime}, nil
 	}
 
 	// ConfigMap Checks
 	if wantsReturn := r.ensureConfigMap(ctx, cr, logger); wantsReturn != nil {
 		if wantsReturn.Err != nil {
 			return ctrl.Result{}, err
-		} else {
-			return ctrl.Result{RequeueAfter: requeueTime}, nil
 		}
+		return ctrl.Result{RequeueAfter: requeueTime}, nil
 	}
 
 	// Update CR Status
 	if wantsReturn := r.ensureStatus(ctx, cr, logger); wantsReturn != nil {
 		if wantsReturn.Err != nil {
 			return ctrl.Result{}, err
-		} else {
-			return ctrl.Result{RequeueAfter: requeueTime}, nil
 		}
+		return ctrl.Result{RequeueAfter: requeueTime}, nil
 	}
 
 	logger.Info("reconciliation finished, nothing to do")

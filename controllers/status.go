@@ -36,20 +36,20 @@ func (r *MailhogInstanceReconciler) ensureStatus(ctx context.Context, cr *mailho
 			return &ReturnIndicator{
 				Err: err,
 			}
-		} else {
-			mailhogUpdate.Status.Pods = podNames
-			mailhogUpdate.Status.PodCount = len(podNames)
-			mailhogUpdate.Status.LabelSelector = textLabelsForCr(cr.Name)
-			if err := r.Status().Update(ctx, mailhogUpdate); err != nil {
-				logger.Error(err, "Failed to update cr status")
-				return &ReturnIndicator{
-					Err: err,
-				}
-			}
-			logger.Info("updated cr status")
-			crUpdate.Inc()
-			return &ReturnIndicator{}
 		}
+		mailhogUpdate.Status.Pods = podNames
+		mailhogUpdate.Status.PodCount = len(podNames)
+		mailhogUpdate.Status.LabelSelector = textLabelsForCr(cr.Name)
+		if err := r.Status().Update(ctx, mailhogUpdate); err != nil {
+			logger.Error(err, "Failed to update cr status")
+			return &ReturnIndicator{
+				Err: err,
+			}
+		}
+		logger.Info("updated cr status")
+		crUpdate.Inc()
+		return &ReturnIndicator{}
+
 	}
 
 	logger.Info("no cr status update required")

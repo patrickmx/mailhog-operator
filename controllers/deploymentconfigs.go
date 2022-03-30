@@ -48,39 +48,37 @@ func (r *MailhogInstanceReconciler) ensureDeploymentConfig(ctx context.Context, 
 				logger.Info("created new DeploymentConfig")
 				deploymentConfigCreate.Inc()
 				return &ReturnIndicator{}
-			} else {
-				logger.Error(err, "failed to get deploymentConfig")
-				return &ReturnIndicator{
-					Err: err,
-				}
 			}
-		} else {
+			logger.Error(err, "failed to get deploymentConfig")
+			return &ReturnIndicator{
+				Err: err,
+			}
+		}
 
-			// check if the existing DC needs an update
-			updatedDeploymentConfig, updateNeeded, err := r.deploymentConfigUpdates(cr, existingDeploymentConfig)
-			if err != nil {
-				logger.Error(err, "failed to check if deploymentConfig needs an update")
+		// check if the existing DC needs an update
+		updatedDeploymentConfig, updateNeeded, err := r.deploymentConfigUpdates(cr, existingDeploymentConfig)
+		if err != nil {
+			logger.Error(err, "failed to check if deploymentConfig needs an update")
+			return &ReturnIndicator{
+				Err: err,
+			}
+		} else if updateNeeded {
+			if err = ctrl.SetControllerReference(cr, updatedDeploymentConfig, r.Scheme); err != nil {
+				logger.Error(err, "cant set owner reference of updated deploymentConfig")
 				return &ReturnIndicator{
 					Err: err,
 				}
-			} else if updateNeeded {
-				if err = ctrl.SetControllerReference(cr, updatedDeploymentConfig, r.Scheme); err != nil {
-					logger.Error(err, "cant set owner reference of updated deploymentConfig")
-					return &ReturnIndicator{
-						Err: err,
-					}
-				}
-				if err = r.Update(ctx, updatedDeploymentConfig); err != nil {
-					logger.Error(err, "cant update deploymentConfig")
-					return &ReturnIndicator{
-						Err: err,
-					}
-				}
-				logger.Info("updated existing deploymentConfig")
-				deploymentConfigUpdate.Inc()
-				r.Recorder.Event(updatedDeploymentConfig, corev1.EventTypeNormal, "SuccessEvent", "deploymentConfig updated")
-				return &ReturnIndicator{}
 			}
+			if err = r.Update(ctx, updatedDeploymentConfig); err != nil {
+				logger.Error(err, "cant update deploymentConfig")
+				return &ReturnIndicator{
+					Err: err,
+				}
+			}
+			logger.Info("updated existing deploymentConfig")
+			deploymentConfigUpdate.Inc()
+			r.Recorder.Event(updatedDeploymentConfig, corev1.EventTypeNormal, "SuccessEvent", "deploymentConfig updated")
+			return &ReturnIndicator{}
 		}
 	} else {
 
@@ -168,9 +166,8 @@ func (r *MailhogInstanceReconciler) deploymentConfigUpdates(cr *mailhogv1alpha1.
 	if !patchResult.IsEmpty() {
 		if err := patch.DefaultAnnotator.SetLastAppliedAnnotation(newDC); err != nil {
 			return newDC, true, err
-		} else {
-			return newDC, true, nil
 		}
+		return newDC, true, nil
 	}
 
 	return oldDC, false, nil

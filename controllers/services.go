@@ -46,39 +46,37 @@ func (r *MailhogInstanceReconciler) ensureService(ctx context.Context, cr *mailh
 			logger.Info("created new service")
 			serviceCreate.Inc()
 			return &ReturnIndicator{}
-		} else {
-			logger.Error(err, "failed to get service")
-			return &ReturnIndicator{
-				Err: err,
-			}
 		}
-	} else {
+		logger.Error(err, "failed to get service")
+		return &ReturnIndicator{
+			Err: err,
+		}
+	}
 
-		// check if the existing service needs an update
-		updatedService, updateNeeded, err := r.serviceUpdates(cr, existingService)
-		if err != nil {
-			logger.Error(err, "failure checking if a service update is needed")
+	// check if the existing service needs an update
+	updatedService, updateNeeded, err := r.serviceUpdates(cr, existingService)
+	if err != nil {
+		logger.Error(err, "failure checking if a service update is needed")
+		return &ReturnIndicator{
+			Err: err,
+		}
+	} else if updateNeeded {
+		if err = ctrl.SetControllerReference(cr, updatedService, r.Scheme); err != nil {
+			logger.Error(err, "cant set owner reference of updated service")
 			return &ReturnIndicator{
 				Err: err,
 			}
-		} else if updateNeeded {
-			if err = ctrl.SetControllerReference(cr, updatedService, r.Scheme); err != nil {
-				logger.Error(err, "cant set owner reference of updated service")
-				return &ReturnIndicator{
-					Err: err,
-				}
-			}
-			if err = r.Update(ctx, updatedService); err != nil {
-				logger.Error(err, "cant update service")
-				return &ReturnIndicator{
-					Err: err,
-				}
-			}
-			logger.Info("updated existing service")
-			serviceUpdate.Inc()
-			r.Recorder.Event(updatedService, corev1.EventTypeNormal, "SuccessEvent", "service updated")
-			return &ReturnIndicator{}
 		}
+		if err = r.Update(ctx, updatedService); err != nil {
+			logger.Error(err, "cant update service")
+			return &ReturnIndicator{
+				Err: err,
+			}
+		}
+		logger.Info("updated existing service")
+		serviceUpdate.Inc()
+		r.Recorder.Event(updatedService, corev1.EventTypeNormal, "SuccessEvent", "service updated")
+		return &ReturnIndicator{}
 	}
 
 	logger.Info("service state ensured")
@@ -139,9 +137,9 @@ func (r *MailhogInstanceReconciler) serviceUpdates(cr *mailhogv1alpha1.MailhogIn
 	if !patchResult.IsEmpty() {
 		if err := patch.DefaultAnnotator.SetLastAppliedAnnotation(newService); err != nil {
 			return newService, true, err
-		} else {
-			return newService, true, nil
 		}
+		return newService, true, nil
+
 	}
 
 	return oldService, false, nil
