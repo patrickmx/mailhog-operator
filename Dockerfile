@@ -19,8 +19,10 @@ COPY .git/ ./.git/
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -tags . -o manager && \
     go version -m ./manager > manager.version && \
     tail manager.version && \
+    chmod 0555 ./manager && \
     sha256sum manager > manager.sha256 && \
-    cat manager.sha256
+    cat manager.sha256 && \
+    chmod 0444 ./manager.sha256 ./manager.version
 
 
 FROM scratch
