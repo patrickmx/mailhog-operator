@@ -45,9 +45,7 @@ func (r *MailhogInstanceReconciler) ensureConfigMap(ctx context.Context, cr *mai
 					}
 					logger.Info("created new configmap")
 					confMapCreate.Inc()
-					return &ReturnIndicator{
-						RequeueAfter: requeueTime,
-					}
+					return &ReturnIndicator{}
 				} else {
 					logger.Error(err, "unknown error while checking for service existence")
 					return &ReturnIndicator{
@@ -78,9 +76,7 @@ func (r *MailhogInstanceReconciler) ensureConfigMap(ctx context.Context, cr *mai
 					logger.Info("updated existing configmap")
 					confMapUpdate.Inc()
 					r.Recorder.Event(updatedCM, corev1.EventTypeNormal, "SuccessEvent", "configmap updated")
-					return &ReturnIndicator{
-						RequeueAfter: requeueTime,
-					}
+					return &ReturnIndicator{}
 				}
 			}
 
@@ -106,9 +102,7 @@ func (r *MailhogInstanceReconciler) ensureConfigMap(ctx context.Context, cr *mai
 				}
 				logger.Info("removed obsolete configmap")
 				confMapDelete.Inc()
-				return &ReturnIndicator{
-					RequeueAfter: requeueTime,
-				}
+				return &ReturnIndicator{}
 			}
 		}
 	}
