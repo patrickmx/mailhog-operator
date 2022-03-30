@@ -17,8 +17,8 @@ COPY .git/ ./.git/
 
 # Build
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -tags . -o manager && \
-    go version -m ./manager > manager-version && \
-    tail manager-version && \
+    go version -m ./manager > manager.version && \
+    tail manager.version && \
     sha256sum manager > manager.sha256 && \
     cat manager.sha256
 
@@ -34,8 +34,7 @@ LABEL \
   io.openshift.min-cpu="250m"
 WORKDIR /
 EXPOSE 8080
-ENTRYPOINT ["/manager"]
-CMD ["-config", "/operatorconfig/config.yml"]
-COPY --from=builder /workspace/manager /workspace/manager.sha256 /workspace/manager-version /
+CMD ["/manager", "-config", "/operatorconfig/config.yml"]
+COPY --from=builder /workspace/manager /workspace/manager.sha256 /workspace/manager.version /
 COPY --from=builder /workspace/config/codeready/config.yml /operatorconfig/config.yml
 USER 65532:65532
