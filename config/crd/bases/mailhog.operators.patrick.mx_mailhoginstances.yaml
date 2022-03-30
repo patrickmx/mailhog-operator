@@ -152,6 +152,57 @@ spec:
                     format: hostname
                     nullable: true
                     type: string
+                  jim:
+                    description: Jim is the chaos monkey
+                    nullable: true
+                    properties:
+                      accept:
+                        description: Accept Chance of accepting an incoming connection
+                          (float, eg "0.99")
+                        nullable: true
+                        type: string
+                      disconnect:
+                        description: Disconnect Chance of randomly disconnecting a
+                          session (float, eg "0.005")
+                        nullable: true
+                        type: string
+                      invite:
+                        default: false
+                        description: Invite set to true activates jim using the default
+                          values (see mh doc)
+                        nullable: true
+                        type: boolean
+                      linkspeedAffect:
+                        description: LinkspeedAffect Chance of applying a rate limit
+                          (float, eg "0.1")
+                        nullable: true
+                        type: string
+                      linkspeedMax:
+                        description: LinkspeedMax Maximum link speed (in bytes per
+                          second, eg "10240")
+                        nullable: true
+                        type: string
+                      linkspeedMin:
+                        description: LinkspeedMin Minimum link speed (in bytes per
+                          second, eg "1024")
+                        nullable: true
+                        type: string
+                      rejectAuth:
+                        description: RejectAuth Chance of rejecting an AUTH command
+                          (float, eg "0.05")
+                        nullable: true
+                        type: string
+                      rejectRecipient:
+                        description: RejectRecipient Chance of rejecting a RCPT TO
+                          command (float, eg "0.05")
+                        nullable: true
+                        type: string
+                      rejectSender:
+                        description: RejectSender Chance of rejecting a MAIL FROM
+                          command (float, eg "0.05")
+                        nullable: true
+                        type: string
+                    type: object
                   storage:
                     default: memory
                     description: Storage which storage backend to use, eg memory

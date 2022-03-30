@@ -122,6 +122,81 @@ type MailhogInstanceSettingsSpec struct {
 	//+optional
 	//+nullable
 	Files *MailhogFilesSpec `json:"files,omitempty"`
+
+	// Jim is the chaos monkey
+	//
+	//+kubebuilder:validation:Optional
+	//+optional
+	//+nullable
+	Jim MailhogJimSpec `json:"jim,omitempty"`
+}
+
+// MailhogJimSpec invites jim into mailhog, the builtin chaos monkey
+// see https://github.com/mailhog/MailHog/blob/master/docs/JIM.md
+type MailhogJimSpec struct {
+	// Invite set to true activates jim using the default values (see mh doc)
+	//
+	//+kubebuilder:validation:Optional
+	//+kubebuilder:default:=false
+	//+optional
+	//+nullable
+	Invite bool `json:"invite,omitempty"`
+
+	// Disconnect Chance of randomly disconnecting a session (float, eg "0.005")
+	//
+	//+kubebuilder:validation:Optional
+	//+optional
+	//+nullable
+	Disconnect string `json:"disconnect,omitempty"`
+
+	// Accept Chance of accepting an incoming connection (float, eg "0.99")
+	//
+	//+kubebuilder:validation:Optional
+	//+optional
+	//+nullable
+	Accept string `json:"accept,omitempty"`
+
+	// LinkspeedAffect Chance of applying a rate limit (float, eg "0.1")
+	//
+	//+kubebuilder:validation:Optional
+	//+optional
+	//+nullable
+	LinkspeedAffect string `json:"linkspeedAffect,omitempty"`
+
+	// LinkspeedMin Minimum link speed (in bytes per second, eg "1024")
+	//
+	//+kubebuilder:validation:Optional
+	//+optional
+	//+nullable
+	LinkspeedMin string `json:"linkspeedMin,omitempty"`
+
+	// LinkspeedMax Maximum link speed (in bytes per second, eg "10240")
+	//
+	//+kubebuilder:validation:Optional
+	//+optional
+	//+nullable
+	LinkspeedMax string `json:"linkspeedMax,omitempty"`
+
+	// RejectSender Chance of rejecting a MAIL FROM command (float, eg "0.05")
+	//
+	//+kubebuilder:validation:Optional
+	//+optional
+	//+nullable
+	RejectSender string `json:"rejectSender,omitempty"`
+
+	// RejectRecipient Chance of rejecting a RCPT TO command (float, eg "0.05")
+	//
+	//+kubebuilder:validation:Optional
+	//+optional
+	//+nullable
+	RejectRecipient string `json:"rejectRecipient,omitempty"`
+
+	// RejectAuth Chance of rejecting an AUTH command (float, eg "0.05")
+	//
+	//+kubebuilder:validation:Optional
+	//+optional
+	//+nullable
+	RejectAuth string `json:"rejectAuth,omitempty"`
 }
 
 type MailhogFilesSpec struct {

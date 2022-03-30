@@ -115,5 +115,51 @@ func (r *MailhogInstanceReconciler) podTemplate(cr *mailhogv1alpha1.MailhogInsta
 		pod.Spec.Containers[0].VolumeMounts = containerVolMounts
 	}
 
+	if cr.Spec.Settings.Jim.Invite == true {
+		pod.Spec.Containers[0].Args = jimArgs(cr)
+	}
+
 	return pod
+}
+
+func jimArgs(cr *mailhogv1alpha1.MailhogInstance) []string {
+	args := make([]string, 0)
+
+	if cr.Spec.Settings.Jim.Invite == true {
+		args = append(args, "-invite-jim")
+	}
+
+	if cr.Spec.Settings.Jim.Disconnect != "" {
+		args = append(args, "-jim-disconnect="+cr.Spec.Settings.Jim.Disconnect)
+	}
+
+	if cr.Spec.Settings.Jim.Accept != "" {
+		args = append(args, "-jim-accept="+cr.Spec.Settings.Jim.Accept)
+	}
+
+	if cr.Spec.Settings.Jim.LinkspeedAffect != "" {
+		args = append(args, "-jim-linkspeed-affect="+cr.Spec.Settings.Jim.LinkspeedAffect)
+	}
+
+	if cr.Spec.Settings.Jim.LinkspeedMin != "" {
+		args = append(args, "-jim-linkspeed-min="+cr.Spec.Settings.Jim.LinkspeedMin)
+	}
+
+	if cr.Spec.Settings.Jim.LinkspeedMax != "" {
+		args = append(args, "-jim-linkspeed-max="+cr.Spec.Settings.Jim.LinkspeedMax)
+	}
+
+	if cr.Spec.Settings.Jim.RejectSender != "" {
+		args = append(args, "-jim-reject-sender="+cr.Spec.Settings.Jim.RejectSender)
+	}
+
+	if cr.Spec.Settings.Jim.RejectRecipient != "" {
+		args = append(args, "-jim-reject-recipient="+cr.Spec.Settings.Jim.RejectRecipient)
+	}
+
+	if cr.Spec.Settings.Jim.RejectAuth != "" {
+		args = append(args, "-jim-reject-auth="+cr.Spec.Settings.Jim.RejectAuth)
+	}
+
+	return args
 }
