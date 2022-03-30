@@ -68,15 +68,7 @@ func main() {
 
 	var err error
 	ctrlConfig := mailhogv1alpha1.OperatorConfig{}
-	options := ctrl.Options{
-		Scheme:                 scheme,
-		MetricsBindAddress:     ":8080",
-		Port:                   9443,
-		HealthProbeBindAddress: ":8081",
-		LeaderElection:         false,
-		LeaderElectionID:       "26f4c8adfee.mailhog.patrick.mx",
-		Namespace:              "project",
-	}
+	options := defaultOptions()
 
 	if configFile != "" {
 		options, err = options.AndFrom(ctrl.ConfigFile().AtPath(configFile).OfKind(&ctrlConfig))
@@ -117,5 +109,17 @@ func main() {
 	if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil {
 		setupLog.Error(err, "problem running manager")
 		os.Exit(1)
+	}
+}
+
+func defaultOptions() ctrl.Options {
+	return ctrl.Options{
+		Scheme:                 scheme,
+		MetricsBindAddress:     ":8080",
+		Port:                   9443,
+		HealthProbeBindAddress: ":8081",
+		LeaderElection:         false,
+		LeaderElectionID:       "26f4c8adfee.mailhog.patrick.mx",
+		Namespace:              "project",
 	}
 }
