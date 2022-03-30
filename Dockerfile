@@ -33,7 +33,7 @@ LABEL \
   io.openshift.min-memory="100Mi" \
   io.openshift.min-cpu="250m"
 WORKDIR /
-EXPOSE 8080
+EXPOSE 8080 8081 9443
 CMD ["/manager", "-config", "/operatorconfig/config.yml"]
 COPY --from=builder /workspace/manager /workspace/manager.sha256 /workspace/manager.version /
 COPY --from=builder /workspace/config/codeready/config.yml /operatorconfig/config.yml
