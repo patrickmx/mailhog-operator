@@ -73,11 +73,9 @@ var requeueTime = time.Duration(10) * time.Second
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.11.0/pkg/reconcile
 func (r *MailhogInstanceReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	var err error
-	ns := req.NamespacedName.Namespace
-	name := req.NamespacedName.Name
-	logger := log.FromContext(ctx, "ns", ns, "cr", name)
+	logger := log.FromContext(ctx, "ns", req.NamespacedName.Namespace, "cr", req.NamespacedName.Name)
 
-	if name == "" {
+	if req.NamespacedName.Name == "" {
 		logger.Info("empty round, stopping")
 		return ctrl.Result{}, nil
 	} else {
