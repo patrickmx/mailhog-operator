@@ -127,20 +127,20 @@ func jimArgs(cr *mailhogv1alpha1.MailhogInstance) []string {
 
 	if cr.Spec.Settings.Jim.Invite == true {
 		args = append(args, "-invite-jim")
-		args = appendNonEmpty(args, "jim-disconnect", cr.Spec.Settings.Jim.Disconnect)
-		args = appendNonEmpty(args, "jim-accpet", cr.Spec.Settings.Jim.Accept)
-		args = appendNonEmpty(args, "jim-linkspeed-affect", cr.Spec.Settings.Jim.LinkspeedAffect)
-		args = appendNonEmpty(args, "jim-linkspeed-min", cr.Spec.Settings.Jim.LinkspeedMin)
-		args = appendNonEmpty(args, "jim-linkspeed-max", cr.Spec.Settings.Jim.LinkspeedMax)
-		args = appendNonEmpty(args, "jim-reject-sender", cr.Spec.Settings.Jim.RejectSender)
-		args = appendNonEmpty(args, "jim-reject-recipient", cr.Spec.Settings.Jim.RejectRecipient)
-		args = appendNonEmpty(args, "jim-reject-auth", cr.Spec.Settings.Jim.RejectAuth)
+		args = appendNonEmptyArg(args, "jim-disconnect", cr.Spec.Settings.Jim.Disconnect)
+		args = appendNonEmptyArg(args, "jim-accpet", cr.Spec.Settings.Jim.Accept)
+		args = appendNonEmptyArg(args, "jim-linkspeed-affect", cr.Spec.Settings.Jim.LinkspeedAffect)
+		args = appendNonEmptyArg(args, "jim-linkspeed-min", cr.Spec.Settings.Jim.LinkspeedMin)
+		args = appendNonEmptyArg(args, "jim-linkspeed-max", cr.Spec.Settings.Jim.LinkspeedMax)
+		args = appendNonEmptyArg(args, "jim-reject-sender", cr.Spec.Settings.Jim.RejectSender)
+		args = appendNonEmptyArg(args, "jim-reject-recipient", cr.Spec.Settings.Jim.RejectRecipient)
+		args = appendNonEmptyArg(args, "jim-reject-auth", cr.Spec.Settings.Jim.RejectAuth)
 	}
 
 	return args
 }
 
-func appendNonEmpty(previous []string, arg string, value string) (new []string) {
+func appendNonEmptyArg(previous []string, arg string, value string) (new []string) {
 	if value == "" {
 		return previous
 	}
