@@ -2,6 +2,8 @@ package controllers
 
 import (
 	"context"
+	"k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/banzaicloud/k8s-objectmatcher/patch"
 	"github.com/go-logr/logr"
@@ -44,4 +46,38 @@ func (r *MailhogInstanceReconciler) createOrReturn(ctx context.Context,
 	logger.Info("created new object", "object", logHint)
 	tickFunc.Inc()
 	return &ReturnIndicator{}
+}
+
+func (r *MailhogInstanceReconciler) delete(ctx context.Context,
+	name types.NamespacedName,
+	obj client.Object,
+	logHint string,
+	logger logr.Logger,
+	tick prometheus.Counter) *ReturnIndicator {
+	var err error
+
+	if err = r.Get(ctx, name, obj); err != nil {
+		if !errors.IsNotFound(err) {
+			logger.Error(err, "cant check for to-be-removed object", "object", logHint)
+			return &ReturnIndicator{
+				Err: err,
+			}
+		}
+	} else {
+		graceSeconds := int64(100)
+		deleteOptions := client.DeleteOptions{
+			GracePeriodSeconds: &graceSeconds,
+		}
+		if err = r.Delete(ctx, obj, &deleteOptions); err != nil {
+			logger.Error(err, "cant remove obsolete object", "object", logHint)
+			return &ReturnIndicator{
+				Err: err,
+			}
+		}
+		logger.Info("removed obsolete object", "object", logHint)
+		tick.Inc()
+		return &ReturnIndicator{}
+	}
+
+	return nil
 }

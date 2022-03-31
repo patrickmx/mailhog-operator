@@ -13,7 +13,6 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 func (r *MailhogInstanceReconciler) ensureRoute(ctx context.Context, cr *mailhogv1alpha1.MailhogInstance, logger logr.Logger) *ReturnIndicator {
@@ -65,27 +64,8 @@ func (r *MailhogInstanceReconciler) ensureRoute(ctx context.Context, cr *mailhog
 	} else {
 
 		toBeDeletedRoute := &routev1.Route{}
-		if err = r.Get(ctx, name, toBeDeletedRoute); err != nil {
-			if !errors.IsNotFound(err) {
-				logger.Error(err, "cant get to-be-removed route")
-				return &ReturnIndicator{
-					Err: err,
-				}
-			}
-		} else {
-			graceSeconds := int64(100)
-			deleteOptions := client.DeleteOptions{
-				GracePeriodSeconds: &graceSeconds,
-			}
-			if err = r.Delete(ctx, toBeDeletedRoute, &deleteOptions); err != nil {
-				logger.Error(err, "cant remove obsolete route")
-				return &ReturnIndicator{
-					Err: err,
-				}
-			}
-			logger.Info("removed obsolete route")
-			routeDelete.Inc()
-			return &ReturnIndicator{}
+		if indicator := r.delete(ctx, name, toBeDeletedRoute, "route", logger, routeDelete); indicator != nil {
+			return indicator
 		}
 	}
 

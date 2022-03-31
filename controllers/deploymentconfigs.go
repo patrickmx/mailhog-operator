@@ -13,7 +13,6 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 func (r *MailhogInstanceReconciler) ensureDeploymentConfig(ctx context.Context, cr *mailhogv1alpha1.MailhogInstance, logger logr.Logger) *ReturnIndicator {
@@ -64,27 +63,8 @@ func (r *MailhogInstanceReconciler) ensureDeploymentConfig(ctx context.Context, 
 	} else {
 
 		toBeDeletedDeploymentConfig := &ocappsv1.DeploymentConfig{}
-		if err = r.Get(ctx, name, toBeDeletedDeploymentConfig); err != nil {
-			if !errors.IsNotFound(err) {
-				logger.Error(err, "cant get to-be-removed deploymentConfig")
-				return &ReturnIndicator{
-					Err: err,
-				}
-			}
-		} else {
-			graceSeconds := int64(100)
-			deleteOptions := client.DeleteOptions{
-				GracePeriodSeconds: &graceSeconds,
-			}
-			if err = r.Delete(ctx, toBeDeletedDeploymentConfig, &deleteOptions); err != nil {
-				logger.Error(err, "cont remove obsolete deploymentConfig")
-				return &ReturnIndicator{
-					Err: err,
-				}
-			}
-			logger.Info("removed obsolete deploymentConfig")
-			deploymentConfigDelete.Inc()
-			return &ReturnIndicator{}
+		if indicator := r.delete(ctx, name, toBeDeletedDeploymentConfig, "deploymentConfig", logger, deploymentConfigDelete); indicator != nil {
+			return indicator
 		}
 	}
 

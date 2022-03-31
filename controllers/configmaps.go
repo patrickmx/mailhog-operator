@@ -12,7 +12,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 func (r *MailhogInstanceReconciler) ensureConfigMap(ctx context.Context, cr *mailhogv1alpha1.MailhogInstance, logger logr.Logger) *ReturnIndicator {
@@ -60,27 +59,8 @@ func (r *MailhogInstanceReconciler) ensureConfigMap(ctx context.Context, cr *mai
 
 	} else {
 		toBeDeletedCM := &corev1.ConfigMap{}
-		if err = r.Get(ctx, name, toBeDeletedCM); err != nil {
-			if !errors.IsNotFound(err) {
-				logger.Error(err, "cant check for to-be-removed configmap")
-				return &ReturnIndicator{
-					Err: err,
-				}
-			}
-		} else {
-			graceSeconds := int64(100)
-			deleteOptions := client.DeleteOptions{
-				GracePeriodSeconds: &graceSeconds,
-			}
-			if err = r.Delete(ctx, toBeDeletedCM, &deleteOptions); err != nil {
-				logger.Error(err, "cant remove obsolete configmap")
-				return &ReturnIndicator{
-					Err: err,
-				}
-			}
-			logger.Info("removed obsolete configmap")
-			confMapDelete.Inc()
-			return &ReturnIndicator{}
+		if indicator := r.delete(ctx, name, toBeDeletedCM, "configmap", logger, confMapDelete); indicator != nil {
+			return indicator
 		}
 	}
 
