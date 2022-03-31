@@ -23,28 +23,9 @@ func (r *MailhogInstanceReconciler) ensureConfigMap(ctx context.Context, cr *mai
 		existingCM := &corev1.ConfigMap{}
 		if err = r.Get(ctx, name, existingCM); err != nil {
 			if errors.IsNotFound(err) {
+				// create new configmap
 				cm := r.configMapNew(cr)
-				if err = patch.DefaultAnnotator.SetLastAppliedAnnotation(cm); err != nil {
-					logger.Error(err, "failed to annotate new configmap with initial state")
-					return &ReturnIndicator{
-						Err: err,
-					}
-				}
-				if err = ctrl.SetControllerReference(cr, cm, r.Scheme); err != nil {
-					logger.Error(err, "failed to set controller ref for new configmap")
-					return &ReturnIndicator{
-						Err: err,
-					}
-				}
-				if err = r.Create(ctx, cm); err != nil {
-					logger.Error(err, "failed to create new configmap")
-					return &ReturnIndicator{
-						Err: err,
-					}
-				}
-				logger.Info("created new configmap")
-				confMapCreate.Inc()
-				return &ReturnIndicator{}
+				return r.createOrReturn(ctx, cr, logger, "configmap", cm, confMapCreate)
 			}
 			logger.Error(err, "unknown error while checking for service existence")
 			return &ReturnIndicator{

@@ -24,28 +24,7 @@ func (r *MailhogInstanceReconciler) ensureService(ctx context.Context, cr *mailh
 		if errors.IsNotFound(err) {
 			// create new service
 			service := r.serviceNew(cr)
-			// annotate current version
-			if err = patch.DefaultAnnotator.SetLastAppliedAnnotation(service); err != nil {
-				logger.Error(err, "failed to annotate service with initial state")
-				return &ReturnIndicator{
-					Err: err,
-				}
-			}
-			if err = ctrl.SetControllerReference(cr, service, r.Scheme); err != nil {
-				logger.Error(err, "cant set owner reference of new service")
-				return &ReturnIndicator{
-					Err: err,
-				}
-			}
-			if err = r.Create(ctx, service); err != nil {
-				logger.Error(err, "failed creating a new service")
-				return &ReturnIndicator{
-					Err: err,
-				}
-			}
-			logger.Info("created new service")
-			serviceCreate.Inc()
-			return &ReturnIndicator{}
+			return r.createOrReturn(ctx, cr, logger, "service", service, serviceCreate)
 		}
 		logger.Error(err, "failed to get service")
 		return &ReturnIndicator{

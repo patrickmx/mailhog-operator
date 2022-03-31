@@ -26,28 +26,9 @@ func (r *MailhogInstanceReconciler) ensureDeploymentConfig(ctx context.Context, 
 		existingDeploymentConfig := &ocappsv1.DeploymentConfig{}
 		if err = r.Get(ctx, name, existingDeploymentConfig); err != nil {
 			if errors.IsNotFound(err) {
+				// create new deploymentConfig
 				deploymentConfig := r.deploymentConfigNew(cr)
-				if err = patch.DefaultAnnotator.SetLastAppliedAnnotation(deploymentConfig); err != nil {
-					logger.Error(err, "cant annotate deploymentConfig with lastApplied state")
-					return &ReturnIndicator{
-						Err: err,
-					}
-				}
-				if err = ctrl.SetControllerReference(cr, deploymentConfig, r.Scheme); err != nil {
-					logger.Error(err, "cant set owner reference of new deploymentConfig")
-					return &ReturnIndicator{
-						Err: err,
-					}
-				}
-				if err = r.Create(ctx, deploymentConfig); err != nil {
-					logger.Error(err, "failed creating deploymentConfig")
-					return &ReturnIndicator{
-						Err: err,
-					}
-				}
-				logger.Info("created new DeploymentConfig")
-				deploymentConfigCreate.Inc()
-				return &ReturnIndicator{}
+				return r.createOrReturn(ctx, cr, logger, "deploymentConfig", deploymentConfig, deploymentConfigCreate)
 			}
 			logger.Error(err, "failed to get deploymentConfig")
 			return &ReturnIndicator{

@@ -28,28 +28,7 @@ func (r *MailhogInstanceReconciler) ensureRoute(ctx context.Context, cr *mailhog
 			if errors.IsNotFound(err) {
 				// create new route
 				route := r.routeNew(cr)
-				// annotate current version
-				if err = patch.DefaultAnnotator.SetLastAppliedAnnotation(route); err != nil {
-					logger.Error(err, "failed to annotate route with initial state")
-					return &ReturnIndicator{
-						Err: err,
-					}
-				}
-				if err = ctrl.SetControllerReference(cr, route, r.Scheme); err != nil {
-					logger.Error(err, "cant set owner reference of new route")
-					return &ReturnIndicator{
-						Err: err,
-					}
-				}
-				if err = r.Create(ctx, route); err != nil {
-					logger.Error(err, "failed creating a new route")
-					return &ReturnIndicator{
-						Err: err,
-					}
-				}
-				logger.Info("created new route")
-				routeCreate.Inc()
-				return &ReturnIndicator{}
+				return r.createOrReturn(ctx, cr, logger, "route", route, routeCreate)
 			}
 			logger.Error(err, "failed to get route")
 			return &ReturnIndicator{

@@ -27,28 +27,7 @@ func (r *MailhogInstanceReconciler) ensureDeployment(ctx context.Context, cr *ma
 			if errors.IsNotFound(err) {
 				// create new deployment
 				deployment := r.deploymentNew(cr)
-				// annotate current version
-				if err = patch.DefaultAnnotator.SetLastAppliedAnnotation(deployment); err != nil {
-					logger.Error(err, "failed to annotate deployment with initial state")
-					return &ReturnIndicator{
-						Err: err,
-					}
-				}
-				if err = ctrl.SetControllerReference(cr, deployment, r.Scheme); err != nil {
-					logger.Error(err, "cant set owner reference of new deployment")
-					return &ReturnIndicator{
-						Err: err,
-					}
-				}
-				if err = r.Create(ctx, deployment); err != nil {
-					logger.Error(err, "failed creating a new deployment")
-					return &ReturnIndicator{
-						Err: err,
-					}
-				}
-				logger.Info("created new deployment")
-				deploymentCreate.Inc()
-				return &ReturnIndicator{}
+				return r.createOrReturn(ctx, cr, logger, "deployment", deployment, deploymentCreate)
 			}
 			logger.Error(err, "failed to get deployment")
 			return &ReturnIndicator{
