@@ -24,7 +24,7 @@ func (r *MailhogInstanceReconciler) ensureService(ctx context.Context, cr *mailh
 		if errors.IsNotFound(err) {
 			// create new service
 			service := r.serviceNew(cr)
-			return r.createOrReturn(ctx, cr, logger, "service", service, serviceCreate)
+			return r.create(ctx, cr, logger, "service", service, serviceCreate)
 		}
 		logger.Error(err, "failed to get service")
 		return &ReturnIndicator{

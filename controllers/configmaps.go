@@ -24,7 +24,7 @@ func (r *MailhogInstanceReconciler) ensureConfigMap(ctx context.Context, cr *mai
 			if errors.IsNotFound(err) {
 				// create new configmap
 				cm := r.configMapNew(cr)
-				return r.createOrReturn(ctx, cr, logger, "configmap", cm, confMapCreate)
+				return r.create(ctx, cr, logger, "configmap", cm, confMapCreate)
 			}
 			logger.Error(err, "unknown error while checking for service existence")
 			return &ReturnIndicator{

@@ -27,7 +27,7 @@ func (r *MailhogInstanceReconciler) ensureDeploymentConfig(ctx context.Context, 
 			if errors.IsNotFound(err) {
 				// create new deploymentConfig
 				deploymentConfig := r.deploymentConfigNew(cr)
-				return r.createOrReturn(ctx, cr, logger, "deploymentConfig", deploymentConfig, deploymentConfigCreate)
+				return r.create(ctx, cr, logger, "deploymentConfig", deploymentConfig, deploymentConfigCreate)
 			}
 			logger.Error(err, "failed to get deploymentConfig")
 			return &ReturnIndicator{

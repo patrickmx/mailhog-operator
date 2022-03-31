@@ -27,7 +27,7 @@ func (r *MailhogInstanceReconciler) ensureRoute(ctx context.Context, cr *mailhog
 			if errors.IsNotFound(err) {
 				// create new route
 				route := r.routeNew(cr)
-				return r.createOrReturn(ctx, cr, logger, "route", route, routeCreate)
+				return r.create(ctx, cr, logger, "route", route, routeCreate)
 			}
 			logger.Error(err, "failed to get route")
 			return &ReturnIndicator{

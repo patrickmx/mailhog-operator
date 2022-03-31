@@ -13,7 +13,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-func (r *MailhogInstanceReconciler) createOrReturn(ctx context.Context,
+func (r *MailhogInstanceReconciler) create(ctx context.Context,
 	cr *mailhogv1alpha1.MailhogInstance,
 	logger logr.Logger,
 	logHint string,
