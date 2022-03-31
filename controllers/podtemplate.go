@@ -140,10 +140,10 @@ func jimArgs(cr *mailhogv1alpha1.MailhogInstance) []string {
 	return args
 }
 
-func appendNonEmptyArg(previous []string, arg string, value string) (new []string) {
+func appendNonEmptyArg(args []string, arg string, value string) []string {
 	if value == "" {
-		return previous
+		return args
 	}
-	new = append(previous, "-"+arg+"="+value)
-	return
+	args = append(args, "-"+arg+"="+value)
+	return args
 }

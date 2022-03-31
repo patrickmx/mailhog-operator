@@ -28,15 +28,15 @@ func portsForCr() (p []corev1.ContainerPort) {
 
 func envForCr(crs *mailhogv1alpha1.MailhogInstance) (e []corev1.EnvVar) {
 	e = []corev1.EnvVar{
-		corev1.EnvVar{
+		{
 			Name:  "MH_SMTP_BIND_ADDR",
 			Value: "0.0.0.0:1025",
 		},
-		corev1.EnvVar{
+		{
 			Name:  "MH_API_BIND_ADDR",
 			Value: "0.0.0.0:8025",
 		},
-		corev1.EnvVar{
+		{
 			Name:  "MH_UI_BIND_ADDR",
 			Value: "0.0.0.0:8025",
 		},
@@ -70,15 +70,15 @@ func envForCr(crs *mailhogv1alpha1.MailhogInstance) (e []corev1.EnvVar) {
 	return
 }
 
-func appendNonEmptyEnv(previous []corev1.EnvVar, key string, value string) (new []corev1.EnvVar) {
+func appendNonEmptyEnv(env []corev1.EnvVar, key string, value string) []corev1.EnvVar {
 	if value == "" {
-		return previous
+		return env
 	}
-	new = append(previous, corev1.EnvVar{
+	env = append(env, corev1.EnvVar{
 		Name:  key,
 		Value: value,
 	})
-	return
+	return env
 }
 
 const (
