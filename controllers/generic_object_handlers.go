@@ -2,6 +2,8 @@ package controllers
 
 import (
 	"context"
+
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
 
@@ -53,7 +55,8 @@ func (r *MailhogInstanceReconciler) delete(ctx context.Context,
 	obj client.Object,
 	logHint string,
 	logger logr.Logger,
-	tick prometheus.Counter) *ReturnIndicator {
+	tick prometheus.Counter,
+) *ReturnIndicator {
 	var err error
 
 	if err = r.Get(ctx, name, obj); err != nil {
@@ -80,4 +83,32 @@ func (r *MailhogInstanceReconciler) delete(ctx context.Context,
 	}
 
 	return nil
+}
+
+func (r *MailhogInstanceReconciler) update(ctx context.Context,
+	cr *mailhogv1alpha1.MailhogInstance,
+	logger logr.Logger,
+	logHint string,
+	obj client.Object,
+	tickFunc prometheus.Counter,
+) *ReturnIndicator {
+	var err error
+
+	if err = ctrl.SetControllerReference(cr, obj, r.Scheme); err != nil {
+		logger.Error(err, "cant set owner reference of updated object", "object", logHint)
+		return &ReturnIndicator{
+			Err: err,
+		}
+	}
+	if err = r.Update(ctx, obj); err != nil {
+		logger.Error(err, "cant update object", "object", logHint)
+		return &ReturnIndicator{
+			Err: err,
+		}
+	}
+	logger.Info("updated existing object", "object", logHint)
+	tickFunc.Inc()
+
+	r.Recorder.Event(obj, corev1.EventTypeNormal, "SuccessEvent", "updated by mailhog management")
+	return &ReturnIndicator{}
 }

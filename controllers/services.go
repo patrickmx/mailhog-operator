@@ -11,7 +11,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/intstr"
-	ctrl "sigs.k8s.io/controller-runtime"
 )
 
 func (r *MailhogInstanceReconciler) ensureService(ctx context.Context, cr *mailhogv1alpha1.MailhogInstance, logger logr.Logger) *ReturnIndicator {
@@ -40,22 +39,7 @@ func (r *MailhogInstanceReconciler) ensureService(ctx context.Context, cr *mailh
 			Err: err,
 		}
 	} else if updateNeeded {
-		if err = ctrl.SetControllerReference(cr, updatedService, r.Scheme); err != nil {
-			logger.Error(err, "cant set owner reference of updated service")
-			return &ReturnIndicator{
-				Err: err,
-			}
-		}
-		if err = r.Update(ctx, updatedService); err != nil {
-			logger.Error(err, "cant update service")
-			return &ReturnIndicator{
-				Err: err,
-			}
-		}
-		logger.Info("updated existing service")
-		serviceUpdate.Inc()
-		r.Recorder.Event(updatedService, corev1.EventTypeNormal, "SuccessEvent", "service updated")
-		return &ReturnIndicator{}
+		return r.update(ctx, cr, logger, "service", updatedService, serviceUpdate)
 	}
 
 	logger.Info("service state ensured")

@@ -7,12 +7,10 @@ import (
 	"github.com/go-logr/logr"
 	ocappsv1 "github.com/openshift/api/apps/v1"
 	mailhogv1alpha1 "goimports.patrick.mx/mailhog-operator/api/v1alpha1"
-	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/intstr"
-	ctrl "sigs.k8s.io/controller-runtime"
 )
 
 func (r *MailhogInstanceReconciler) ensureDeploymentConfig(ctx context.Context, cr *mailhogv1alpha1.MailhogInstance, logger logr.Logger) *ReturnIndicator {
@@ -43,22 +41,7 @@ func (r *MailhogInstanceReconciler) ensureDeploymentConfig(ctx context.Context, 
 				Err: err,
 			}
 		} else if updateNeeded {
-			if err = ctrl.SetControllerReference(cr, updatedDeploymentConfig, r.Scheme); err != nil {
-				logger.Error(err, "cant set owner reference of updated deploymentConfig")
-				return &ReturnIndicator{
-					Err: err,
-				}
-			}
-			if err = r.Update(ctx, updatedDeploymentConfig); err != nil {
-				logger.Error(err, "cant update deploymentConfig")
-				return &ReturnIndicator{
-					Err: err,
-				}
-			}
-			logger.Info("updated existing deploymentConfig")
-			deploymentConfigUpdate.Inc()
-			r.Recorder.Event(updatedDeploymentConfig, corev1.EventTypeNormal, "SuccessEvent", "deploymentConfig updated")
-			return &ReturnIndicator{}
+			return r.update(ctx, cr, logger, "deploymentConfig", updatedDeploymentConfig, deploymentUpdate)
 		}
 	} else {
 

@@ -11,7 +11,6 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
-	ctrl "sigs.k8s.io/controller-runtime"
 )
 
 func (r *MailhogInstanceReconciler) ensureConfigMap(ctx context.Context, cr *mailhogv1alpha1.MailhogInstance, logger logr.Logger) *ReturnIndicator {
@@ -39,22 +38,7 @@ func (r *MailhogInstanceReconciler) ensureConfigMap(ctx context.Context, cr *mai
 				Err: err,
 			}
 		} else if updateNeeded {
-			if err = ctrl.SetControllerReference(cr, updatedCM, r.Scheme); err != nil {
-				logger.Error(err, "error setting owner ref on new configmap")
-				return &ReturnIndicator{
-					Err: err,
-				}
-			}
-			if err = r.Update(ctx, updatedCM); err != nil {
-				logger.Error(err, "cant update configmap")
-				return &ReturnIndicator{
-					Err: err,
-				}
-			}
-			logger.Info("updated existing configmap")
-			confMapUpdate.Inc()
-			r.Recorder.Event(updatedCM, corev1.EventTypeNormal, "SuccessEvent", "configmap updated")
-			return &ReturnIndicator{}
+			return r.update(ctx, cr, logger, "configmap", updatedCM, confMapUpdate)
 		}
 
 	} else {
