@@ -19,6 +19,7 @@ package v1alpha1
 // Important: Run "make" to regenerate code after modifying this file
 
 import (
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -122,6 +123,13 @@ type MailhogInstanceSettingsSpec struct {
 	//+optional
 	//+nullable
 	Files *MailhogFilesSpec `json:"files,omitempty"`
+
+	// Resources allows to override the default resources of the created pods
+	//
+	//+kubebuilder:validation:Optional
+	//+optional
+	//+nullable
+	Resources *corev1.ResourceRequirements `json:"resources,omitempty"`
 
 	// Jim is the chaos monkey
 	//

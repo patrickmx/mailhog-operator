@@ -22,6 +22,7 @@ limitations under the License.
 package v1alpha1
 
 import (
+	"k8s.io/api/core/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 )
 
@@ -117,6 +118,11 @@ func (in *MailhogInstanceSettingsSpec) DeepCopyInto(out *MailhogInstanceSettings
 	if in.Files != nil {
 		in, out := &in.Files, &out.Files
 		*out = new(MailhogFilesSpec)
+		(*in).DeepCopyInto(*out)
+	}
+	if in.Resources != nil {
+		in, out := &in.Resources, &out.Resources
+		*out = new(v1.ResourceRequirements)
 		(*in).DeepCopyInto(*out)
 	}
 	out.Jim = in.Jim

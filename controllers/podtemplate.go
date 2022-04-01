@@ -15,14 +15,12 @@ func (r *MailhogInstanceReconciler) podTemplate(cr *mailhogv1alpha1.MailhogInsta
 	ports := portsForCr()
 	image := cr.Spec.Image
 
-	resources := corev1.ResourceRequirements{
-		Requests: corev1.ResourceList{},
-		Limits:   corev1.ResourceList{},
+	var resources corev1.ResourceRequirements
+	if cr.Spec.Settings.Resources == nil {
+		resources = defaultResources()
+	} else {
+		resources = *cr.Spec.Settings.Resources
 	}
-	resources.Requests[corev1.ResourceCPU] = resource.MustParse("200m")
-	resources.Requests[corev1.ResourceMemory] = resource.MustParse("150Mi")
-	resources.Limits[corev1.ResourceCPU] = resource.MustParse("200m")
-	resources.Limits[corev1.ResourceMemory] = resource.MustParse("150Mi")
 
 	socketProbe := &corev1.Probe{
 		ProbeHandler: corev1.ProbeHandler{
@@ -120,6 +118,18 @@ func (r *MailhogInstanceReconciler) podTemplate(cr *mailhogv1alpha1.MailhogInsta
 	}
 
 	return pod
+}
+
+func defaultResources() corev1.ResourceRequirements {
+	resources := corev1.ResourceRequirements{
+		Requests: corev1.ResourceList{},
+		Limits:   corev1.ResourceList{},
+	}
+	resources.Requests[corev1.ResourceCPU] = resource.MustParse("200m")
+	resources.Requests[corev1.ResourceMemory] = resource.MustParse("150Mi")
+	resources.Limits[corev1.ResourceCPU] = resource.MustParse("200m")
+	resources.Limits[corev1.ResourceMemory] = resource.MustParse("150Mi")
+	return resources
 }
 
 func jimArgs(cr *mailhogv1alpha1.MailhogInstance) []string {
