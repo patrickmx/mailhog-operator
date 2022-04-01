@@ -19,7 +19,7 @@ func (r *MailhogInstanceReconciler) podTemplate(cr *mailhogv1alpha1.MailhogInsta
 	if cr.Spec.Settings.Resources == nil {
 		resources = defaultResources()
 	} else {
-		resources = *cr.Spec.Settings.Resources
+		resources = *cr.Spec.Settings.Resources.DeepCopy()
 	}
 
 	socketProbe := &corev1.Probe{
@@ -115,6 +115,10 @@ func (r *MailhogInstanceReconciler) podTemplate(cr *mailhogv1alpha1.MailhogInsta
 
 	if cr.Spec.Settings.Jim.Invite == true {
 		pod.Spec.Containers[0].Args = jimArgs(cr)
+	}
+
+	if cr.Spec.Settings.Affinity != nil {
+		pod.Spec.Affinity = cr.Spec.Settings.Affinity.DeepCopy()
 	}
 
 	return pod

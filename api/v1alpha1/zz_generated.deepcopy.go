@@ -125,6 +125,11 @@ func (in *MailhogInstanceSettingsSpec) DeepCopyInto(out *MailhogInstanceSettings
 		*out = new(v1.ResourceRequirements)
 		(*in).DeepCopyInto(*out)
 	}
+	if in.Affinity != nil {
+		in, out := &in.Affinity, &out.Affinity
+		*out = new(v1.Affinity)
+		(*in).DeepCopyInto(*out)
+	}
 	out.Jim = in.Jim
 }
 

@@ -131,6 +131,13 @@ type MailhogInstanceSettingsSpec struct {
 	//+nullable
 	Resources *corev1.ResourceRequirements `json:"resources,omitempty"`
 
+	// Affinity allows to override the podtemplates affinity settings
+	//
+	//+kubebuilder:validation:Optional
+	//+optional
+	//+nullable
+	Affinity *corev1.Affinity `json:"affinity,omitempty"`
+
 	// Jim is the chaos monkey
 	//
 	//+kubebuilder:validation:Optional
