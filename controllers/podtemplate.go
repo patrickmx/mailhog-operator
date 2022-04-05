@@ -25,7 +25,7 @@ func (r *MailhogInstanceReconciler) podTemplate(cr *mailhogv1alpha1.MailhogInsta
 	socketProbe := &corev1.Probe{
 		ProbeHandler: corev1.ProbeHandler{
 			TCPSocket: &corev1.TCPSocketAction{
-				Port: intstr.FromInt(1025),
+				Port: intstr.FromInt(8025),
 			},
 		},
 		InitialDelaySeconds: 10,
