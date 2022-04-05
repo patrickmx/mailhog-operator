@@ -135,11 +135,12 @@ func logBuild() {
 		var vcsTime string
 		var vcsModified string
 		for _, setting := range info.Settings {
-			if setting.Key == "vcs.revision" {
+			switch setting.Key {
+			case "vcs.revision":
 				vcsRef = setting.Value
-			} else if setting.Key == "vcs.time" {
+			case "vcs.time":
 				vcsTime = setting.Value
-			} else if setting.Key == "vcs.modified" {
+			case "vcs.modified":
 				vcsModified = setting.Value
 			}
 		}
