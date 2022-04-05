@@ -19,6 +19,8 @@ package main
 import (
 	"flag"
 	"os"
+	"runtime/debug"
+
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
 	// to ensure that exec-entrypoint and run can make use of them.
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
@@ -80,6 +82,8 @@ func main() {
 		}
 	}
 
+	logBuild()
+
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), options)
 	if err != nil {
 		setupLog.Error(err, "unable to start manager")
@@ -122,4 +126,25 @@ func defaultOptions() ctrl.Options {
 		LeaderElectionID:       "26f4c8adfee.mailhog.patrick.mx",
 		Namespace:              "project",
 	}
+}
+
+func logBuild() {
+	info, infoFound := debug.ReadBuildInfo()
+	if infoFound {
+		var vcsRef string
+		var vcsTime string
+		for _, setting := range info.Settings {
+			if setting.Key == "vcs.revision" {
+				vcsRef = setting.Value
+			} else if setting.Key == "vcs.time" {
+				vcsTime = setting.Value
+			}
+		}
+		if vcsRef != "" {
+			setupLog.Info("no build info found", "vcs.revision", vcsRef, "vcs.time", vcsTime)
+			return
+		}
+	}
+	setupLog.Info("no build info found", "build", "null")
+	return
 }
