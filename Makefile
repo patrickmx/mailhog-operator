@@ -138,25 +138,28 @@ debug: generate fmt vet manifests
 docker-build: test docker-refresh-base ## Build docker image with the manager.
 	podman build -t ${IMG} .
 
-.PHONY: docker-push
-docker-push: ## Push docker image with the manager.
-	podman push ${IMG}
-
 .PHONY: docker-refresh-base
 docker-refresh-base:
 	podman pull docker.io/library/golang:1.18
+
+.PHONY: latest
+latest:
+	podman inspect ${IMG} | jq .[0].Id
+	podman inspect ${IMG} | jq .[0].Created
+	git rev-parse HEAD
 
 ##@ CRC
 
 .PHONY: build-push-image-to-crc
 build-push-image-to-crc: docker-build ## push the image from the local podman to imagestream
+	oc -n mailhog-operator-system delete imagestreams/mailhog || true
 	$(KUSTOMIZE) build config/codeready | kubectl apply -f -
-	podman login -u kubeadmin -p $(oc whoami -t) default-route-openshift-image-registry.apps-crc.testing --tls-verify=false --authfile=~/.podmanauth
+	podman login -u kubeadmin -p $(oc whoami -t) default-route-openshift-image-registry.apps-crc.testing --tls-verify=false
 	oc registry login --insecure=true
-	podman push --tls-verify=false --authfile=~/.podmanauth default-route-openshift-image-registry.apps-crc.testing/mailhog-operator-system/mailhog:v$(VERSION)
+	podman push --tls-verify=false default-route-openshift-image-registry.apps-crc.testing/mailhog-operator-system/mailhog:v$(VERSION)
 
 .PHONY: crc-deploy
-crc-deploy: deploy build-push-image-to-crc
+crc-deploy: deploy build-push-image-to-crc latest
 	oc -n mailhog-operator-system patch deployment/mailhog-operator-controller-manager -p '{"spec":{"template":{"spec":{"containers":[{"name": "manager", "args":["-config","/operatorconfig/config.yml","--zap-devel=false"]}]}}}}'
 	oc -n mailhog-operator-system patch deployment/mailhog-operator-controller-manager -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"last-restart\":\"`date +'%s'`\"}}}}}"
 
@@ -245,18 +248,6 @@ gofumpt: ## Download golangci-lint locally if necessary. https://golangci-lint.r
 
 # go-get-tool will 'go get' any package $2 and install it to $1.
 PROJECT_DIR := $(shell dirname $(abspath $(lastword $(MAKEFILE_LIST))))
-define go-get-tool
-@[ -f $(1) ] || { \
-set -e ;\
-TMP_DIR=$$(mktemp -d) ;\
-cd $$TMP_DIR ;\
-go mod init tmp ;\
-echo "Downloading $(2)" ;\
-GOBIN=$(PROJECT_DIR)/bin go get $(2) ;\
-rm -rf $$TMP_DIR ;\
-}
-endef
-
 define go-install-tool
 @[ -f $(1) ] || { \
 set -e ;\

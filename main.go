@@ -133,15 +133,18 @@ func logBuild() {
 	if infoFound {
 		var vcsRef string
 		var vcsTime string
+		var vcsModified string
 		for _, setting := range info.Settings {
 			if setting.Key == "vcs.revision" {
 				vcsRef = setting.Value
 			} else if setting.Key == "vcs.time" {
 				vcsTime = setting.Value
+			} else if setting.Key == "vcs.modified" {
+				vcsModified = setting.Value
 			}
 		}
 		if vcsRef != "" {
-			setupLog.Info("no build info found", "vcs.revision", vcsRef, "vcs.time", vcsTime)
+			setupLog.Info("build info", "vcs.revision", vcsRef, "vcs.time", vcsTime, "vcs.modified", vcsModified)
 			return
 		}
 	}
