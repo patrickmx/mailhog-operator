@@ -135,12 +135,16 @@ debug: generate fmt vet manifests
 	dlv --listen=:2345 --headless=true --api-version=2 --accept-multiclient exec ./bin/manager
 
 .PHONY: docker-build
-docker-build: test ## Build docker image with the manager.
+docker-build: test docker-refresh-base ## Build docker image with the manager.
 	podman build -t ${IMG} .
 
 .PHONY: docker-push
 docker-push: ## Push docker image with the manager.
 	podman push ${IMG}
+
+.PHONY: docker-refresh-base
+docker-refresh-base:
+	podman pull docker.io/library/golang:1.18
 
 ##@ CRC
 
