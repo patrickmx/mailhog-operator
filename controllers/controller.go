@@ -180,7 +180,7 @@ func (r *MailhogInstanceReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Watches(
 			&source.Kind{Type: &corev1.Pod{}},
 			handler.EnqueueRequestsFromMapFunc(r.findObjectsForPod),
-			builder.WithPredicates(predicate.ResourceVersionChangedPredicate{}),
+			builder.WithPredicates(predicate.LabelChangedPredicate{}),
 		).
 		Complete(r)
 }
