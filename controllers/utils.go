@@ -86,8 +86,15 @@ func labelsForCr(name string) map[string]string {
 	return map[string]string{
 		"app":                        "mailhog",
 		"mailhog_cr":                 name,
+		"app.openshift.io/runtime":   "golang",
 		"app.kubernetes.io/name":     "mailhog",
 		"app.kubernetes.io/instance": name,
+	}
+}
+
+func annotationsForCr() map[string]string {
+	return map[string]string{
+		"app.openshift.io/vcs-uri": "https://github.com/mailhog/MailHog",
 	}
 }
 

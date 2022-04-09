@@ -67,9 +67,10 @@ func (r *MailhogInstanceReconciler) deploymentConfigNew(cr *mailhogv1alpha1.Mail
 
 	deploymentConfig := &ocappsv1.DeploymentConfig{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      cr.Name,
-			Namespace: cr.Namespace,
-			Labels:    labelsForCr(cr.Name),
+			Name:        cr.Name,
+			Namespace:   cr.Namespace,
+			Labels:      labelsForCr(cr.Name),
+			Annotations: annotationsForCr(),
 		},
 		Spec: ocappsv1.DeploymentConfigSpec{
 			Replicas:        replicas,
