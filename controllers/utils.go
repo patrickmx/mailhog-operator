@@ -14,13 +14,13 @@ type (
 func portsForCr() (p []corev1.ContainerPort) {
 	return []corev1.ContainerPort{
 		{
-			Name:          "http",
-			ContainerPort: 8025,
+			Name:          portWebName,
+			ContainerPort: portWeb,
 			Protocol:      "TCP",
 		},
 		{
-			Name:          "smtp",
-			ContainerPort: 1025,
+			Name:          portSmtpName,
+			ContainerPort: portSmtp,
 			Protocol:      "TCP",
 		},
 	}
@@ -59,11 +59,11 @@ func envForCr(crs *mailhogv1alpha1.MailhogInstance) (e []corev1.EnvVar) {
 
 	if crs.Spec.Settings.Files != nil {
 		if len(crs.Spec.Settings.Files.SmtpUpstreams) > 0 {
-			e = appendNonEmptyEnv(e, "MH_OUTGOING_SMTP", settingsFilesMount+"/upstream.servers.json")
+			e = appendNonEmptyEnv(e, "MH_OUTGOING_SMTP", settingsFileUpstreamsPath)
 		}
 
 		if len(crs.Spec.Settings.Files.WebUsers) > 0 {
-			e = appendNonEmptyEnv(e, "MH_AUTH_FILE", settingsFilesMount+"/users.list.bcrypt")
+			e = appendNonEmptyEnv(e, "MH_AUTH_FILE", settingsFilePasswordsPath)
 		}
 	}
 
@@ -80,10 +80,6 @@ func appendNonEmptyEnv(env []corev1.EnvVar, key string, value string) []corev1.E
 	})
 	return env
 }
-
-const (
-	settingsFilesMount = "/mailhog/settings/files"
-)
 
 func labelsForCr(name string) map[string]string {
 	return map[string]string{

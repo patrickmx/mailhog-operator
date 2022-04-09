@@ -62,7 +62,7 @@ func (r *MailhogInstanceReconciler) configMapNew(cr *mailhogv1alpha1.MailhogInst
 			text, _ := json.Marshal(server)
 			serverLines = append(serverLines, "\""+server.Name+"\":"+string(text))
 		}
-		mapdata["upstream.servers.json"] = "{" + strings.Join(serverLines, ",") + "}"
+		mapdata[settingsFileUpstreamsName] = "{" + strings.Join(serverLines, ",") + "}"
 	}
 
 	if len(cr.Spec.Settings.Files.WebUsers) > 0 {
@@ -70,7 +70,7 @@ func (r *MailhogInstanceReconciler) configMapNew(cr *mailhogv1alpha1.MailhogInst
 		for _, credential := range cr.Spec.Settings.Files.WebUsers {
 			users += credential.Name + ":" + credential.PasswordHash + "\n"
 		}
-		mapdata["users.list.bcrypt"] = users
+		mapdata[settingsFilePasswordsName] = users
 	}
 
 	notImmutable := false

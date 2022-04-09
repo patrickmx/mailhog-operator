@@ -62,19 +62,19 @@ func (r *MailhogInstanceReconciler) serviceNew(cr *mailhogv1alpha1.MailhogInstan
 			Selector: labels,
 			Ports: []corev1.ServicePort{
 				{
-					Port: 1025,
-					Name: "smtp",
+					Port: portSmtp,
+					Name: portSmtpName,
 					TargetPort: intstr.IntOrString{
 						Type:   intstr.Int,
-						IntVal: 1025,
+						IntVal: portSmtp,
 					},
 				},
 				{
-					Port: 8025,
-					Name: "http",
+					Port: portWeb,
+					Name: portWebName,
 					TargetPort: intstr.IntOrString{
 						Type:   intstr.Int,
-						IntVal: 8025,
+						IntVal: portWeb,
 					},
 				},
 			},

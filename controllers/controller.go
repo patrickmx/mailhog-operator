@@ -47,10 +47,6 @@ type MailhogInstanceReconciler struct {
 	Recorder record.EventRecorder
 }
 
-const (
-	lastApplied = "mailhog.operators.patrick.mx/last-applied"
-)
-
 // default ReconcileAfter value if used
 var requeueTime = time.Duration(10) * time.Second
 

@@ -25,7 +25,7 @@ func (r *MailhogInstanceReconciler) podTemplate(cr *mailhogv1alpha1.MailhogInsta
 	socketProbe := &corev1.Probe{
 		ProbeHandler: corev1.ProbeHandler{
 			TCPSocket: &corev1.TCPSocketAction{
-				Port: intstr.FromInt(8025),
+				Port: intstr.FromInt(portWeb),
 			},
 		},
 		InitialDelaySeconds: 10,
@@ -37,7 +37,7 @@ func (r *MailhogInstanceReconciler) podTemplate(cr *mailhogv1alpha1.MailhogInsta
 	httpProbe := &corev1.Probe{
 		ProbeHandler: corev1.ProbeHandler{
 			HTTPGet: &corev1.HTTPGetAction{
-				Port:   intstr.FromInt(8025),
+				Port:   intstr.FromInt(portWeb),
 				Path:   "/api/v2/messages?limit=1",
 				Scheme: corev1.URISchemeHTTP,
 			},
@@ -72,29 +72,25 @@ func (r *MailhogInstanceReconciler) podTemplate(cr *mailhogv1alpha1.MailhogInsta
 	}
 
 	if cr.Spec.Settings.Storage == mailhogv1alpha1.MaildirStorage || cr.Spec.Settings.Files != nil {
-		const (
-			storageVolumeName  = "maildir-storage"
-			settingsVolumeName = "settings-files"
-		)
 		podVolumes := make([]corev1.Volume, 0)
 		containerVolMounts := make([]corev1.VolumeMount, 0)
 		if cr.Spec.Settings.StorageMaildir.Path != "" && cr.Spec.Settings.Storage == mailhogv1alpha1.MaildirStorage {
 
 			podVolumes = append(podVolumes, corev1.Volume{
-				Name: storageVolumeName,
+				Name: volumeNameMaildir,
 				VolumeSource: corev1.VolumeSource{
 					EmptyDir: &corev1.EmptyDirVolumeSource{},
 				},
 			})
 			containerVolMounts = append(containerVolMounts, corev1.VolumeMount{
-				Name:      storageVolumeName,
+				Name:      volumeNameMaildir,
 				MountPath: cr.Spec.Settings.StorageMaildir.Path,
 			})
 
 		}
 		if cr.Spec.Settings.Files != nil {
 			podVolumes = append(podVolumes, corev1.Volume{
-				Name: settingsVolumeName,
+				Name: volumeNameSettings,
 				VolumeSource: corev1.VolumeSource{
 					ConfigMap: &corev1.ConfigMapVolumeSource{
 						LocalObjectReference: corev1.LocalObjectReference{
@@ -104,7 +100,7 @@ func (r *MailhogInstanceReconciler) podTemplate(cr *mailhogv1alpha1.MailhogInsta
 				},
 			})
 			containerVolMounts = append(containerVolMounts, corev1.VolumeMount{
-				Name:      settingsVolumeName,
+				Name:      volumeNameSettings,
 				MountPath: settingsFilesMount,
 			})
 
@@ -134,10 +130,10 @@ func defaultResources() corev1.ResourceRequirements {
 		Requests: corev1.ResourceList{},
 		Limits:   corev1.ResourceList{},
 	}
-	resources.Requests[corev1.ResourceCPU] = resource.MustParse("200m")
-	resources.Requests[corev1.ResourceMemory] = resource.MustParse("150Mi")
-	resources.Limits[corev1.ResourceCPU] = resource.MustParse("200m")
-	resources.Limits[corev1.ResourceMemory] = resource.MustParse("150Mi")
+	resources.Requests[corev1.ResourceCPU] = resource.MustParse(defaultResourceCPU)
+	resources.Requests[corev1.ResourceMemory] = resource.MustParse(defaultResourceMemory)
+	resources.Limits[corev1.ResourceCPU] = resource.MustParse(defaultResourceCPU)
+	resources.Limits[corev1.ResourceMemory] = resource.MustParse(defaultResourceMemory)
 	return resources
 }
 
