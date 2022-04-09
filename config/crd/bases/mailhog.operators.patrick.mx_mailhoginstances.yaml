@@ -1000,6 +1000,9 @@ spec:
                         description: WebUsers If WebUsers are defined, UI/API Access
                           will be protected with basic auth
                         items:
+                          description: MailhogWebUserSpec configures UI and API HTTP
+                            basic auth. see https://github.com/mailhog/MailHog/blob/master/docs/Auth.md
+                            for more information
                           properties:
                             name:
                               description: Name is the username

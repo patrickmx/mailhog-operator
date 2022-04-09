@@ -1,0 +1,195 @@
+apiVersion: console.openshift.io/v1
+kind: ConsoleYAMLSample
+metadata:
+  name: mhi1-simple
+spec:
+  targetResource:
+    apiVersion: mailhog.operators.patrick.mx/v1alpha1
+    kind: MailhogInstance
+  title: 1. Minimal
+  description: MailhogInstance minimal example
+  yaml: |
+    apiVersion: mailhog.operators.patrick.mx/v1alpha1
+    kind: MailhogInstance
+    metadata:
+      name: mhi1-simple
+      namespace: project
+    spec:
+      image: 'mailhog/mailhog:latest'
+      replicas: 1
+      settings:
+        storage: memory
+      webTrafficInlet: route
+---
+apiVersion: console.openshift.io/v1
+kind: ConsoleYAMLSample
+metadata:
+  name: mhi2-dc
+spec:
+  targetResource:
+    apiVersion: mailhog.operators.patrick.mx/v1alpha1
+    kind: MailhogInstance
+  title: 2 - DeploymentConfig
+  description: MailhogInstance deployed using an oc deploymentconfig
+  yaml: |
+    apiVersion: mailhog.operators.patrick.mx/v1alpha1
+    kind: MailhogInstance
+    metadata:
+      name: mhi2-dc
+      namespace: project
+    spec:
+      image: 'mailhog/mailhog:latest'
+      replicas: 1
+      settings:
+        storage: memory
+      webTrafficInlet: route
+      backingResource: deploymentConfig
+---
+apiVersion: console.openshift.io/v1
+kind: ConsoleYAMLSample
+metadata:
+  name: mhi3-jim
+spec:
+  targetResource:
+    apiVersion: mailhog.operators.patrick.mx/v1alpha1
+    kind: MailhogInstance
+  title: 3 - Chaosmonkey
+  description: MailhogInstance with enabled chaosmonkey
+  yaml: |
+    apiVersion: mailhog.operators.patrick.mx/v1alpha1
+    kind: MailhogInstance
+    metadata:
+      name: mhi3-jim
+      namespace: project
+    spec:
+      image: 'mailhog/mailhog:latest'
+      replicas: 1
+      settings:
+        storage: memory
+        jim:
+          invite: true
+          disconnect: "0.1"
+          rejectRecipient: "0.2"
+      webTrafficInlet: route
+---
+apiVersion: console.openshift.io/v1
+kind: ConsoleYAMLSample
+metadata:
+  name: mhi4-reslimit
+spec:
+  targetResource:
+    apiVersion: mailhog.operators.patrick.mx/v1alpha1
+    kind: MailhogInstance
+  title: 4 - Pod Resource Limits
+  description: MailhogInstance with custom pod resource limits
+  yaml: |
+    apiVersion: mailhog.operators.patrick.mx/v1alpha1
+    kind: MailhogInstance
+    metadata:
+      name: mhi4-reslimit
+      namespace: project
+    spec:
+      image: 'mailhog/mailhog:latest'
+      replicas: 1
+      settings:
+        storage: memory
+        resources:
+          limits:
+            cpu: 400m
+            memory: 100Mi
+          requests:
+            cpu: 100m
+            memory: 80Mi
+      webTrafficInlet: route
+---
+apiVersion: console.openshift.io/v1
+kind: ConsoleYAMLSample
+metadata:
+  name: mhi5-cm
+spec:
+  targetResource:
+    apiVersion: mailhog.operators.patrick.mx/v1alpha1
+    kind: MailhogInstance
+  title: 5 - Configmap (Upstreams, WebUI PW)
+  description: MailhogInstance with settings requiring a configmap. PWs = example
+  yaml: |
+    apiVersion: mailhog.operators.patrick.mx/v1alpha1
+    kind: MailhogInstance
+    metadata:
+      name: mhi5-cm
+      namespace: project
+    spec:
+      image: 'mailhog/mailhog:latest'
+      replicas: 1
+      settings:
+        storage: memory
+        files:
+          smtpUpstreams:
+            - name: mh1
+              save: true
+              email: tom@mailhog.local
+              host: mhi1-simple
+              port: "1025"
+            - name: mh2
+              save: true
+              email: jerry@mailhog.local
+              host: mhi2-dc
+              port: "1025"
+          webUsers:
+            - name: example
+              passwordHash: $2a$04$erImcj5XhZOONGjzbbqrN.YtHYb6eNn/GgKRIPh6YqDGIhVIuN0Y6
+            - name: root
+              passwordHash: $2a$04$erImcj5XhZOONGjzbbqrN.YtHYb6eNn/GgKRIPh6YqDGIhVIuN0Y6
+      webTrafficInlet: route
+---
+apiVersion: console.openshift.io/v1
+kind: ConsoleYAMLSample
+metadata:
+  name: mhi6-maildir
+spec:
+  targetResource:
+    apiVersion: mailhog.operators.patrick.mx/v1alpha1
+    kind: MailhogInstance
+  title: 6 - Maildir Storage
+  description: MailhogInstance with Maildir Storage
+  yaml: |
+    apiVersion: mailhog.operators.patrick.mx/v1alpha1
+    kind: MailhogInstance
+    metadata:
+      name: mhi6-maildir
+      namespace: project
+    spec:
+      image: 'mailhog/mailhog:latest'
+      replicas: 1
+      settings:
+        storage: maildir
+        storageMaildir:
+          path: /var/lib/mailhog-maildir
+      webTrafficInlet: route
+---
+apiVersion: console.openshift.io/v1
+kind: ConsoleYAMLSample
+metadata:
+  name: mhi7-mongodb
+spec:
+  targetResource:
+    apiVersion: mailhog.operators.patrick.mx/v1alpha1
+    kind: MailhogInstance
+  title: 7 - MongoDB Storage
+  description: MailhogInstance with MongoDB Storage (requires mongodb managed externally)
+  yaml: |
+    apiVersion: mailhog.operators.patrick.mx/v1alpha1
+    kind: MailhogInstance
+    metadata:
+      name: mhi7-mongodb
+      namespace: project
+    spec:
+      image: 'mailhog/mailhog:latest'
+      replicas: 1
+      settings:
+        storage: mongodb
+        storageMongoDb:
+          uri: mongodb:27017
+          db: mailhog
+          collection: mails
+      webTrafficInlet: route

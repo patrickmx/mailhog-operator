@@ -20,6 +20,10 @@ podman pull ghcr.io/patrickmx/mailhog-operator:develop
 podman pull ghcr.io/patrickmx/mailhog-operator:latest
 ```
 
+## CR Examples
+
+Some example CR configurations can be found as OC Console Examples in [examples.yaml](config/codeready/mailhogInstance_console_examples.yaml)
+
 ## Development
 
 ```bash

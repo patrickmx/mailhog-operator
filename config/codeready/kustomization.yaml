@@ -1,5 +1,5 @@
 resources:
-- mailhogInstance_console_example.yaml
+- mailhogInstance_console_examples.yaml
 - developer_rolebinding.yaml
 - operator_imagestream.yaml
 
