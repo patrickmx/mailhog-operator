@@ -27,10 +27,13 @@ func CreateMetaMaker(cr *mailhogv1alpha1.MailhogInstance) *metaMaker {
 		mm.IsDeploymentConfig = true
 	}
 
+	// https://openshift.github.io/openshift-origin-design/designs/developer/topology/#7-application-group
 	if label := cr.Labels[partOfLabel]; label != "" {
 		mm.Labels[partOfLabel] = label
 	}
 
+	// https://docs.openshift.com/container-platform/4.8/applications/odc-viewing-application-composition-using-topology-view.html#creating-a-visual-connection-between-components
+	// https://www.redhat.com/en/blog/openshift-topology-view-milestone-towards-better-developer-experience
 	if annotation := cr.Annotations[connectsToAnnotation]; annotation != "" {
 		mm.Annotations[connectsToAnnotation] = annotation
 	}
