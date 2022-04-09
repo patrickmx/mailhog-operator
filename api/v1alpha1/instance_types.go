@@ -285,6 +285,8 @@ type MailhogUpstreamSpec struct {
 	Mechanism string `json:"mechanism,omitempty"`
 }
 
+// MailhogWebUserSpec configures UI and API HTTP basic auth.
+// see https://github.com/mailhog/MailHog/blob/master/docs/Auth.md for more information
 type MailhogWebUserSpec struct {
 	// Name is the username
 	//
