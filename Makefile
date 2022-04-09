@@ -185,6 +185,17 @@ install-cert-manager: ## yolo
 crc-creds:
 	crc console --credentials
 
+.PHONY: crc-add-mongo
+crc-add-mongo:
+	oc -n project new-app \
+           -e MONGODB_USER=user \
+           -e MONGODB_PASSWORD=password \
+           -e MONGODB_DATABASE=mailhog \
+           -e MONGODB_ADMIN_PASSWORD=admin \
+           --name="mongodb" \
+           -l "app.kubernetes.io/part-of=mailhog,app.openshift.io/runtime=mongodb" \
+           registry.redhat.io/rhscl/mongodb-26-rhel7
+
 ##@ Release
 
 .PHONY: ship

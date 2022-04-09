@@ -9,8 +9,7 @@ import (
 )
 
 func (r *MailhogInstanceReconciler) podTemplate(cr *mailhogv1alpha1.MailhogInstance) corev1.PodTemplateSpec {
-	labels := labelsForCr(cr.Name)
-	labels["deploymentconfig"] = cr.Name
+	meta := CreateMetaMaker(cr)
 	env := envForCr(cr)
 	ports := portsForCr()
 	image := cr.Spec.Image
@@ -52,7 +51,7 @@ func (r *MailhogInstanceReconciler) podTemplate(cr *mailhogv1alpha1.MailhogInsta
 
 	pod := corev1.PodTemplateSpec{
 		ObjectMeta: metav1.ObjectMeta{
-			Labels: labels,
+			Labels: meta.GetLabels(true),
 		},
 		Spec: corev1.PodSpec{
 			Containers: []corev1.Container{

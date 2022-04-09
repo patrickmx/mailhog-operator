@@ -82,26 +82,6 @@ func appendNonEmptyEnv(env []corev1.EnvVar, key string, value string) []corev1.E
 	return env
 }
 
-func labelsForCr(name string) map[string]string {
-	return map[string]string{
-		"app":                        "mailhog",
-		"mailhog_cr":                 name,
-		"app.openshift.io/runtime":   "golang",
-		"app.kubernetes.io/name":     "mailhog",
-		"app.kubernetes.io/instance": name,
-	}
-}
-
-func annotationsForCr() map[string]string {
-	return map[string]string{
-		"app.openshift.io/vcs-uri": "https://github.com/mailhog/MailHog",
-	}
-}
-
-func textLabelsForCr(name string) string {
-	return "app=mailhog,mailhog_cr=" + name
-}
-
 func getPodNames(pods []corev1.Pod) []string {
 	podNames := make([]string, 0)
 	for _, pod := range pods {

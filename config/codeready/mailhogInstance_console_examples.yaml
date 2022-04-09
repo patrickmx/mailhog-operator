@@ -14,6 +14,8 @@ spec:
     metadata:
       name: mhi1-simple
       namespace: project
+      annotations:
+        app.openshift.io/vcs-uri: 'https://console-openshift-console.apps-crc.testing/k8s/ns/project/mailhog.operators.patrick.mx~v1alpha1~MailhogInstance/mhi1-simple/yaml'
     spec:
       image: 'mailhog/mailhog:latest'
       replicas: 1
@@ -37,6 +39,8 @@ spec:
     metadata:
       name: mhi2-dc
       namespace: project
+      annotations:
+        app.openshift.io/vcs-uri: 'https://console-openshift-console.apps-crc.testing/k8s/ns/project/mailhog.operators.patrick.mx~v1alpha1~MailhogInstance/mhi2-dc/yaml'
     spec:
       image: 'mailhog/mailhog:latest'
       replicas: 1
@@ -61,6 +65,8 @@ spec:
     metadata:
       name: mhi3-jim
       namespace: project
+      annotations:
+        app.openshift.io/vcs-uri: 'https://console-openshift-console.apps-crc.testing/k8s/ns/project/mailhog.operators.patrick.mx~v1alpha1~MailhogInstance/mhi3-jim/yaml'
     spec:
       image: 'mailhog/mailhog:latest'
       replicas: 1
@@ -88,6 +94,8 @@ spec:
     metadata:
       name: mhi4-reslimit
       namespace: project
+      annotations:
+        app.openshift.io/vcs-uri: 'https://console-openshift-console.apps-crc.testing/k8s/ns/project/mailhog.operators.patrick.mx~v1alpha1~MailhogInstance/mhi4-reslimit/yaml'
     spec:
       image: 'mailhog/mailhog:latest'
       replicas: 1
@@ -118,6 +126,8 @@ spec:
     metadata:
       name: mhi5-cm
       namespace: project
+      annotations:
+        app.openshift.io/vcs-uri: 'https://console-openshift-console.apps-crc.testing/k8s/ns/project/mailhog.operators.patrick.mx~v1alpha1~MailhogInstance/mhi5-cm/yaml'
     spec:
       image: 'mailhog/mailhog:latest'
       replicas: 1
@@ -158,6 +168,8 @@ spec:
     metadata:
       name: mhi6-maildir
       namespace: project
+      annotations:
+        app.openshift.io/vcs-uri: 'https://console-openshift-console.apps-crc.testing/k8s/ns/project/mailhog.operators.patrick.mx~v1alpha1~MailhogInstance/mhi6-maildir/yaml'
     spec:
       image: 'mailhog/mailhog:latest'
       replicas: 1
@@ -183,13 +195,18 @@ spec:
     metadata:
       name: mhi7-mongodb
       namespace: project
+      labels:
+        app.kubernetes.io/part-of: mailhog
+      annotations:
+        app.openshift.io/connects-to: '[{"apiVersion":"apps.openshift.io/v1","kind":"DeploymentConfig","name":"mongodb"}]'
+        app.openshift.io/vcs-uri: 'https://console-openshift-console.apps-crc.testing/k8s/ns/project/mailhog.operators.patrick.mx~v1alpha1~MailhogInstance/mhi7-mongodb/yaml'
     spec:
       image: 'mailhog/mailhog:latest'
       replicas: 1
       settings:
         storage: mongodb
         storageMongoDb:
-          uri: mongodb:27017
+          uri: mongodb://admin:admin@mongodb:27017
           db: mailhog
           collection: mails
       webTrafficInlet: route

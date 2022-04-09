@@ -15,11 +15,12 @@ import (
 func (r *MailhogInstanceReconciler) ensureStatus(ctx context.Context, cr *mailhogv1alpha1.MailhogInstance, logger logr.Logger) *ReturnIndicator {
 	var err error
 	name := types.NamespacedName{Name: cr.Name, Namespace: cr.Namespace}
+	meta := CreateMetaMaker(cr)
 
 	podList := &corev1.PodList{}
 	listOpts := []client.ListOption{
 		client.InNamespace(cr.Namespace),
-		client.MatchingLabels(labelsForCr(cr.Name)),
+		client.MatchingLabels(meta.GetLabels(false)),
 	}
 	if err = r.List(ctx, podList, listOpts...); err != nil {
 		logger.Error(err, "Failed to list pods")
@@ -39,7 +40,7 @@ func (r *MailhogInstanceReconciler) ensureStatus(ctx context.Context, cr *mailho
 		}
 		mailhogUpdate.Status.Pods = podNames
 		mailhogUpdate.Status.PodCount = len(podNames)
-		mailhogUpdate.Status.LabelSelector = textLabelsForCr(cr.Name)
+		mailhogUpdate.Status.LabelSelector = meta.GetSelector(true)
 		if err := r.Status().Update(ctx, mailhogUpdate); err != nil {
 			logger.Error(err, "Failed to update cr status")
 			return &ReturnIndicator{

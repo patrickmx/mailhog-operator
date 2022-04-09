@@ -20,4 +20,8 @@ const (
 	portSmtpName = "smtp"
 	portWeb      = 8025
 	portWebName  = "http"
+
+	partOfLabel          = "app.kubernetes.io/part-of"
+	connectsToAnnotation = "app.openshift.io/connects-to"
+	vcsUriAnnotation     = "app.openshift.io/vcs-uri"
 )

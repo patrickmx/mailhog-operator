@@ -10,7 +10,6 @@ import (
 	mailhogv1alpha1 "goimports.patrick.mx/mailhog-operator/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 )
 
@@ -73,15 +72,12 @@ func (r *MailhogInstanceReconciler) configMapNew(cr *mailhogv1alpha1.MailhogInst
 		mapdata[settingsFilePasswordsName] = users
 	}
 
+	meta := CreateMetaMaker(cr)
 	notImmutable := false
 	configMap := &corev1.ConfigMap{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      cr.Name,
-			Namespace: cr.Namespace,
-			Labels:    labelsForCr(cr.Name),
-		},
-		Immutable: &notImmutable,
-		Data:      mapdata,
+		ObjectMeta: meta.GetMeta(false),
+		Immutable:  &notImmutable,
+		Data:       mapdata,
 	}
 
 	return configMap

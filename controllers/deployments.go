@@ -56,20 +56,15 @@ func (r *MailhogInstanceReconciler) ensureDeployment(ctx context.Context, cr *ma
 
 func (r *MailhogInstanceReconciler) deploymentNew(cr *mailhogv1alpha1.MailhogInstance) (newDeployment *appsv1.Deployment) {
 	podTemplate := r.podTemplate(cr)
-	labels := labelsForCr(cr.Name)
 	replicas := cr.Spec.Replicas
+	meta := CreateMetaMaker(cr)
 
 	deployment := &appsv1.Deployment{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:        cr.Name,
-			Namespace:   cr.Namespace,
-			Labels:      labels,
-			Annotations: annotationsForCr(),
-		},
+		ObjectMeta: meta.GetMeta(false),
 		Spec: appsv1.DeploymentSpec{
 			Replicas: &replicas,
 			Selector: &metav1.LabelSelector{
-				MatchLabels: labels,
+				MatchLabels: meta.GetLabels(false),
 			},
 			Template: podTemplate,
 		},

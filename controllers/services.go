@@ -8,7 +8,6 @@ import (
 	mailhogv1alpha1 "goimports.patrick.mx/mailhog-operator/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
@@ -47,19 +46,12 @@ func (r *MailhogInstanceReconciler) ensureService(ctx context.Context, cr *mailh
 }
 
 func (r *MailhogInstanceReconciler) serviceNew(cr *mailhogv1alpha1.MailhogInstance) (newService *corev1.Service) {
-	labels := labelsForCr(cr.Name)
-	if cr.Spec.BackingResource == "deploymentConfig" {
-		labels["deploymentconfig"] = cr.Name
-	}
+	meta := CreateMetaMaker(cr)
 
 	service := &corev1.Service{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      cr.Name,
-			Namespace: cr.Namespace,
-			Labels:    labelsForCr(cr.Name),
-		},
+		ObjectMeta: meta.GetMeta(false),
 		Spec: corev1.ServiceSpec{
-			Selector: labels,
+			Selector: meta.GetLabels(true),
 			Ports: []corev1.ServicePort{
 				{
 					Port: portSmtp,

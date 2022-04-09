@@ -8,7 +8,6 @@ import (
 	ocappsv1 "github.com/openshift/api/apps/v1"
 	mailhogv1alpha1 "goimports.patrick.mx/mailhog-operator/api/v1alpha1"
 	"k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
@@ -57,8 +56,7 @@ func (r *MailhogInstanceReconciler) ensureDeploymentConfig(ctx context.Context, 
 
 func (r *MailhogInstanceReconciler) deploymentConfigNew(cr *mailhogv1alpha1.MailhogInstance) (newDeployment *ocappsv1.DeploymentConfig) {
 	podTemplate := r.podTemplate(cr)
-	labels := labelsForCr(cr.Name)
-	labels["deploymentconfig"] = cr.Name
+	meta := CreateMetaMaker(cr)
 	podTemplate.Labels["deploymentconfig"] = cr.Name
 	replicas := cr.Spec.Replicas
 	tenMinutes := int64(600)
@@ -66,15 +64,10 @@ func (r *MailhogInstanceReconciler) deploymentConfigNew(cr *mailhogv1alpha1.Mail
 	two := intstr.FromInt(2)
 
 	deploymentConfig := &ocappsv1.DeploymentConfig{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:        cr.Name,
-			Namespace:   cr.Namespace,
-			Labels:      labelsForCr(cr.Name),
-			Annotations: annotationsForCr(),
-		},
+		ObjectMeta: meta.GetMeta(false),
 		Spec: ocappsv1.DeploymentConfigSpec{
 			Replicas:        replicas,
-			Selector:        labels,
+			Selector:        meta.GetLabels(true),
 			MinReadySeconds: 30,
 			Template:        &podTemplate,
 			Strategy: ocappsv1.DeploymentStrategy{
