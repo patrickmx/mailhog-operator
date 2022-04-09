@@ -3,6 +3,7 @@ package controllers
 import (
 	"context"
 	"encoding/json"
+	"strings"
 
 	"github.com/banzaicloud/k8s-objectmatcher/patch"
 	"github.com/go-logr/logr"
@@ -56,13 +57,12 @@ func (r *MailhogInstanceReconciler) configMapNew(cr *mailhogv1alpha1.MailhogInst
 	mapdata := make(map[string]string)
 
 	if len(cr.Spec.Settings.Files.SmtpUpstreams) > 0 {
-		servers := "["
+		var serverLines []string
 		for _, server := range cr.Spec.Settings.Files.SmtpUpstreams {
 			text, _ := json.Marshal(server)
-			servers += string(text)
+			serverLines = append(serverLines, "\""+server.Name+"\":"+string(text))
 		}
-		servers += "]"
-		mapdata["upstream.servers.json"] = servers
+		mapdata["upstream.servers.json"] = "{" + strings.Join(serverLines, ",") + "}"
 	}
 
 	if len(cr.Spec.Settings.Files.WebUsers) > 0 {
