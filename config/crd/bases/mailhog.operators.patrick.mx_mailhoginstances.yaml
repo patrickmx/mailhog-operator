@@ -71,8 +71,8 @@ spec:
                 description: Settings are mailhog configuration options, see https://github.com/mailhog/MailHog/blob/master/docs/CONFIG.md
                 properties:
                   affinity:
-                    description: Affinity allows to override the podtemplates affinity
-                      settings
+                    description: 'Affinity allows to override the podtemplates affinity
+                      settings More info: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/'
                     nullable: true
                     properties:
                       nodeAffinity:
@@ -951,6 +951,9 @@ spec:
                         description: SmtpUpstreams Intercepted emails can be forwarded
                           to upstreams via the UI
                         items:
+                          description: MailhogUpstreamSpec are upstream smtp servers
+                            a message can be release to that mailhog has intercepted
+                            (via gui/api) https://github.com/mailhog/MailHog-Server/blob/50f74a1aa2991b96313144d1ac718ce4d6739dfd/config/config.go#L55
                           properties:
                             email:
                               description: Email the target Email address where the
@@ -1074,8 +1077,8 @@ spec:
                         type: string
                     type: object
                   resources:
-                    description: Resources allows to override the default resources
-                      of the created pods
+                    description: 'Resources allows to override the default resources
+                      of the created pods More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/'
                     nullable: true
                     properties:
                       limits:
@@ -1140,7 +1143,8 @@ spec:
                         pattern: ^[\w-_]+$
                         type: string
                       uri:
-                        description: URI MongoDB host and port
+                        description: URI MongoDB host and port [mongodb://][user:pass@]host1[:port1][,host2[:port2],...][/database][?options]
+                          for details about the URI format see https://pkg.go.dev/gopkg.in/mgo.v2#Dial
                         format: uri
                         minLength: 3
                         nullable: true

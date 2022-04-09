@@ -30,15 +30,26 @@ type (
 )
 
 const (
-	MemoryStorage  StorageSetting = "memory"
+	// MemoryStorage incoming mails will be stored in process memory
+	MemoryStorage StorageSetting = "memory"
+
+	// MaildirStorage incoming mails will be stored in a folder
 	MaildirStorage StorageSetting = "maildir"
+
+	// MongoDBStorage incoming mails will be stored in a mongodb database
 	MongoDBStorage StorageSetting = "mongodb"
 
-	DeploymentBacking       BackingResource = "deployment"
+	// DeploymentBacking mailhog will be deployed as a kubernetes deployment
+	DeploymentBacking BackingResource = "deployment"
+
+	// DeploymentConfigBacking mailhog will be deployed as an openshift DeploymentConfig
 	DeploymentConfigBacking BackingResource = "deploymentConfig"
 
+	// RouteTrafficInlet an openshift route will be created to allow gui/api access
 	RouteTrafficInlet TrafficInletResource = "route"
-	NoTrafficInlet    TrafficInletResource = "none"
+
+	// NoTrafficInlet no external access to the gui/api will be provided
+	NoTrafficInlet TrafficInletResource = "none"
 )
 
 // MailhogInstanceSpec defines the desired state of MailhogInstance
@@ -125,6 +136,7 @@ type MailhogInstanceSettingsSpec struct {
 	Files *MailhogFilesSpec `json:"files,omitempty"`
 
 	// Resources allows to override the default resources of the created pods
+	// More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
 	//
 	//+kubebuilder:validation:Optional
 	//+optional
@@ -132,6 +144,7 @@ type MailhogInstanceSettingsSpec struct {
 	Resources *corev1.ResourceRequirements `json:"resources,omitempty"`
 
 	// Affinity allows to override the podtemplates affinity settings
+	// More info: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/
 	//
 	//+kubebuilder:validation:Optional
 	//+optional
@@ -147,6 +160,7 @@ type MailhogInstanceSettingsSpec struct {
 }
 
 // MailhogJimSpec invites jim into mailhog, the builtin chaos monkey
+// they are added as args to the container's cmd
 // see https://github.com/mailhog/MailHog/blob/master/docs/JIM.md
 type MailhogJimSpec struct {
 	// Invite set to true activates jim using the default values (see mh doc)
@@ -214,6 +228,7 @@ type MailhogJimSpec struct {
 	RejectAuth string `json:"rejectAuth,omitempty"`
 }
 
+// MailhogFilesSpec is used to define settings that need to be passed as file (in a configmap)
 type MailhogFilesSpec struct {
 	// SmtpUpstreams Intercepted emails can be forwarded to upstreams via the UI
 	//
@@ -230,6 +245,8 @@ type MailhogFilesSpec struct {
 	WebUsers []MailhogWebUserSpec `json:"webUsers,omitempty"`
 }
 
+// MailhogUpstreamSpec are upstream smtp servers a message can be release to that mailhog has intercepted (via gui/api)
+// https://github.com/mailhog/MailHog-Server/blob/50f74a1aa2991b96313144d1ac718ce4d6739dfd/config/config.go#L55
 type MailhogUpstreamSpec struct {
 	// Name the Name this server will be shown under in the UI
 	//
@@ -302,6 +319,7 @@ type MailhogWebUserSpec struct {
 }
 
 // MailhogStorageMaildirSpec are settings applicable if the storage backend is maildir
+// see https://github.com/mailhog/storage/blob/master/maildir.go for the implementation
 type MailhogStorageMaildirSpec struct {
 	// Path Maildir path (for maildir storage backend)
 	//
@@ -314,8 +332,10 @@ type MailhogStorageMaildirSpec struct {
 }
 
 // MailhogStorageMongoDbSpec are settings applicable if the storage backend is mongodb
+// see https://github.com/mailhog/storage/blob/master/mongodb.go for the implementation
 type MailhogStorageMongoDbSpec struct {
-	// URI MongoDB host and port
+	// URI MongoDB host and port [mongodb://][user:pass@]host1[:port1][,host2[:port2],...][/database][?options]
+	// for details about the URI format see https://pkg.go.dev/gopkg.in/mgo.v2#Dial
 	//
 	//+kubebuilder:validation:Optional
 	//+kubebuilder:validation:MinLength:=3
