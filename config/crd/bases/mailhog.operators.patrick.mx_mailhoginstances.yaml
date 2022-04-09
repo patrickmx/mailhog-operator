@@ -1151,6 +1151,12 @@ spec:
                         pattern: ^(mongodb:(?:\/{2})?)((\w+?):(\w+?)@|:?@?)(\w+?):(\d+).*$
                         type: string
                     type: object
+                  webPath:
+                    description: WebPath context root under which web resources are
+                      served (without leading or trailing slashes), e.g. 'mailhog'
+                      empty = no context root = serve all web resources under "/"
+                    nullable: true
+                    type: string
                 type: object
               webTrafficInlet:
                 default: none

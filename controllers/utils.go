@@ -56,6 +56,7 @@ func envForCr(crs *mailhogv1alpha1.MailhogInstance) (e []corev1.EnvVar) {
 
 	e = appendNonEmptyEnv(e, "MH_HOSTNAME", crs.Spec.Settings.Hostname)
 	e = appendNonEmptyEnv(e, "MH_CORS_ORIGIN", crs.Spec.Settings.CorsOrigin)
+	e = appendNonEmptyEnv(e, "MH_UI_WEB_PATH", crs.Spec.Settings.WebPath)
 
 	if crs.Spec.Settings.Files != nil {
 		if len(crs.Spec.Settings.Files.SmtpUpstreams) > 0 {

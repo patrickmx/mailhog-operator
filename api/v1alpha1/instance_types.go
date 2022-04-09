@@ -157,6 +157,14 @@ type MailhogInstanceSettingsSpec struct {
 	//+optional
 	//+nullable
 	Jim MailhogJimSpec `json:"jim,omitempty"`
+
+	// WebPath context root under which web resources are served (without leading or trailing slashes), e.g. 'mailhog'
+	// empty = no context root = serve all web resources under "/"
+	//
+	//+kubebuilder:validation:Optional
+	//+optional
+	//+nullable
+	WebPath string `json:"webPath,omitempty"`
 }
 
 // MailhogJimSpec invites jim into mailhog, the builtin chaos monkey

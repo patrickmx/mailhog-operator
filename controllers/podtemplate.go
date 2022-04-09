@@ -38,7 +38,7 @@ func (r *MailhogInstanceReconciler) podTemplate(cr *mailhogv1alpha1.MailhogInsta
 		ProbeHandler: corev1.ProbeHandler{
 			HTTPGet: &corev1.HTTPGetAction{
 				Port:   intstr.FromInt(portWeb),
-				Path:   "/api/v2/messages?limit=1",
+				Path:   cr.Spec.Settings.WebPath + "/api/v2/messages?limit=1",
 				Scheme: corev1.URISchemeHTTP,
 			},
 		},
