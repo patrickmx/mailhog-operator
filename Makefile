@@ -181,6 +181,10 @@ crc-logs:
 install-cert-manager: ## yolo
 	kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.7.1/cert-manager.yaml
 
+.PHONY: crc-creds
+crc-creds:
+	crc console --credentials
+
 ##@ Release
 
 .PHONY: ship
