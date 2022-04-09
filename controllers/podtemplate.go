@@ -121,6 +121,11 @@ func (r *MailhogInstanceReconciler) podTemplate(cr *mailhogv1alpha1.MailhogInsta
 		pod.Spec.Affinity = cr.Spec.Settings.Affinity.DeepCopy()
 	}
 
+	if cr.Spec.Settings.Files != nil && len(cr.Spec.Settings.Files.WebUsers) > 0 {
+		// since http authentication is active, kube can no longer perform a http health check, switch to socket
+		pod.Spec.Containers[0].ReadinessProbe = socketProbe.DeepCopy()
+	}
+
 	return pod
 }
 
