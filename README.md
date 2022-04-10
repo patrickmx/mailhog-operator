@@ -15,9 +15,9 @@ Check out the [latest releases](https://github.com/patrickmx/mailhog-operator/pk
 
 ```bash
 ### Get the latest tagged image release
-podman pull ghcr.io/patrickmx/mailhog-operator:develop
-### Current pre-release image from master
 podman pull ghcr.io/patrickmx/mailhog-operator:latest
+### Current pre-release development image
+podman pull ghcr.io/patrickmx/mailhog-operator:develop
 ```
 
 ## CR Examples
