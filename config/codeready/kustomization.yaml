@@ -2,9 +2,3 @@ resources:
 - mailhogInstance_console_examples.yaml
 - developer_rolebinding.yaml
 - operator_imagestream.yaml
-
-configMapGenerator:
-  - name: mailhog-operator-config
-    namespace: mailhog-operator-system
-    files:
-      - config.yml

@@ -125,14 +125,14 @@ build: generate fmt vet lint ## Build manager binary.
 
 .PHONY: run
 run: manifests generate fmt vet ## Run a controller from your host.
-	go run ./main.go -config config/codeready/config.yml
+	go run ./main.go -config config/manager/controller_manager_config.yaml
 
 # Run with Delve for development purposes against the configured Kubernetes cluster in ~/.kube/config
 # Delve is a debugger for the Go programming language. More info: https://github.com/go-delve/delve
 .PHONY: debug
 debug: generate fmt vet manifests
 	go build -gcflags "all=-trimpath=$(shell go env GOPATH)" -o bin/manager main.go
-	dlv --listen=:2345 --headless=true --api-version=2 --accept-multiclient exec ./bin/manager
+	dlv --listen=:2345 --headless=true --api-version=2 --accept-multiclient exec ./bin/manager -config config/manager/controller_manager_config.yaml
 
 .PHONY: docker-build
 docker-build: test docker-refresh-base ## Build docker image with the manager.
@@ -160,7 +160,6 @@ build-push-image-to-crc: docker-build ## push the image from the local podman to
 
 .PHONY: crc-deploy
 crc-deploy: deploy build-push-image-to-crc latest
-	oc -n mailhog-operator-system patch deployment/mailhog-operator-controller-manager -p '{"spec":{"template":{"spec":{"containers":[{"name": "manager", "args":["-config","/operatorconfig/config.yml","--zap-devel=false"]}]}}}}'
 	oc -n mailhog-operator-system patch deployment/mailhog-operator-controller-manager -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"last-restart\":\"`date +'%s'`\"}}}}}"
 
 ##@ CRC Ad-Hoc Commands

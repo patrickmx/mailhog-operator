@@ -32,7 +32,7 @@ spec:
         - /manager
         args:
         - -config
-        - /operatorconfig/config.yml
+        - /operatorconfig/controller_manager_config.yaml
         - --zap-devel=false
         image: controller:latest
         imagePullPolicy: Always
@@ -66,4 +66,4 @@ spec:
       volumes:
         - name: config
           configMap:
-            name: mailhog-operator-config
+            name: mailhog-operator-manager-config

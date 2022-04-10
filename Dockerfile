@@ -38,5 +38,5 @@ WORKDIR /
 EXPOSE 8080 8081 9443
 CMD ["/manager", "-config", "/operatorconfig/config.yml"]
 COPY --from=builder /workspace/manager /workspace/manager.sha256 /workspace/manager.version /
-COPY --from=builder /workspace/config/codeready/config.yml /operatorconfig/config.yml
+COPY --from=builder /workspace/config/manager/controller_manager_config.yaml /operatorconfig/config.yml
 USER 65532:65532
