@@ -33,6 +33,7 @@ spec:
         args:
         - -config
         - /operatorconfig/config.yml
+        - --zap-devel=false
         image: controller:latest
         imagePullPolicy: Always
         name: manager
