@@ -81,6 +81,7 @@ func main() {
 			setupLog.Info("configuration file loaded", "file", configFile)
 		}
 	}
+	setupLog.Info("operator is watching", "namespace", options.Namespace)
 
 	logBuild()
 
@@ -124,7 +125,7 @@ func defaultOptions() ctrl.Options {
 		HealthProbeBindAddress: ":8081",
 		LeaderElection:         false,
 		LeaderElectionID:       "26f4c8adfee.mailhog.patrick.mx",
-		Namespace:              "project",
+		Namespace:              "",
 	}
 }
 
