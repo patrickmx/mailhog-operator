@@ -20,6 +20,8 @@ import (
 	"context"
 	"time"
 
+	"github.com/go-logr/logr"
+
 	"github.com/banzaicloud/k8s-objectmatcher/patch"
 	routev1 "github.com/openshift/api/route/v1"
 	mailhogv1alpha1 "goimports.patrick.mx/mailhog-operator/api/v1alpha1"
@@ -88,55 +90,23 @@ func (r *MailhogInstanceReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 		return ctrl.Result{}, err
 	}
 
-	// Deployment related checks
-	if wantsReturn := r.ensureDeployment(ctx, cr, logger); wantsReturn != nil {
-		if wantsReturn.Err != nil {
-			return ctrl.Result{}, err
-		}
-		return ctrl.Result{RequeueAfter: requeueTime}, nil
-
+	// ensure child objects
+	assurances := []func(context.Context, *mailhogv1alpha1.MailhogInstance, logr.Logger) *ReturnIndicator{
+		r.ensureDeployment,
+		r.ensureDeploymentConfig,
+		r.ensureService,
+		r.ensureConfigMap,
+		r.ensureRoute,
+		r.ensureStatus,
 	}
-
-	// DeploymentConfig related checks
-	if wantsReturn := r.ensureDeploymentConfig(ctx, cr, logger); wantsReturn != nil {
-		if wantsReturn.Err != nil {
-			return ctrl.Result{}, err
+	for _, ensure := range assurances {
+		if ri := ensure(ctx, cr, logger); ri != nil {
+			if ri.Err != nil {
+				return ctrl.Result{}, err
+			} else {
+				return ctrl.Result{RequeueAfter: requeueTime}, nil
+			}
 		}
-		return ctrl.Result{RequeueAfter: requeueTime}, nil
-
-	}
-
-	// Service related checks
-	if wantsReturn := r.ensureService(ctx, cr, logger); wantsReturn != nil {
-		if wantsReturn.Err != nil {
-			return ctrl.Result{}, err
-		}
-		return ctrl.Result{RequeueAfter: requeueTime}, nil
-
-	}
-
-	// Route related checks
-	if wantsReturn := r.ensureRoute(ctx, cr, logger); wantsReturn != nil {
-		if wantsReturn.Err != nil {
-			return ctrl.Result{}, err
-		}
-		return ctrl.Result{RequeueAfter: requeueTime}, nil
-	}
-
-	// ConfigMap Checks
-	if wantsReturn := r.ensureConfigMap(ctx, cr, logger); wantsReturn != nil {
-		if wantsReturn.Err != nil {
-			return ctrl.Result{}, err
-		}
-		return ctrl.Result{RequeueAfter: requeueTime}, nil
-	}
-
-	// Update CR Status
-	if wantsReturn := r.ensureStatus(ctx, cr, logger); wantsReturn != nil {
-		if wantsReturn.Err != nil {
-			return ctrl.Result{}, err
-		}
-		return ctrl.Result{RequeueAfter: requeueTime}, nil
 	}
 
 	logger.Info("reconciliation finished, nothing to do")
