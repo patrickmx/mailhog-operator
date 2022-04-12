@@ -20,6 +20,8 @@ import (
 	"context"
 	"time"
 
+	ocappsv1 "github.com/openshift/api/apps/v1"
+
 	"github.com/go-logr/logr"
 
 	"github.com/banzaicloud/k8s-objectmatcher/patch"
@@ -140,6 +142,7 @@ func (r *MailhogInstanceReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&mailhogv1alpha1.MailhogInstance{}).
 		Owns(&appsv1.Deployment{}).
+		Owns(&ocappsv1.DeploymentConfig{}).
 		Owns(&corev1.Service{}).
 		Owns(&routev1.Route{}).
 		Owns(&corev1.ConfigMap{}).
