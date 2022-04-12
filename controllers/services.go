@@ -3,7 +3,6 @@ package controllers
 import (
 	"context"
 
-	"github.com/banzaicloud/k8s-objectmatcher/patch"
 	"github.com/go-logr/logr"
 	mailhogv1alpha1 "goimports.patrick.mx/mailhog-operator/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
@@ -80,22 +79,9 @@ func (r *MailhogInstanceReconciler) serviceNew(cr *mailhogv1alpha1.MailhogInstan
 func (r *MailhogInstanceReconciler) serviceUpdates(cr *mailhogv1alpha1.MailhogInstance, oldService *corev1.Service) (updatedService *corev1.Service, updateNeeded bool, err error) {
 	newService := r.serviceNew(cr)
 
-	opts := []patch.CalculateOption{
-		patch.IgnoreStatusFields(),
+	updateNeeded, err = checkPatch(oldService, newService)
+	if updateNeeded == true {
+		return newService, updateNeeded, err
 	}
-
-	patchResult, err := patch.DefaultPatchMaker.Calculate(oldService, newService, opts...)
-	if err != nil {
-		return oldService, false, err
-	}
-
-	if !patchResult.IsEmpty() {
-		if err := patch.DefaultAnnotator.SetLastAppliedAnnotation(newService); err != nil {
-			return newService, true, err
-		}
-		return newService, true, nil
-
-	}
-
-	return oldService, false, nil
+	return oldService, updateNeeded, err
 }

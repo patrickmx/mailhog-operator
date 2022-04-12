@@ -112,3 +112,23 @@ func (r *MailhogInstanceReconciler) update(ctx context.Context,
 	r.Recorder.Event(obj, corev1.EventTypeNormal, "SuccessEvent", "updated by mailhog management")
 	return &ReturnIndicator{}
 }
+
+func checkPatch(oldO client.Object, newO client.Object) (updateNeeded bool, err error) {
+	opts := []patch.CalculateOption{
+		patch.IgnoreStatusFields(),
+	}
+
+	patchResult, err := patch.DefaultPatchMaker.Calculate(oldO, newO, opts...)
+	if err != nil {
+		return false, err
+	}
+
+	if !patchResult.IsEmpty() {
+		if err := patch.DefaultAnnotator.SetLastAppliedAnnotation(newO); err != nil {
+			return true, err
+		}
+		return true, nil
+	}
+
+	return false, nil
+}

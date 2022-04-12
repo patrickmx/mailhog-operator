@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"strings"
 
-	"github.com/banzaicloud/k8s-objectmatcher/patch"
 	"github.com/go-logr/logr"
 	mailhogv1alpha1 "goimports.patrick.mx/mailhog-operator/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
@@ -86,21 +85,9 @@ func (r *MailhogInstanceReconciler) configMapNew(cr *mailhogv1alpha1.MailhogInst
 func (r *MailhogInstanceReconciler) configMapUpdates(cr *mailhogv1alpha1.MailhogInstance, oldCM *corev1.ConfigMap) (updatedCM *corev1.ConfigMap, updateNeeded bool, err error) {
 	newCM := r.configMapNew(cr)
 
-	opts := []patch.CalculateOption{
-		patch.IgnoreStatusFields(),
+	updateNeeded, err = checkPatch(oldCM, newCM)
+	if updateNeeded == true {
+		return newCM, updateNeeded, err
 	}
-
-	patchResult, err := patch.DefaultPatchMaker.Calculate(oldCM, newCM, opts...)
-	if err != nil {
-		return oldCM, false, err
-	}
-
-	if !patchResult.IsEmpty() {
-		if err := patch.DefaultAnnotator.SetLastAppliedAnnotation(newCM); err != nil {
-			return newCM, true, err
-		}
-		return newCM, true, nil
-	}
-
-	return oldCM, false, nil
+	return oldCM, updateNeeded, err
 }

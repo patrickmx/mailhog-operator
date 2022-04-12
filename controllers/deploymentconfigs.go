@@ -3,7 +3,6 @@ package controllers
 import (
 	"context"
 
-	"github.com/banzaicloud/k8s-objectmatcher/patch"
 	"github.com/go-logr/logr"
 	ocappsv1 "github.com/openshift/api/apps/v1"
 	mailhogv1alpha1 "goimports.patrick.mx/mailhog-operator/api/v1alpha1"
@@ -92,21 +91,9 @@ func (r *MailhogInstanceReconciler) deploymentConfigNew(cr *mailhogv1alpha1.Mail
 func (r *MailhogInstanceReconciler) deploymentConfigUpdates(cr *mailhogv1alpha1.MailhogInstance, oldDC *ocappsv1.DeploymentConfig) (updatedDeploymentConfig *ocappsv1.DeploymentConfig, updateNeeded bool, err error) {
 	newDC := r.deploymentConfigNew(cr)
 
-	opts := []patch.CalculateOption{
-		patch.IgnoreStatusFields(),
+	updateNeeded, err = checkPatch(oldDC, newDC)
+	if updateNeeded == true {
+		return newDC, updateNeeded, err
 	}
-
-	patchResult, err := patch.DefaultPatchMaker.Calculate(oldDC, newDC, opts...)
-	if err != nil {
-		return oldDC, false, err
-	}
-
-	if !patchResult.IsEmpty() {
-		if err := patch.DefaultAnnotator.SetLastAppliedAnnotation(newDC); err != nil {
-			return newDC, true, err
-		}
-		return newDC, true, nil
-	}
-
-	return oldDC, false, nil
+	return oldDC, updateNeeded, err
 }

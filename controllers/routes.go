@@ -3,7 +3,6 @@ package controllers
 import (
 	"context"
 
-	"github.com/banzaicloud/k8s-objectmatcher/patch"
 	"github.com/go-logr/logr"
 	routev1 "github.com/openshift/api/route/v1"
 	mailhogv1alpha1 "goimports.patrick.mx/mailhog-operator/api/v1alpha1"
@@ -84,21 +83,9 @@ func (r *MailhogInstanceReconciler) routeNew(cr *mailhogv1alpha1.MailhogInstance
 func (r *MailhogInstanceReconciler) routeUpdates(cr *mailhogv1alpha1.MailhogInstance, oldRoute *routev1.Route) (updatedRoute *routev1.Route, updateNeeded bool, err error) {
 	newRoute := r.routeNew(cr)
 
-	opts := []patch.CalculateOption{
-		patch.IgnoreStatusFields(),
+	updateNeeded, err = checkPatch(oldRoute, newRoute)
+	if updateNeeded == true {
+		return newRoute, updateNeeded, err
 	}
-
-	patchResult, err := patch.DefaultPatchMaker.Calculate(oldRoute, newRoute, opts...)
-	if err != nil {
-		return oldRoute, false, err
-	}
-
-	if !patchResult.IsEmpty() {
-		if err := patch.DefaultAnnotator.SetLastAppliedAnnotation(newRoute); err != nil {
-			return newRoute, true, err
-		}
-		return newRoute, true, nil
-	}
-
-	return oldRoute, false, nil
+	return oldRoute, updateNeeded, err
 }
