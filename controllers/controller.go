@@ -75,11 +75,6 @@ var requeueTime = time.Duration(10) * time.Second
 func (r *MailhogInstanceReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	var err error
 	r.logger = log.FromContext(ctx, "ns", req.NamespacedName.Namespace, "cr", req.NamespacedName.Name)
-
-	if req.NamespacedName.Name == "" {
-		r.logger.Info("empty round, stopping")
-		return ctrl.Result{}, nil
-	}
 	r.logger.Info("starting reconcile")
 
 	// Get latest CR version
