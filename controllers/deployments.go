@@ -3,7 +3,6 @@ package controllers
 import (
 	"context"
 
-	"github.com/go-logr/logr"
 	mailhogv1alpha1 "goimports.patrick.mx/mailhog-operator/api/v1alpha1"
 	appsv1 "k8s.io/api/apps/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -11,9 +10,10 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 )
 
-func (r *MailhogInstanceReconciler) ensureDeployment(ctx context.Context, cr *mailhogv1alpha1.MailhogInstance, logger logr.Logger) *ReturnIndicator {
+func (r *MailhogInstanceReconciler) ensureDeployment(ctx context.Context, cr *mailhogv1alpha1.MailhogInstance) *ReturnIndicator {
 	var err error
 	name := types.NamespacedName{Name: cr.Name, Namespace: cr.Namespace}
+	logger := r.logger.WithValues("span", "deployment")
 
 	if cr.Spec.BackingResource == mailhogv1alpha1.DeploymentBacking {
 

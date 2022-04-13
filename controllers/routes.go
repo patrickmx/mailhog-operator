@@ -3,7 +3,6 @@ package controllers
 import (
 	"context"
 
-	"github.com/go-logr/logr"
 	routev1 "github.com/openshift/api/route/v1"
 	mailhogv1alpha1 "goimports.patrick.mx/mailhog-operator/api/v1alpha1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -11,9 +10,10 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
-func (r *MailhogInstanceReconciler) ensureRoute(ctx context.Context, cr *mailhogv1alpha1.MailhogInstance, logger logr.Logger) *ReturnIndicator {
+func (r *MailhogInstanceReconciler) ensureRoute(ctx context.Context, cr *mailhogv1alpha1.MailhogInstance) *ReturnIndicator {
 	var err error
 	name := types.NamespacedName{Name: cr.Name, Namespace: cr.Namespace}
+	logger := r.logger.WithValues("span", "route")
 
 	if cr.Spec.WebTrafficInlet == mailhogv1alpha1.RouteTrafficInlet {
 

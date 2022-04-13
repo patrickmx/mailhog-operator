@@ -49,6 +49,7 @@ type MailhogInstanceReconciler struct {
 	client.Client
 	Scheme   *runtime.Scheme
 	Recorder record.EventRecorder
+	logger   logr.Logger
 }
 
 // default ReconcileAfter value if used
@@ -73,27 +74,27 @@ var requeueTime = time.Duration(10) * time.Second
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.11.0/pkg/reconcile
 func (r *MailhogInstanceReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	var err error
-	logger := log.FromContext(ctx, "ns", req.NamespacedName.Namespace, "cr", req.NamespacedName.Name)
+	r.logger = log.FromContext(ctx, "ns", req.NamespacedName.Namespace, "cr", req.NamespacedName.Name)
 
 	if req.NamespacedName.Name == "" {
-		logger.Info("empty round, stopping")
+		r.logger.Info("empty round, stopping")
 		return ctrl.Result{}, nil
 	}
-	logger.Info("starting reconcile")
+	r.logger.Info("starting reconcile")
 
 	// Get latest CR version
 	cr := &mailhogv1alpha1.MailhogInstance{}
 	if err = r.Get(ctx, req.NamespacedName, cr); err != nil {
 		if errors.IsNotFound(err) {
-			logger.Info("cr not found, probably it was deleted")
+			r.logger.Info("cr not found, probably it was deleted")
 			return ctrl.Result{}, nil
 		}
-		logger.Error(err, "failed to get cr")
+		r.logger.Error(err, "failed to get cr")
 		return ctrl.Result{}, err
 	}
 
 	// ensure child objects
-	assurances := []func(context.Context, *mailhogv1alpha1.MailhogInstance, logr.Logger) *ReturnIndicator{
+	assurances := []func(context.Context, *mailhogv1alpha1.MailhogInstance) *ReturnIndicator{
 		r.ensureDeployment,
 		r.ensureDeploymentConfig,
 		r.ensureService,
@@ -102,7 +103,7 @@ func (r *MailhogInstanceReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 		r.ensureStatus,
 	}
 	for _, ensure := range assurances {
-		if ri := ensure(ctx, cr, logger); ri != nil {
+		if ri := ensure(ctx, cr); ri != nil {
 			if ri.Err != nil {
 				return ctrl.Result{}, err
 			}
@@ -110,7 +111,7 @@ func (r *MailhogInstanceReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 		}
 	}
 
-	logger.Info("reconciliation finished, nothing to do")
+	r.logger.Info("reconciliation finished, nothing to do")
 	return ctrl.Result{}, nil
 }
 
