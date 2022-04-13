@@ -105,9 +105,8 @@ func (r *MailhogInstanceReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 		if ri := ensure(ctx, cr, logger); ri != nil {
 			if ri.Err != nil {
 				return ctrl.Result{}, err
-			} else {
-				return ctrl.Result{RequeueAfter: requeueTime}, nil
 			}
+			return ctrl.Result{RequeueAfter: requeueTime}, nil
 		}
 	}
 
