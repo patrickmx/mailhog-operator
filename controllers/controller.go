@@ -122,7 +122,7 @@ func (r *MailhogInstanceReconciler) findObjectsForPod(watchedPod client.Object) 
 	requests = append(requests, reconcile.Request{
 		NamespacedName: types.NamespacedName{
 			Namespace: ns,
-			Name:      pod.Labels["mailhog_cr"],
+			Name:      pod.Labels[crNameLabel],
 		},
 	})
 

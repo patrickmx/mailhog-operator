@@ -32,6 +32,30 @@ func CreateMetaMaker(cr *mailhogv1alpha1.MailhogInstance) *metaMaker {
 		mm.Labels[partOfLabel] = label
 	}
 
+	if label := cr.Labels[appLabel]; label != "" {
+		mm.Labels[appLabel] = label
+	}
+
+	if label := cr.Labels[componentLabel]; label != "" {
+		mm.Labels[componentLabel] = label
+	}
+
+	if label := cr.Labels[kubeAppLabel]; label != "" {
+		mm.Labels[kubeAppLabel] = label
+	}
+
+	if label := cr.Labels[runtimeLabel]; label != "" {
+		mm.Labels[runtimeLabel] = label
+	} else {
+		mm.Labels[runtimeLabel] = runtimeDefaultValue
+	}
+
+	if label := cr.Labels[instanceLabel]; label != "" {
+		mm.Labels[instanceLabel] = label
+	} else {
+		mm.Labels[instanceLabel] = cr.Name
+	}
+
 	// https://docs.openshift.com/container-platform/4.8/applications/odc-viewing-application-composition-using-topology-view.html#creating-a-visual-connection-between-components
 	// https://www.redhat.com/en/blog/openshift-topology-view-milestone-towards-better-developer-experience
 	if annotation := cr.Annotations[connectsToAnnotation]; annotation != "" {
@@ -53,7 +77,7 @@ func (mm *metaMaker) GetMeta(withDCLabel bool) metav1.ObjectMeta {
 		Annotations: mm.Annotations,
 	}
 	if withDCLabel == true && mm.IsDeploymentConfig == true {
-		meta.Labels["deploymentconfig"] = mm.Name
+		meta.Labels[dcLabel] = mm.Name
 	}
 	return meta
 }
@@ -74,10 +98,9 @@ func (mm *metaMaker) GetSelector(withDCLabel bool) (selector string) {
 
 func defaultLabelsForCr(name string) map[string]string {
 	return map[string]string{
-		"app":                        "mailhog",
-		"mailhog_cr":                 name,
-		"app.openshift.io/runtime":   "golang",
-		"app.kubernetes.io/name":     "mailhog",
-		"app.kubernetes.io/instance": name,
+		crTypeLabel:    crTypeValue,
+		managedByLabel: operatorValue,
+		createdByLabel: operatorValue,
+		crNameLabel:    name,
 	}
 }

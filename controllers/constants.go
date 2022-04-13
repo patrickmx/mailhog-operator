@@ -21,7 +21,20 @@ const (
 	portWeb      = 8025
 	portWebName  = "http"
 
+	crNameLabel          = "mailhoginstance_cr"
+	crTypeLabel          = "mailhogtype"
+	crTypeValue          = "mailhoginstance"
+	dcLabel              = "deploymentconfig"
+	runtimeLabel         = "app.openshift.io/runtime"
+	runtimeDefaultValue  = "golang"
 	partOfLabel          = "app.kubernetes.io/part-of"
 	connectsToAnnotation = "app.openshift.io/connects-to"
 	vcsUriAnnotation     = "app.openshift.io/vcs-uri"
+	appLabel             = "app"
+	kubeAppLabel         = "app.kubernetes.io/name"
+	instanceLabel        = "app.kubernetes.io/instance"
+	componentLabel       = "app.kubernetes.io/component"
+	managedByLabel       = "app.kubernetes.io/managed-by"
+	createdByLabel       = "app.kubernetes.io/created-by"
+	operatorValue        = "mailhog.operators.patrick.mx"
 )
