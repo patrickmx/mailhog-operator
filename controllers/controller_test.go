@@ -5,8 +5,6 @@ import (
 	"testing"
 	"time"
 
-	"k8s.io/apimachinery/pkg/api/errors"
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	ocappsv1 "github.com/openshift/api/apps/v1"
@@ -14,6 +12,7 @@ import (
 	mailhogv1alpha1 "goimports.patrick.mx/mailhog-operator/api/v1alpha1"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"

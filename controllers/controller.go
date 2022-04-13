@@ -20,11 +20,9 @@ import (
 	"context"
 	"time"
 
-	ocappsv1 "github.com/openshift/api/apps/v1"
-
-	"github.com/go-logr/logr"
-
 	"github.com/banzaicloud/k8s-objectmatcher/patch"
+	"github.com/go-logr/logr"
+	ocappsv1 "github.com/openshift/api/apps/v1"
 	routev1 "github.com/openshift/api/route/v1"
 	mailhogv1alpha1 "goimports.patrick.mx/mailhog-operator/api/v1alpha1"
 	appsv1 "k8s.io/api/apps/v1"
@@ -33,7 +31,6 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/tools/record"
-
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
