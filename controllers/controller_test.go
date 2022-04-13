@@ -154,7 +154,7 @@ var _ = Describe("MailhogInstance controller", func() {
 				}
 				return true
 			}, timeout, interval).Should(BeTrue())
-			Expect(createdService.Spec.Selector["mailhog_cr"]).Should(Equal(name))
+			Expect(createdService.Spec.Selector[crNameLabel]).Should(Equal(name))
 		})
 	})
 
