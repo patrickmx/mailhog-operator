@@ -116,7 +116,7 @@ func (r *MailhogInstanceReconciler) findObjectsForPod(watchedPod client.Object) 
 
 	pod := &corev1.Pod{}
 	if err := r.Get(context.TODO(), types.NamespacedName{Namespace: ns, Name: name}, pod); err != nil {
-		return []reconcile.Request{}
+		return requests
 	}
 
 	requests = append(requests, reconcile.Request{
