@@ -1,10 +1,13 @@
 apiVersion: mailhog.operators.patrick.mx/v1alpha1
 kind: MailhogInstance
 metadata:
-  name: sample
+  name: mh0-sample
+  labels:
+    app: mailhog
 spec:
   image: 'mailhog/mailhog:latest'
   replicas: 1
   settings:
     storage: memory
-  webTrafficInlet: route
+  webTrafficInlet: none
+  backingResource: deployment
