@@ -1,4 +1,19 @@
-# More info: https://docs.docker.com/engine/reference/builder/#dockerignore-file
-# Ignore build and test binaries.
-bin/
-testbin/
+
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+bin
+testbin/*
+
+*.test
+
+*.out
+
+!vendor/**/zz_generated.*
+
+.idea
+*.swp
+*.swo
+*~

@@ -1,12 +1,9 @@
-# Build the manager binary
 FROM docker.io/library/golang:1.18 as builder
 
 WORKDIR /workspace
-# Copy the Go Modules manifests
 COPY go.mod go.mod
 COPY go.sum go.sum
-# cache deps before building and copying source so that we don't need to re-download as much
-# and so that source changes don't invalidate our downloaded layer
+# cache deps in lower layer
 RUN go mod download
 
 # All files are added here so that go embeds the correct vcs head status
@@ -15,7 +12,6 @@ COPY .github/ ./.github/
 COPY . .
 COPY .git/ ./.git/
 
-# Build
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -tags . -o manager && \
     go version -m ./manager > manager.version && \
     tail manager.version && \
@@ -36,7 +32,7 @@ LABEL \
   io.openshift.min-cpu="250m"
 WORKDIR /
 EXPOSE 8080 8081 9443
-CMD ["/manager", "-config", "/operatorconfig/config.yml"]
+CMD ["/manager", "-config", "/operatorconfig/defaultconfig.yml"]
 COPY --from=builder /workspace/manager /workspace/manager.sha256 /workspace/manager.version /
-COPY --from=builder /workspace/config/manager/controller_manager_config.yaml /operatorconfig/config.yml
+COPY --from=builder /workspace/config/manager/controller_manager_config.yaml /operatorconfig/defaultconfig.yml
 USER 65532:65532
