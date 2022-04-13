@@ -62,7 +62,7 @@ var _ = AfterSuite(func() {
 	cancel()
 })
 
-var _ = Describe("CronJob controller", func() {
+var _ = Describe("MailhogInstance controller", func() {
 	const (
 		name  = "testee"
 		ns    = "default"
