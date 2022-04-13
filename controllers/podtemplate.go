@@ -75,12 +75,24 @@ func (r *MailhogInstanceReconciler) podTemplate(cr *mailhogv1alpha1.MailhogInsta
 		containerVolMounts := make([]corev1.VolumeMount, 0)
 		if cr.Spec.Settings.StorageMaildir.Path != "" && cr.Spec.Settings.Storage == mailhogv1alpha1.MaildirStorage {
 
-			podVolumes = append(podVolumes, corev1.Volume{
-				Name: volumeNameMaildir,
-				VolumeSource: corev1.VolumeSource{
-					EmptyDir: &corev1.EmptyDirVolumeSource{},
-				},
-			})
+			if claimName := cr.Spec.Settings.StorageMaildir.PvName; claimName == "" {
+				podVolumes = append(podVolumes, corev1.Volume{
+					Name: volumeNameMaildir,
+					VolumeSource: corev1.VolumeSource{
+						EmptyDir: &corev1.EmptyDirVolumeSource{},
+					},
+				})
+			} else {
+				podVolumes = append(podVolumes, corev1.Volume{
+					Name: volumeNameMaildir,
+					VolumeSource: corev1.VolumeSource{
+						PersistentVolumeClaim: &corev1.PersistentVolumeClaimVolumeSource{
+							ClaimName: claimName,
+							ReadOnly:  false,
+						},
+					},
+				})
+			}
 			containerVolMounts = append(containerVolMounts, corev1.VolumeMount{
 				Name:      volumeNameMaildir,
 				MountPath: cr.Spec.Settings.StorageMaildir.Path,

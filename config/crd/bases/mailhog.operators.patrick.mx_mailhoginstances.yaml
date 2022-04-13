@@ -1123,6 +1123,15 @@ spec:
                         nullable: true
                         pattern: ^(/)([\S]+(/)?)+$
                         type: string
+                      pvName:
+                        description: PvName if a PV name is given it will be used
+                          for maildir storage the pv needs to preexist, it will not
+                          be created without a pv name an emptydir will be used which
+                          could lead to inconsistencies when multiple replicas are
+                          used
+                        minLength: 3
+                        nullable: true
+                        type: string
                     type: object
                   storageMongoDb:
                     description: StorageMongoDb are only used when storage is set

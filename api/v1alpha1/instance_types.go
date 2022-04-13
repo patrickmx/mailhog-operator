@@ -337,6 +337,15 @@ type MailhogStorageMaildirSpec struct {
 	//+optional
 	//+nullable
 	Path string `json:"path,omitempty"`
+
+	// PvName if a PV name is given it will be used for maildir storage the pv needs to preexist, it will not be created
+	// without a pv name an emptydir will be used which could lead to inconsistencies when multiple replicas are used
+	//
+	//+kubebuilder:validation:Optional
+	//+kubebuilder:validation:MinLength:=3
+	//+optional
+	//+nullable
+	PvName string `json:"pvName"`
 }
 
 // MailhogStorageMongoDbSpec are settings applicable if the storage backend is mongodb
