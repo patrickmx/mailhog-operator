@@ -7,6 +7,6 @@ metrics:
 webhook:
   port: 9443
 leaderElection:
-  leaderElect: false
+  leaderElect: true
   resourceName: 26f4c8adfee.mailhog.patrick.mx
 namespace: ""

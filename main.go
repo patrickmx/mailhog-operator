@@ -37,54 +37,35 @@ import (
 )
 
 var (
-	scheme   = runtime.NewScheme()
-	setupLog = ctrl.Log.WithName("setup")
+	scheme     = runtime.NewScheme()
+	setupLog   = ctrl.Log.WithName("setup")
+	configFile string
 )
 
 func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
-
 	utilruntime.Must(routev1.AddToScheme(scheme))
-
 	utilruntime.Must(ocappsv1.AddToScheme(scheme))
-
 	utilruntime.Must(mailhogv1alpha1.AddToScheme(scheme))
 	//+kubebuilder:scaffold:scheme
 }
 
 func main() {
-	var configFile string
-	flag.StringVar(&configFile, "config", "/config.yml", "Path of the configfile")
-
-	opts := zap.Options{
-		Development: true,
-	}
+	flag.StringVar(&configFile, "config", "/operatorconfig/defaultconfig.yml", "config file path")
+	opts := zap.Options{Development: true}
 	opts.BindFlags(flag.CommandLine)
 	flag.Parse()
-
 	ctrl.SetLogger(zap.New(zap.UseFlagOptions(&opts)))
-
-	var err error
-	ctrlConfig := mailhogv1alpha1.OperatorConfig{}
-	options := defaultOptions()
-
-	if configFile != "" {
-		options, err = options.AndFrom(ctrl.ConfigFile().AtPath(configFile).OfKind(&ctrlConfig))
-		if err != nil {
-			setupLog.Error(err, "unable to load the config file")
-			os.Exit(1)
-		} else {
-			setupLog.Info("configuration file loaded", "file", configFile)
-		}
-	}
-	setupLog.Info("operator is watching", "namespace", options.Namespace)
-
 	logBuild()
+
+	options, err := loadConfig()
+	if err != nil {
+		errExit(err, "unable to load config file")
+	}
 
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), options)
 	if err != nil {
-		setupLog.Error(err, "unable to start manager")
-		os.Exit(1)
+		errExit(err, "unable to create new manager")
 	}
 
 	if err = (&controllers.MailhogInstanceReconciler{
@@ -92,57 +73,56 @@ func main() {
 		Scheme:   mgr.GetScheme(),
 		Recorder: mgr.GetEventRecorderFor("mailhog-operator"),
 	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "MailhogInstance")
-		os.Exit(1)
+		errExit(err, "unable to create controller")
 	}
 	//+kubebuilder:scaffold:builder
 
 	if err := mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {
-		setupLog.Error(err, "unable to set up health check")
-		os.Exit(1)
+		errExit(err, "unable to set up health check")
 	}
 	if err := mgr.AddReadyzCheck("readyz", healthz.Ping); err != nil {
-		setupLog.Error(err, "unable to set up ready check")
-		os.Exit(1)
+		errExit(err, "unable to set up ready check")
 	}
 
 	setupLog.Info("starting manager")
 	if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil {
-		setupLog.Error(err, "problem running manager")
-		os.Exit(1)
+		errExit(err, "problem starting manager")
 	}
 }
 
-func defaultOptions() ctrl.Options {
-	return ctrl.Options{
-		Scheme:                 scheme,
-		MetricsBindAddress:     ":8080",
-		Port:                   9443,
-		HealthProbeBindAddress: ":8081",
-		LeaderElection:         false,
-		LeaderElectionID:       "26f4c8adfee.mailhog.patrick.mx",
-		Namespace:              "",
+func loadConfig() (options ctrl.Options, err error) {
+	format := mailhogv1alpha1.OperatorConfig{}
+	options = ctrl.Options{
+		Scheme: scheme,
 	}
+	options, err = options.AndFrom(ctrl.ConfigFile().AtPath(configFile).OfKind(&format))
+	setupLog.Info("mailhog-operator is configured", "configfile", configFile,
+		"watching.namespace", options.Namespace,
+		"leaderelection", options.LeaderElection, "leaderelection.namespace", options.LeaderElectionNamespace)
+	return
+}
+
+func errExit(err error, msg string) {
+	setupLog.Error(err, msg)
+	os.Exit(1)
 }
 
 func logBuild() {
 	info, infoFound := debug.ReadBuildInfo()
 	if infoFound {
-		var vcsRef string
-		var vcsTime string
-		var vcsModified string
+		filteredInfo := make(map[string]string)
 		for _, setting := range info.Settings {
 			switch setting.Key {
 			case "vcs.revision":
-				vcsRef = setting.Value
+				filteredInfo["revision"] = setting.Value
 			case "vcs.time":
-				vcsTime = setting.Value
+				filteredInfo["time"] = setting.Value
 			case "vcs.modified":
-				vcsModified = setting.Value
+				filteredInfo["modified"] = setting.Value
 			}
 		}
-		if vcsRef != "" {
-			setupLog.Info("build info", "vcs.revision", vcsRef, "vcs.time", vcsTime, "vcs.modified", vcsModified)
+		if len(filteredInfo) > 0 {
+			setupLog.Info("build info", "vcs", filteredInfo)
 			return
 		}
 	}

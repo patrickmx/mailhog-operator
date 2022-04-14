@@ -52,20 +52,21 @@ spec:
           httpGet:
             path: /readyz
             port: 8081
-          initialDelaySeconds: 5
-          periodSeconds: 10
+          initialDelaySeconds: 7
+          periodSeconds: 11
         resources:
           limits:
-            cpu: 500m
-            memory: 128Mi
+            cpu: 220m
+            memory: 90Mi
           requests:
-            cpu: 10m
-            memory: 64Mi
+            cpu: 220m
+            memory: 90Mi
         volumeMounts:
           - mountPath: /operatorconfig
             name: config
+            readOnly: true
       serviceAccountName: controller-manager
-      terminationGracePeriodSeconds: 10
+      terminationGracePeriodSeconds: 12
       volumes:
         - name: config
           configMap:

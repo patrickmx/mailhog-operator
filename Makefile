@@ -152,7 +152,6 @@ latest:
 
 .PHONY: build-push-image-to-crc
 build-push-image-to-crc: docker-build ## push the image from the local podman to imagestream
-	oc -n mailhog-operator-system delete imagestreams/mailhog || true
 	$(KUSTOMIZE) build config/codeready | kubectl apply -f -
 	podman login -u kubeadmin -p $(oc whoami -t) default-route-openshift-image-registry.apps-crc.testing --tls-verify=false
 	oc registry login --insecure=true
