@@ -28,8 +28,8 @@ LABEL \
   org.opencontainers.image.description="deploy mailhogs on crc / oc" \
   io.k8s.description="deploy mailhogs on crc / oc" \
   io.openshift.tags="operator,mailhog" \
-  io.openshift.min-memory="100Mi" \
-  io.openshift.min-cpu="250m"
+  io.openshift.min-memory="90Mi" \
+  io.openshift.min-cpu="220m"
 WORKDIR /
 EXPOSE 8080 8081 9443
 CMD ["/manager", "-config", "/operatorconfig/defaultconfig.yml"]
