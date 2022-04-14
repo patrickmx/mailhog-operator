@@ -33,6 +33,7 @@ LABEL \
 WORKDIR /
 EXPOSE 8080 8081 9443
 CMD ["/manager", "-config", "/operatorconfig/defaultconfig.yml"]
+COPY --from=builder /usr/share/common-licenses /licenses
 COPY --from=builder /workspace/manager /workspace/manager.sha256 /workspace/manager.version /
 COPY --from=builder /workspace/config/manager/controller_manager_config.yaml /operatorconfig/defaultconfig.yml
 USER 65532:65532
