@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"context"
-
 	"github.com/banzaicloud/k8s-objectmatcher/patch"
 	"github.com/go-logr/logr"
 	"github.com/prometheus/client_golang/prometheus"
@@ -66,11 +65,7 @@ func (r *MailhogInstanceReconciler) delete(ctx context.Context,
 			}
 		}
 	} else {
-		graceSeconds := int64(100)
-		deleteOptions := client.DeleteOptions{
-			GracePeriodSeconds: &graceSeconds,
-		}
-		if err = r.Delete(ctx, obj, &deleteOptions); err != nil {
+		if err = r.Delete(ctx, obj, deleteOptions(100)); err != nil {
 			logger.Error(err, "cant remove obsolete object", "object", logHint)
 			return &ReturnIndicator{
 				Err: err,
@@ -82,6 +77,13 @@ func (r *MailhogInstanceReconciler) delete(ctx context.Context,
 	}
 
 	return nil
+}
+
+func deleteOptions(seconds int) *client.DeleteOptions {
+	graceSeconds := int64(seconds)
+	return &client.DeleteOptions{
+		GracePeriodSeconds: &graceSeconds,
+	}
 }
 
 func (r *MailhogInstanceReconciler) update(ctx context.Context,
@@ -100,6 +102,17 @@ func (r *MailhogInstanceReconciler) update(ctx context.Context,
 		}
 	}
 	if err = r.Update(ctx, obj); err != nil {
+		if errors.IsInvalid(err) {
+			if deleteErr := r.Delete(ctx, obj, deleteOptions(100)); deleteErr != nil {
+				logger.Error(deleteErr, "cant remove object which failed to update", "object", logHint)
+				return &ReturnIndicator{
+					Err: deleteErr,
+				}
+			}
+			logger.Error(err, "deleted object because update failed", "object", logHint)
+			tickFunc.Inc()
+			return &ReturnIndicator{}
+		}
 		logger.Error(err, "cant update object", "object", logHint)
 		return &ReturnIndicator{
 			Err: err,
