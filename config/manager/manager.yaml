@@ -10,8 +10,11 @@ kind: Deployment
 metadata:
   name: controller-manager
   namespace: system
+  annotations:
+    app.openshift.io/vcs-uri: https://github.com/patrickmx/mailhog-operator
   labels:
     control-plane: controller-manager
+    app.openshift.io/runtime: operator
 spec:
   selector:
     matchLabels:
