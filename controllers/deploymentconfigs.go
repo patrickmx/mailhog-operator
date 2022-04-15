@@ -51,9 +51,9 @@ func (r *MailhogInstanceReconciler) ensureDeploymentConfig(ctx context.Context, 
 }
 
 func (r *MailhogInstanceReconciler) deploymentConfigNew(cr *mailhogv1alpha1.MailhogInstance) (newDeployment *ocappsv1.DeploymentConfig) {
-	podTemplate := r.podTemplate(cr)
+	template := podTemplate(cr)
 	meta := CreateMetaMaker(cr)
-	podTemplate.Labels[dcLabel] = cr.Name
+	template.Labels[dcLabel] = cr.Name
 	replicas := cr.Spec.Replicas
 	tenMinutes := int64(600)
 	none := intstr.FromInt(0)
@@ -65,7 +65,7 @@ func (r *MailhogInstanceReconciler) deploymentConfigNew(cr *mailhogv1alpha1.Mail
 			Replicas:        replicas,
 			Selector:        meta.GetLabels(true),
 			MinReadySeconds: 30,
-			Template:        &podTemplate,
+			Template:        &template,
 			Strategy: ocappsv1.DeploymentStrategy{
 				Type: ocappsv1.DeploymentStrategyTypeRolling,
 				RollingParams: &ocappsv1.RollingDeploymentStrategyParams{

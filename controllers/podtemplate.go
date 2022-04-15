@@ -8,7 +8,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
-func (r *MailhogInstanceReconciler) podTemplate(cr *mailhogv1alpha1.MailhogInstance) corev1.PodTemplateSpec {
+func podTemplate(cr *mailhogv1alpha1.MailhogInstance) corev1.PodTemplateSpec {
 	meta := CreateMetaMaker(cr)
 	env := envForCr(cr)
 	ports := portsForCr()
@@ -21,32 +21,6 @@ func (r *MailhogInstanceReconciler) podTemplate(cr *mailhogv1alpha1.MailhogInsta
 		resources = *cr.Spec.Settings.Resources.DeepCopy()
 	}
 
-	socketProbe := &corev1.Probe{
-		ProbeHandler: corev1.ProbeHandler{
-			TCPSocket: &corev1.TCPSocketAction{
-				Port: intstr.FromInt(portWeb),
-			},
-		},
-		InitialDelaySeconds: 10,
-		TimeoutSeconds:      2,
-		PeriodSeconds:       5,
-		SuccessThreshold:    1,
-		FailureThreshold:    3,
-	}
-	httpProbe := &corev1.Probe{
-		ProbeHandler: corev1.ProbeHandler{
-			HTTPGet: &corev1.HTTPGetAction{
-				Port:   intstr.FromInt(portWeb),
-				Path:   cr.Spec.Settings.WebPath + httpHealthPath,
-				Scheme: corev1.URISchemeHTTP,
-			},
-		},
-		InitialDelaySeconds: 10,
-		TimeoutSeconds:      2,
-		PeriodSeconds:       5,
-		SuccessThreshold:    1,
-		FailureThreshold:    3,
-	}
 	isExplicitlyFalse := false
 
 	pod := corev1.PodTemplateSpec{
@@ -61,9 +35,9 @@ func (r *MailhogInstanceReconciler) podTemplate(cr *mailhogv1alpha1.MailhogInsta
 					Ports:          ports,
 					Env:            env,
 					Resources:      resources,
-					LivenessProbe:  socketProbe,
-					StartupProbe:   socketProbe,
-					ReadinessProbe: httpProbe,
+					LivenessProbe:  getProbeTcp(portWeb),
+					StartupProbe:   getProbeTcp(portWeb),
+					ReadinessProbe: getProbeHttp(portWeb, cr.Spec.Settings.WebPath+httpHealthPath),
 				},
 			},
 			AutomountServiceAccountToken: &isExplicitlyFalse,
@@ -71,53 +45,7 @@ func (r *MailhogInstanceReconciler) podTemplate(cr *mailhogv1alpha1.MailhogInsta
 	}
 
 	if cr.Spec.Settings.Storage == mailhogv1alpha1.MaildirStorage || cr.Spec.Settings.Files != nil {
-		podVolumes := make([]corev1.Volume, 0)
-		containerVolMounts := make([]corev1.VolumeMount, 0)
-		if cr.Spec.Settings.StorageMaildir.Path != "" && cr.Spec.Settings.Storage == mailhogv1alpha1.MaildirStorage {
-
-			if claimName := cr.Spec.Settings.StorageMaildir.PvName; claimName == "" {
-				podVolumes = append(podVolumes, corev1.Volume{
-					Name: volumeNameMaildir,
-					VolumeSource: corev1.VolumeSource{
-						EmptyDir: &corev1.EmptyDirVolumeSource{},
-					},
-				})
-			} else {
-				podVolumes = append(podVolumes, corev1.Volume{
-					Name: volumeNameMaildir,
-					VolumeSource: corev1.VolumeSource{
-						PersistentVolumeClaim: &corev1.PersistentVolumeClaimVolumeSource{
-							ClaimName: claimName,
-							ReadOnly:  false,
-						},
-					},
-				})
-			}
-			containerVolMounts = append(containerVolMounts, corev1.VolumeMount{
-				Name:      volumeNameMaildir,
-				MountPath: cr.Spec.Settings.StorageMaildir.Path,
-			})
-
-		}
-		if cr.Spec.Settings.Files != nil {
-			podVolumes = append(podVolumes, corev1.Volume{
-				Name: volumeNameSettings,
-				VolumeSource: corev1.VolumeSource{
-					ConfigMap: &corev1.ConfigMapVolumeSource{
-						LocalObjectReference: corev1.LocalObjectReference{
-							Name: cr.Name,
-						},
-					},
-				},
-			})
-			containerVolMounts = append(containerVolMounts, corev1.VolumeMount{
-				Name:      volumeNameSettings,
-				MountPath: settingsFilesMount,
-			})
-
-		}
-		pod.Spec.Volumes = podVolumes
-		pod.Spec.Containers[0].VolumeMounts = containerVolMounts
+		pod.Spec.Volumes, pod.Spec.Containers[0].VolumeMounts = podVolumes(cr)
 	}
 
 	if cr.Spec.Settings.Jim.Invite == true {
@@ -130,10 +58,59 @@ func (r *MailhogInstanceReconciler) podTemplate(cr *mailhogv1alpha1.MailhogInsta
 
 	if cr.Spec.Settings.Files != nil && len(cr.Spec.Settings.Files.WebUsers) > 0 {
 		// since http authentication is active, kube can no longer perform a http health check, switch to socket
-		pod.Spec.Containers[0].ReadinessProbe = socketProbe.DeepCopy()
+		pod.Spec.Containers[0].ReadinessProbe = getProbeTcp(portWeb)
 	}
 
 	return pod
+}
+
+func podVolumes(cr *mailhogv1alpha1.MailhogInstance) (volumes []corev1.Volume, volumeMounts []corev1.VolumeMount) {
+	if cr.Spec.Settings.Storage == mailhogv1alpha1.MaildirStorage || cr.Spec.Settings.Files != nil {
+		if cr.Spec.Settings.StorageMaildir.Path != "" && cr.Spec.Settings.Storage == mailhogv1alpha1.MaildirStorage {
+
+			if claimName := cr.Spec.Settings.StorageMaildir.PvName; claimName == "" {
+				volumes = append(volumes, corev1.Volume{
+					Name: volumeNameMaildir,
+					VolumeSource: corev1.VolumeSource{
+						EmptyDir: &corev1.EmptyDirVolumeSource{},
+					},
+				})
+			} else {
+				volumes = append(volumes, corev1.Volume{
+					Name: volumeNameMaildir,
+					VolumeSource: corev1.VolumeSource{
+						PersistentVolumeClaim: &corev1.PersistentVolumeClaimVolumeSource{
+							ClaimName: claimName,
+							ReadOnly:  false,
+						},
+					},
+				})
+			}
+			volumeMounts = append(volumeMounts, corev1.VolumeMount{
+				Name:      volumeNameMaildir,
+				MountPath: cr.Spec.Settings.StorageMaildir.Path,
+			})
+
+		}
+		if cr.Spec.Settings.Files != nil {
+			volumes = append(volumes, corev1.Volume{
+				Name: volumeNameSettings,
+				VolumeSource: corev1.VolumeSource{
+					ConfigMap: &corev1.ConfigMapVolumeSource{
+						LocalObjectReference: corev1.LocalObjectReference{
+							Name: cr.Name,
+						},
+					},
+				},
+			})
+			volumeMounts = append(volumeMounts, corev1.VolumeMount{
+				Name:      volumeNameSettings,
+				MountPath: settingsFilesMount,
+			})
+
+		}
+	}
+	return volumes, volumeMounts
 }
 
 func defaultResources() corev1.ResourceRequirements {
@@ -146,6 +123,38 @@ func defaultResources() corev1.ResourceRequirements {
 	resources.Limits[corev1.ResourceCPU] = resource.MustParse(defaultResourceCPU)
 	resources.Limits[corev1.ResourceMemory] = resource.MustParse(defaultResourceMemory)
 	return resources
+}
+
+func getProbeHttp(port int, path string) (probe *corev1.Probe) {
+	return &corev1.Probe{
+		ProbeHandler: corev1.ProbeHandler{
+			HTTPGet: &corev1.HTTPGetAction{
+				Port:   intstr.FromInt(port),
+				Path:   path,
+				Scheme: corev1.URISchemeHTTP,
+			},
+		},
+		InitialDelaySeconds: 10,
+		TimeoutSeconds:      2,
+		PeriodSeconds:       5,
+		SuccessThreshold:    1,
+		FailureThreshold:    3,
+	}
+}
+
+func getProbeTcp(port int) (probe *corev1.Probe) {
+	return &corev1.Probe{
+		ProbeHandler: corev1.ProbeHandler{
+			TCPSocket: &corev1.TCPSocketAction{
+				Port: intstr.FromInt(port),
+			},
+		},
+		InitialDelaySeconds: 10,
+		TimeoutSeconds:      2,
+		PeriodSeconds:       5,
+		SuccessThreshold:    1,
+		FailureThreshold:    3,
+	}
 }
 
 func jimArgs(cr *mailhogv1alpha1.MailhogInstance) []string {
