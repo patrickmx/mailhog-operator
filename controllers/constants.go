@@ -2,6 +2,7 @@ package controllers
 
 const (
 	lastApplied = "mailhog.operators.patrick.mx/last-applied"
+	mh          = "mailhog"
 
 	defaultResourceCPU    = "200m"
 	defaultResourceMemory = "150Mi"

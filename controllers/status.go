@@ -30,17 +30,17 @@ func (r *MailhogInstanceReconciler) ensureStatus(ctx context.Context, cr *mailho
 	podNames := getPodNames(podList.Items)
 
 	if !reflect.DeepEqual(podNames, cr.Status.Pods) {
-		mailhogUpdate := &mailhogv1alpha1.MailhogInstance{}
-		if err := r.Get(ctx, name, mailhogUpdate); err != nil {
+		update := &mailhogv1alpha1.MailhogInstance{}
+		if err := r.Get(ctx, name, update); err != nil {
 			logger.Error(err, failedCrRefresh)
 			return &ReturnIndicator{
 				Err: err,
 			}
 		}
-		mailhogUpdate.Status.Pods = podNames
-		mailhogUpdate.Status.PodCount = len(podNames)
-		mailhogUpdate.Status.LabelSelector = meta.GetSelector(true)
-		if err := r.Status().Update(ctx, mailhogUpdate); err != nil {
+		update.Status.Pods = podNames
+		update.Status.PodCount = len(podNames)
+		update.Status.LabelSelector = meta.GetSelector(true)
+		if err := r.Status().Update(ctx, update); err != nil {
 			logger.Error(err, failedCrUpdateStatus)
 			return &ReturnIndicator{
 				Err: err,

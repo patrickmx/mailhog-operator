@@ -50,7 +50,7 @@ func (r *MailhogInstanceReconciler) ensureConfigMap(ctx context.Context, cr *mai
 }
 
 func (r *MailhogInstanceReconciler) configMapNew(cr *mailhogv1alpha1.MailhogInstance) (newConfigMap *corev1.ConfigMap) {
-	mapdata := make(map[string]string)
+	data := make(map[string]string)
 
 	if len(cr.Spec.Settings.Files.SmtpUpstreams) > 0 {
 		var serverLines []string
@@ -58,7 +58,7 @@ func (r *MailhogInstanceReconciler) configMapNew(cr *mailhogv1alpha1.MailhogInst
 			text, _ := json.Marshal(server)
 			serverLines = append(serverLines, "\""+server.Name+"\":"+string(text))
 		}
-		mapdata[settingsFileUpstreamsName] = "{" + strings.Join(serverLines, ",") + "}"
+		data[settingsFileUpstreamsName] = "{" + strings.Join(serverLines, ",") + "}"
 	}
 
 	if len(cr.Spec.Settings.Files.WebUsers) > 0 {
@@ -66,7 +66,7 @@ func (r *MailhogInstanceReconciler) configMapNew(cr *mailhogv1alpha1.MailhogInst
 		for _, credential := range cr.Spec.Settings.Files.WebUsers {
 			users += credential.Name + ":" + credential.PasswordHash + "\n"
 		}
-		mapdata[settingsFilePasswordsName] = users
+		data[settingsFilePasswordsName] = users
 	}
 
 	meta := CreateMetaMaker(cr)
@@ -74,7 +74,7 @@ func (r *MailhogInstanceReconciler) configMapNew(cr *mailhogv1alpha1.MailhogInst
 	configMap := &corev1.ConfigMap{
 		ObjectMeta: meta.GetMeta(false),
 		Immutable:  &notImmutable,
-		Data:       mapdata,
+		Data:       data,
 	}
 
 	return configMap

@@ -56,7 +56,7 @@ func (r *MailhogInstanceReconciler) podTemplate(cr *mailhogv1alpha1.MailhogInsta
 		Spec: corev1.PodSpec{
 			Containers: []corev1.Container{
 				{
-					Name:           "mailhog",
+					Name:           mh,
 					Image:          image,
 					Ports:          ports,
 					Env:            env,
