@@ -10,6 +10,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
+// ensureDeploymentConfig reconciles openshift DeploymentConfig child objects
 func (r *MailhogInstanceReconciler) ensureDeploymentConfig(ctx context.Context, cr *mailhogv1alpha1.MailhogInstance) *ReturnIndicator {
 	var err error
 	name := types.NamespacedName{Name: cr.Name, Namespace: cr.Namespace}
@@ -50,6 +51,7 @@ func (r *MailhogInstanceReconciler) ensureDeploymentConfig(ctx context.Context, 
 	return nil
 }
 
+// deploymentConfigNew returns a DeploymentConfig in the wanted state
 func (r *MailhogInstanceReconciler) deploymentConfigNew(cr *mailhogv1alpha1.MailhogInstance) (newDeployment *ocappsv1.DeploymentConfig) {
 	template := podTemplate(cr)
 	meta := CreateMetaMaker(cr)
@@ -85,6 +87,7 @@ func (r *MailhogInstanceReconciler) deploymentConfigNew(cr *mailhogv1alpha1.Mail
 	return deploymentConfig
 }
 
+// deploymentConfigUpdates checks if a DeploymentConfig needs  to be updated
 func (r *MailhogInstanceReconciler) deploymentConfigUpdates(cr *mailhogv1alpha1.MailhogInstance, oldDC *ocappsv1.DeploymentConfig) (updatedDeploymentConfig *ocappsv1.DeploymentConfig, updateNeeded bool, err error) {
 	newDC := r.deploymentConfigNew(cr)
 

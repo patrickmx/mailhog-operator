@@ -10,6 +10,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
+// ensureRoute reconciles openshift Route child objects
 func (r *MailhogInstanceReconciler) ensureRoute(ctx context.Context, cr *mailhogv1alpha1.MailhogInstance) *ReturnIndicator {
 	var err error
 	name := types.NamespacedName{Name: cr.Name, Namespace: cr.Namespace}
@@ -51,6 +52,7 @@ func (r *MailhogInstanceReconciler) ensureRoute(ctx context.Context, cr *mailhog
 	return nil
 }
 
+// routeNew returns a Route in the wanted state
 func (r *MailhogInstanceReconciler) routeNew(cr *mailhogv1alpha1.MailhogInstance) (newRoute *routev1.Route) {
 	meta := CreateMetaMaker(cr)
 
@@ -77,6 +79,7 @@ func (r *MailhogInstanceReconciler) routeNew(cr *mailhogv1alpha1.MailhogInstance
 	return route
 }
 
+// routeUpdates checks if a Route needs  to be updated
 func (r *MailhogInstanceReconciler) routeUpdates(cr *mailhogv1alpha1.MailhogInstance, oldRoute *routev1.Route) (updatedRoute *routev1.Route, updateNeeded bool, err error) {
 	newRoute := r.routeNew(cr)
 

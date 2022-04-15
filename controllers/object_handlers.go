@@ -14,6 +14,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
+// create tries to create the given object
 func (r *MailhogInstanceReconciler) create(ctx context.Context,
 	cr *mailhogv1alpha1.MailhogInstance,
 	logger logr.Logger,
@@ -48,6 +49,7 @@ func (r *MailhogInstanceReconciler) create(ctx context.Context,
 	return &ReturnIndicator{}
 }
 
+// delete tries to delete the given object
 func (r *MailhogInstanceReconciler) delete(ctx context.Context,
 	name types.NamespacedName,
 	obj client.Object,
@@ -78,6 +80,7 @@ func (r *MailhogInstanceReconciler) delete(ctx context.Context,
 	return nil
 }
 
+// deleteOptions returns new delete options with the given grace period
 func deleteOptions(seconds int) *client.DeleteOptions {
 	graceSeconds := int64(seconds)
 	return &client.DeleteOptions{
@@ -85,6 +88,7 @@ func deleteOptions(seconds int) *client.DeleteOptions {
 	}
 }
 
+// update tries to update the given object
 func (r *MailhogInstanceReconciler) update(ctx context.Context,
 	cr *mailhogv1alpha1.MailhogInstance,
 	logger logr.Logger,
@@ -123,6 +127,7 @@ func (r *MailhogInstanceReconciler) update(ctx context.Context,
 	return &ReturnIndicator{}
 }
 
+// checkPatch compares an object to its reference state
 func checkPatch(oldO client.Object, newO client.Object) (updateNeeded bool, err error) {
 	opts := []patch.CalculateOption{
 		patch.IgnoreStatusFields(),
@@ -144,6 +149,7 @@ func checkPatch(oldO client.Object, newO client.Object) (updateNeeded bool, err 
 }
 
 type (
+	// ReturnIndicator is used to indicate to the main Reconcile if a Return / Requeue is needed or not
 	ReturnIndicator struct {
 		Err error
 	}

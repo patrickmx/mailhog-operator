@@ -10,6 +10,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 )
 
+// ensureDeployment reconciles Deployment child objects
 func (r *MailhogInstanceReconciler) ensureDeployment(ctx context.Context, cr *mailhogv1alpha1.MailhogInstance) *ReturnIndicator {
 	var err error
 	name := types.NamespacedName{Name: cr.Name, Namespace: cr.Namespace}
@@ -50,6 +51,7 @@ func (r *MailhogInstanceReconciler) ensureDeployment(ctx context.Context, cr *ma
 	return nil
 }
 
+// deploymentNew returns a Deployment in the wanted state
 func (r *MailhogInstanceReconciler) deploymentNew(cr *mailhogv1alpha1.MailhogInstance) (newDeployment *appsv1.Deployment) {
 	template := podTemplate(cr)
 	replicas := cr.Spec.Replicas
@@ -69,6 +71,7 @@ func (r *MailhogInstanceReconciler) deploymentNew(cr *mailhogv1alpha1.MailhogIns
 	return deployment
 }
 
+// deploymentUpdates checks if a Deployment needs  to be updated
 func (r *MailhogInstanceReconciler) deploymentUpdates(cr *mailhogv1alpha1.MailhogInstance, oldDeployment *appsv1.Deployment) (updatedDeployment *appsv1.Deployment, updateNeeded bool, err error) {
 	newDeployment := r.deploymentNew(cr)
 

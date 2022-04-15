@@ -11,6 +11,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 )
 
+// ensureConfigMap reconciles ConfigMap child objects
 func (r *MailhogInstanceReconciler) ensureConfigMap(ctx context.Context, cr *mailhogv1alpha1.MailhogInstance) *ReturnIndicator {
 	var err error
 	name := types.NamespacedName{Name: cr.Name, Namespace: cr.Namespace}
@@ -49,6 +50,7 @@ func (r *MailhogInstanceReconciler) ensureConfigMap(ctx context.Context, cr *mai
 	return nil
 }
 
+// configMapNew returns a ConfigMap in the wanted state
 func (r *MailhogInstanceReconciler) configMapNew(cr *mailhogv1alpha1.MailhogInstance) (newConfigMap *corev1.ConfigMap) {
 	data := make(map[string]string)
 
@@ -80,6 +82,7 @@ func (r *MailhogInstanceReconciler) configMapNew(cr *mailhogv1alpha1.MailhogInst
 	return configMap
 }
 
+// configMapUpdates checks if a ConfigMap needs  to be updated
 func (r *MailhogInstanceReconciler) configMapUpdates(cr *mailhogv1alpha1.MailhogInstance, oldCM *corev1.ConfigMap) (updatedCM *corev1.ConfigMap, updateNeeded bool, err error) {
 	newCM := r.configMapNew(cr)
 

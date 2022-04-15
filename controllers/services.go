@@ -10,6 +10,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
+// ensureService reconciles Service child objects
 func (r *MailhogInstanceReconciler) ensureService(ctx context.Context, cr *mailhogv1alpha1.MailhogInstance) *ReturnIndicator {
 	var err error
 	name := types.NamespacedName{Name: cr.Name, Namespace: cr.Namespace}
@@ -41,6 +42,7 @@ func (r *MailhogInstanceReconciler) ensureService(ctx context.Context, cr *mailh
 	return nil
 }
 
+// serviceNew returns a Service in the wanted state
 func (r *MailhogInstanceReconciler) serviceNew(cr *mailhogv1alpha1.MailhogInstance) (newService *corev1.Service) {
 	meta := CreateMetaMaker(cr)
 
@@ -73,6 +75,7 @@ func (r *MailhogInstanceReconciler) serviceNew(cr *mailhogv1alpha1.MailhogInstan
 	return service
 }
 
+// serviceUpdates checks if a Service needs  to be updated
 func (r *MailhogInstanceReconciler) serviceUpdates(cr *mailhogv1alpha1.MailhogInstance, oldService *corev1.Service) (updatedService *corev1.Service, updateNeeded bool, err error) {
 	newService := r.serviceNew(cr)
 

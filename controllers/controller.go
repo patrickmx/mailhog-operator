@@ -106,6 +106,7 @@ func (r *MailhogInstanceReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 	return ctrl.Result{}, nil
 }
 
+// findObjectsForPod is mapper to find which CR needs to be reconciled when a pod is updated
 func (r *MailhogInstanceReconciler) findObjectsForPod(watchedPod client.Object) []reconcile.Request {
 	name := watchedPod.GetName()
 	ns := watchedPod.GetNamespace()
@@ -126,7 +127,7 @@ func (r *MailhogInstanceReconciler) findObjectsForPod(watchedPod client.Object) 
 	return requests
 }
 
-// SetupWithManager sets up the controller with the Manager.
+// SetupWithManager sets up this controller with the Manager.
 func (r *MailhogInstanceReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	patch.DefaultAnnotator = patch.NewAnnotator(lastApplied)
 

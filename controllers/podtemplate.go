@@ -8,6 +8,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
+// podTemplate will return the desired PodTemplate used in Deployments and DeploymentConfigs
 func podTemplate(cr *mailhogv1alpha1.MailhogInstance) corev1.PodTemplateSpec {
 	meta := CreateMetaMaker(cr)
 	env := envForCr(cr)
@@ -64,6 +65,7 @@ func podTemplate(cr *mailhogv1alpha1.MailhogInstance) corev1.PodTemplateSpec {
 	return pod
 }
 
+// podVolumes will return the required volumes and mounts for a given CR
 func podVolumes(cr *mailhogv1alpha1.MailhogInstance) (volumes []corev1.Volume, volumeMounts []corev1.VolumeMount) {
 	if cr.Spec.Settings.Storage == mailhogv1alpha1.MaildirStorage || cr.Spec.Settings.Files != nil {
 		if cr.Spec.Settings.StorageMaildir.Path != "" && cr.Spec.Settings.Storage == mailhogv1alpha1.MaildirStorage {
@@ -113,6 +115,7 @@ func podVolumes(cr *mailhogv1alpha1.MailhogInstance) (volumes []corev1.Volume, v
 	return volumes, volumeMounts
 }
 
+// defaultResources will return the resource limits used when none are specified in the CR
 func defaultResources() corev1.ResourceRequirements {
 	resources := corev1.ResourceRequirements{
 		Requests: corev1.ResourceList{},
@@ -125,6 +128,7 @@ func defaultResources() corev1.ResourceRequirements {
 	return resources
 }
 
+// getProbeHttp will return a new http probe on the given port and path
 func getProbeHttp(port int, path string) (probe *corev1.Probe) {
 	return &corev1.Probe{
 		ProbeHandler: corev1.ProbeHandler{
@@ -142,6 +146,7 @@ func getProbeHttp(port int, path string) (probe *corev1.Probe) {
 	}
 }
 
+// getProbeTcp will return a new tcp probe on the given port
 func getProbeTcp(port int) (probe *corev1.Probe) {
 	return &corev1.Probe{
 		ProbeHandler: corev1.ProbeHandler{
@@ -157,6 +162,7 @@ func getProbeTcp(port int) (probe *corev1.Probe) {
 	}
 }
 
+// jimArgs will return the needed container args for the desired chaos monkey configuration
 func jimArgs(cr *mailhogv1alpha1.MailhogInstance) []string {
 	args := make([]string, 0)
 
@@ -175,6 +181,7 @@ func jimArgs(cr *mailhogv1alpha1.MailhogInstance) []string {
 	return args
 }
 
+// appendNonemptyArgs will append container args if the value is non-empty
 func appendNonEmptyArg(args []string, arg string, value string) []string {
 	if value == "" {
 		return args
@@ -183,6 +190,7 @@ func appendNonEmptyArg(args []string, arg string, value string) []string {
 	return args
 }
 
+// portsForCr will return the desired ContainerPorts of a given CR
 func portsForCr() (p []corev1.ContainerPort) {
 	return []corev1.ContainerPort{
 		{
@@ -198,6 +206,7 @@ func portsForCr() (p []corev1.ContainerPort) {
 	}
 }
 
+// envForCr will return the desired environment variables for a give CR
 func envForCr(crs *mailhogv1alpha1.MailhogInstance) (e []corev1.EnvVar) {
 	e = []corev1.EnvVar{
 		{
@@ -243,6 +252,7 @@ func envForCr(crs *mailhogv1alpha1.MailhogInstance) (e []corev1.EnvVar) {
 	return
 }
 
+// appendNonEmptyEnv will append to the environment if the value is non-empty
 func appendNonEmptyEnv(env []corev1.EnvVar, key string, value string) []corev1.EnvVar {
 	if value == "" {
 		return env

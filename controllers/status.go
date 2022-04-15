@@ -10,6 +10,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
+// ensureStatus reconciles the status subresource of the MailhogInstance CR
 func (r *MailhogInstanceReconciler) ensureStatus(ctx context.Context, cr *mailhogv1alpha1.MailhogInstance) *ReturnIndicator {
 	var err error
 	name := types.NamespacedName{Name: cr.Name, Namespace: cr.Namespace}
@@ -56,6 +57,7 @@ func (r *MailhogInstanceReconciler) ensureStatus(ctx context.Context, cr *mailho
 	return nil
 }
 
+// getPodNames will return the names of the given pods
 func getPodNames(pods []corev1.Pod) []string {
 	podNames := make([]string, 0)
 	for _, pod := range pods {
