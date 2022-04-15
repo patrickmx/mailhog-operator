@@ -2,6 +2,8 @@ package controllers
 
 import (
 	"context"
+	"testing"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	ocappsv1 "github.com/openshift/api/apps/v1"
@@ -19,7 +21,6 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
-	"testing"
 )
 
 var (
@@ -32,7 +33,6 @@ var (
 
 func TestAPIs(t *testing.T) {
 	RegisterFailHandler(Fail)
-
 	RunSpecs(t, "Controller Suite")
 }
 
@@ -44,13 +44,10 @@ var _ = BeforeSuite(func() {
 
 	err = mailhogv1alpha1.AddToScheme(scheme)
 	Expect(err).NotTo(HaveOccurred())
-
 	err = clientgoscheme.AddToScheme(scheme)
 	Expect(err).NotTo(HaveOccurred())
-
 	err = routev1.AddToScheme(scheme)
 	Expect(err).NotTo(HaveOccurred())
-
 	err = ocappsv1.AddToScheme(scheme)
 	Expect(err).NotTo(HaveOccurred())
 })
@@ -82,7 +79,6 @@ var _ = Describe("MailhogInstance controller", func() {
 			k8sClient = fake.NewClientBuilder().WithScheme(scheme).WithObjects(objects...).Build()
 
 			r := &MailhogInstanceReconciler{Client: k8sClient, Scheme: scheme}
-
 			res, err := r.Reconcile(ctx, req)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(res).Should(Equal(reconcile.Result{RequeueAfter: requeueTime}))
@@ -103,7 +99,6 @@ var _ = Describe("MailhogInstance controller", func() {
 			k8sClient = fake.NewClientBuilder().WithScheme(scheme).WithObjects(objects...).Build()
 
 			r := &MailhogInstanceReconciler{Client: k8sClient, Scheme: scheme}
-
 			res, err := r.Reconcile(ctx, req)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(res).Should(Equal(reconcile.Result{RequeueAfter: requeueTime}))
@@ -125,7 +120,6 @@ var _ = Describe("MailhogInstance controller", func() {
 			k8sClient = fake.NewClientBuilder().WithScheme(scheme).WithObjects(objects...).Build()
 
 			r := &MailhogInstanceReconciler{Client: k8sClient, Scheme: scheme}
-
 			res, err := r.Reconcile(ctx, req)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(res).Should(Equal(reconcile.Result{RequeueAfter: requeueTime}))
@@ -148,7 +142,6 @@ var _ = Describe("MailhogInstance controller", func() {
 			k8sClient = fake.NewClientBuilder().WithScheme(scheme).WithObjects(objects...).Build()
 
 			r := &MailhogInstanceReconciler{Client: k8sClient, Scheme: scheme}
-
 			res, err := r.Reconcile(ctx, req)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(res).Should(Equal(reconcile.Result{RequeueAfter: requeueTime}))
@@ -172,7 +165,6 @@ var _ = Describe("MailhogInstance controller", func() {
 			k8sClient = fake.NewClientBuilder().WithScheme(scheme).WithObjects(objects...).Build()
 
 			r := &MailhogInstanceReconciler{Client: k8sClient, Scheme: scheme}
-
 			res, err := r.Reconcile(ctx, req)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(res).Should(Equal(reconcile.Result{RequeueAfter: requeueTime}))
@@ -203,7 +195,6 @@ var _ = Describe("MailhogInstance controller", func() {
 			k8sClient = fake.NewClientBuilder().WithScheme(scheme).WithObjects(objects...).Build()
 
 			r := &MailhogInstanceReconciler{Client: k8sClient, Scheme: scheme}
-
 			res, err := r.Reconcile(ctx, req)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(res).Should(Equal(reconcile.Result{RequeueAfter: requeueTime}))
