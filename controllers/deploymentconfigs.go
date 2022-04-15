@@ -54,7 +54,7 @@ func (r *MailhogInstanceReconciler) ensureDeploymentConfig(ctx context.Context, 
 func (r *MailhogInstanceReconciler) deploymentConfigNew(cr *mailhogv1alpha1.MailhogInstance) (newDeployment *ocappsv1.DeploymentConfig) {
 	podTemplate := r.podTemplate(cr)
 	meta := CreateMetaMaker(cr)
-	podTemplate.Labels["deploymentconfig"] = cr.Name
+	podTemplate.Labels[dcLabel] = cr.Name
 	replicas := cr.Spec.Replicas
 	tenMinutes := int64(600)
 	none := intstr.FromInt(0)
