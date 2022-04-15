@@ -14,25 +14,23 @@ import (
 func (r *MailhogInstanceReconciler) ensureConfigMap(ctx context.Context, cr *mailhogv1alpha1.MailhogInstance) *ReturnIndicator {
 	var err error
 	name := types.NamespacedName{Name: cr.Name, Namespace: cr.Namespace}
-	logger := r.logger.WithValues("span", "configmap")
+	logger := r.logger.WithValues(span, spanConfigMap)
 
 	if cr.Spec.Settings.Files != nil {
 		existingCM := &corev1.ConfigMap{}
 		if err = r.Get(ctx, name, existingCM); err != nil {
 			if errors.IsNotFound(err) {
-				// create new configmap
 				cm := r.configMapNew(cr)
 				return r.create(ctx, cr, logger, cm, confMapCreate)
 			}
-			logger.Error(err, "unknown error while checking for existing object")
+			logger.Error(err, failedGetExisting)
 			return &ReturnIndicator{
 				Err: err,
 			}
 		}
-		// check if update is needed
 		updatedCM, updateNeeded, err := r.configMapUpdates(cr, existingCM)
 		if err != nil {
-			logger.Error(err, "failed check if update is needed")
+			logger.Error(err, failedUpdateCheck)
 			return &ReturnIndicator{
 				Err: err,
 			}
@@ -47,7 +45,7 @@ func (r *MailhogInstanceReconciler) ensureConfigMap(ctx context.Context, cr *mai
 		}
 	}
 
-	logger.Info("object state ensured")
+	logger.Info(stateEnsured)
 	return nil
 }
 

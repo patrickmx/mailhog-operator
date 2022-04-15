@@ -23,27 +23,27 @@ func (r *MailhogInstanceReconciler) create(ctx context.Context,
 	var err error
 
 	if err = patch.DefaultAnnotator.SetLastAppliedAnnotation(obj); err != nil {
-		logger.Error(err, "failed to annotate new object with initial state")
+		logger.Error(err, messageFailedGetInitialObject)
 		return &ReturnIndicator{
 			Err: err,
 		}
 	}
 
 	if err = ctrl.SetControllerReference(cr, obj, r.Scheme); err != nil {
-		logger.Error(err, "failed to set controller ref for new object")
+		logger.Error(err, messageFailedSetOwnerRef)
 		return &ReturnIndicator{
 			Err: err,
 		}
 	}
 
 	if err = r.Create(ctx, obj); err != nil {
-		logger.Error(err, "failed to create new object")
+		logger.Error(err, messageFailedCreate)
 		return &ReturnIndicator{
 			Err: err,
 		}
 	}
 
-	logger.Info("created new object")
+	logger.Info(messageCreatedObject)
 	tickFunc.Inc()
 	return &ReturnIndicator{}
 }
@@ -58,19 +58,19 @@ func (r *MailhogInstanceReconciler) delete(ctx context.Context,
 
 	if err = r.Get(ctx, name, obj); err != nil {
 		if !errors.IsNotFound(err) {
-			logger.Error(err, "cant check for to-be-removed object")
+			logger.Error(err, messageFailedGetDeletingObject)
 			return &ReturnIndicator{
 				Err: err,
 			}
 		}
 	} else {
 		if err = r.Delete(ctx, obj, deleteOptions(100)); err != nil {
-			logger.Error(err, "cant remove obsolete object")
+			logger.Error(err, messageFailedDelete)
 			return &ReturnIndicator{
 				Err: err,
 			}
 		}
-		logger.Info("removed obsolete object")
+		logger.Info(messageDeletedObject)
 		tick.Inc()
 		return &ReturnIndicator{}
 	}
@@ -94,7 +94,7 @@ func (r *MailhogInstanceReconciler) update(ctx context.Context,
 	var err error
 
 	if err = ctrl.SetControllerReference(cr, obj, r.Scheme); err != nil {
-		logger.Error(err, "cant set owner reference of updated object")
+		logger.Error(err, messageFailedSetOwnerRefUpdate)
 		return &ReturnIndicator{
 			Err: err,
 		}
@@ -102,24 +102,24 @@ func (r *MailhogInstanceReconciler) update(ctx context.Context,
 	if err = r.Update(ctx, obj); err != nil {
 		if errors.IsInvalid(err) {
 			if deleteErr := r.Delete(ctx, obj, deleteOptions(100)); deleteErr != nil {
-				logger.Error(deleteErr, "cant remove object which failed to update")
+				logger.Error(deleteErr, messageFailedDeleteAfterInvalid)
 				return &ReturnIndicator{
 					Err: deleteErr,
 				}
 			}
-			logger.Error(err, "deleted object because update failed")
+			logger.Error(err, messageDeletedObjectAfterInvalid)
 			tickFunc.Inc()
 			return &ReturnIndicator{}
 		}
-		logger.Error(err, "cant update object")
+		logger.Error(err, messageFailedUpdate)
 		return &ReturnIndicator{
 			Err: err,
 		}
 	}
-	logger.Info("updated existing object")
+	logger.Info(messageUpdated)
 	tickFunc.Inc()
 
-	r.Recorder.Event(obj, corev1.EventTypeNormal, "SuccessEvent", "updated by mailhog management")
+	r.Recorder.Event(obj, corev1.EventTypeNormal, "SuccessEvent", eventUpdated)
 	return &ReturnIndicator{}
 }
 

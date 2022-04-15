@@ -13,11 +13,10 @@ import (
 func (r *MailhogInstanceReconciler) ensureRoute(ctx context.Context, cr *mailhogv1alpha1.MailhogInstance) *ReturnIndicator {
 	var err error
 	name := types.NamespacedName{Name: cr.Name, Namespace: cr.Namespace}
-	logger := r.logger.WithValues("span", "route")
+	logger := r.logger.WithValues(span, spanRoute)
 
 	if cr.Spec.WebTrafficInlet == mailhogv1alpha1.RouteTrafficInlet {
 
-		// check if a route exists, if not create it
 		existingRoute := &routev1.Route{}
 		if err = r.Get(ctx, name, existingRoute); err != nil {
 			if errors.IsNotFound(err) {
@@ -25,16 +24,15 @@ func (r *MailhogInstanceReconciler) ensureRoute(ctx context.Context, cr *mailhog
 				route := r.routeNew(cr)
 				return r.create(ctx, cr, logger, route, routeCreate)
 			}
-			logger.Error(err, "failed to get existing object")
+			logger.Error(err, failedGetExisting)
 			return &ReturnIndicator{
 				Err: err,
 			}
 		}
 
-		// check if the existing route needs an update
 		updatedRoute, updateNeeded, err := r.routeUpdates(cr, existingRoute)
 		if err != nil {
-			logger.Error(err, "failure checking if object update is needed")
+			logger.Error(err, failedUpdateCheck)
 			return &ReturnIndicator{
 				Err: err,
 			}
@@ -50,7 +48,7 @@ func (r *MailhogInstanceReconciler) ensureRoute(ctx context.Context, cr *mailhog
 		}
 	}
 
-	logger.Info("object state ensured")
+	logger.Info(stateEnsured)
 	return nil
 }
 

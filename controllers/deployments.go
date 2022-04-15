@@ -13,11 +13,10 @@ import (
 func (r *MailhogInstanceReconciler) ensureDeployment(ctx context.Context, cr *mailhogv1alpha1.MailhogInstance) *ReturnIndicator {
 	var err error
 	name := types.NamespacedName{Name: cr.Name, Namespace: cr.Namespace}
-	logger := r.logger.WithValues("span", "deployment")
+	logger := r.logger.WithValues(span, spanDeployment)
 
 	if cr.Spec.BackingResource == mailhogv1alpha1.DeploymentBacking {
 
-		// check if a deployment exists, if not create it
 		existingDeployment := &appsv1.Deployment{}
 		if err = r.Get(ctx, name, existingDeployment); err != nil {
 			if errors.IsNotFound(err) {
@@ -25,16 +24,15 @@ func (r *MailhogInstanceReconciler) ensureDeployment(ctx context.Context, cr *ma
 				deployment := r.deploymentNew(cr)
 				return r.create(ctx, cr, logger, deployment, deploymentCreate)
 			}
-			logger.Error(err, "failed to get existing object")
+			logger.Error(err, failedGetExisting)
 			return &ReturnIndicator{
 				Err: err,
 			}
 		}
 
-		// check if the existing deployment needs an update
 		updatedDeployment, updateNeeded, err := r.deploymentUpdates(cr, existingDeployment)
 		if err != nil {
-			logger.Error(err, "failure checking if object update is needed")
+			logger.Error(err, failedUpdateCheck)
 			return &ReturnIndicator{
 				Err: err,
 			}
@@ -49,7 +47,7 @@ func (r *MailhogInstanceReconciler) ensureDeployment(ctx context.Context, cr *ma
 		}
 	}
 
-	logger.Info("object state ensured")
+	logger.Info(stateEnsured)
 	return nil
 }
 

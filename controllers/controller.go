@@ -71,16 +71,16 @@ var requeueTime = time.Duration(10) * time.Second
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.11.0/pkg/reconcile
 func (r *MailhogInstanceReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	r.logger = log.FromContext(ctx, "ns", req.NamespacedName.Namespace, "cr", req.NamespacedName.Name)
-	r.logger.Info("starting reconcile")
+	r.logger.Info(reconcileStarted)
 
 	// Get latest CR version
 	cr := &mailhogv1alpha1.MailhogInstance{}
 	if err := r.Get(ctx, req.NamespacedName, cr); err != nil {
 		if errors.IsNotFound(err) {
-			r.logger.Info("cr not found, probably it was deleted")
+			r.logger.Info(crGetNotFound)
 			return ctrl.Result{}, nil
 		}
-		r.logger.Error(err, "failed to get cr")
+		r.logger.Error(err, crGetFailed)
 		return ctrl.Result{}, err
 	}
 
@@ -102,7 +102,7 @@ func (r *MailhogInstanceReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 		}
 	}
 
-	r.logger.Info("reconciliation finished, nothing to do")
+	r.logger.Info(reconcileFinished)
 	return ctrl.Result{}, nil
 }
 

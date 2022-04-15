@@ -14,7 +14,7 @@ func (r *MailhogInstanceReconciler) ensureStatus(ctx context.Context, cr *mailho
 	var err error
 	name := types.NamespacedName{Name: cr.Name, Namespace: cr.Namespace}
 	meta := CreateMetaMaker(cr)
-	logger := r.logger.WithValues("span", "crstatus")
+	logger := r.logger.WithValues(span, spanCr)
 
 	podList := &corev1.PodList{}
 	listOpts := []client.ListOption{
@@ -22,7 +22,7 @@ func (r *MailhogInstanceReconciler) ensureStatus(ctx context.Context, cr *mailho
 		client.MatchingLabels(meta.GetLabels(false)),
 	}
 	if err = r.List(ctx, podList, listOpts...); err != nil {
-		logger.Error(err, "Failed to list pods")
+		logger.Error(err, failedListPods)
 		return &ReturnIndicator{
 			Err: err,
 		}
@@ -32,7 +32,7 @@ func (r *MailhogInstanceReconciler) ensureStatus(ctx context.Context, cr *mailho
 	if !reflect.DeepEqual(podNames, cr.Status.Pods) {
 		mailhogUpdate := &mailhogv1alpha1.MailhogInstance{}
 		if err := r.Get(ctx, name, mailhogUpdate); err != nil {
-			logger.Error(err, "failed to get latest cr version before update")
+			logger.Error(err, failedCrRefresh)
 			return &ReturnIndicator{
 				Err: err,
 			}
@@ -41,17 +41,17 @@ func (r *MailhogInstanceReconciler) ensureStatus(ctx context.Context, cr *mailho
 		mailhogUpdate.Status.PodCount = len(podNames)
 		mailhogUpdate.Status.LabelSelector = meta.GetSelector(true)
 		if err := r.Status().Update(ctx, mailhogUpdate); err != nil {
-			logger.Error(err, "failed to update cr status")
+			logger.Error(err, failedCrUpdateStatus)
 			return &ReturnIndicator{
 				Err: err,
 			}
 		}
-		logger.Info("updated cr status")
+		logger.Info(updatedCrStatus)
 		crUpdate.Inc()
 		return &ReturnIndicator{}
 
 	}
 
-	logger.Info("no cr status update required")
+	logger.Info(noCrUpdateNeeded)
 	return nil
 }

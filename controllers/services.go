@@ -13,7 +13,7 @@ import (
 func (r *MailhogInstanceReconciler) ensureService(ctx context.Context, cr *mailhogv1alpha1.MailhogInstance) *ReturnIndicator {
 	var err error
 	name := types.NamespacedName{Name: cr.Name, Namespace: cr.Namespace}
-	logger := r.logger.WithValues("span", "service")
+	logger := r.logger.WithValues(span, spanService)
 
 	// check if a service exists, if not create it
 	existingService := &corev1.Service{}
@@ -23,7 +23,7 @@ func (r *MailhogInstanceReconciler) ensureService(ctx context.Context, cr *mailh
 			service := r.serviceNew(cr)
 			return r.create(ctx, cr, logger, service, serviceCreate)
 		}
-		logger.Error(err, "failed to get existing object")
+		logger.Error(err, failedGetExisting)
 		return &ReturnIndicator{
 			Err: err,
 		}
@@ -32,7 +32,7 @@ func (r *MailhogInstanceReconciler) ensureService(ctx context.Context, cr *mailh
 	// check if the existing service needs an update
 	updatedService, updateNeeded, err := r.serviceUpdates(cr, existingService)
 	if err != nil {
-		logger.Error(err, "failure checking if object update is needed")
+		logger.Error(err, failedUpdateCheck)
 		return &ReturnIndicator{
 			Err: err,
 		}
@@ -40,7 +40,7 @@ func (r *MailhogInstanceReconciler) ensureService(ctx context.Context, cr *mailh
 		return r.update(ctx, cr, logger, updatedService, serviceUpdate)
 	}
 
-	logger.Info("object state ensured")
+	logger.Info(stateEnsured)
 	return nil
 }
 
