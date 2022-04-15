@@ -20,7 +20,6 @@ func (r *MailhogInstanceReconciler) ensureRoute(ctx context.Context, cr *mailhog
 		existingRoute := &routev1.Route{}
 		if err = r.Get(ctx, name, existingRoute); err != nil {
 			if errors.IsNotFound(err) {
-				// create new route
 				route := r.routeNew(cr)
 				return r.create(ctx, cr, logger, route, routeCreate)
 			}

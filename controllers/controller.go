@@ -49,7 +49,7 @@ type MailhogInstanceReconciler struct {
 	logger   logr.Logger
 }
 
-// default ReconcileAfter value if used
+// default ReconcileAfter value
 var requeueTime = time.Duration(10) * time.Second
 
 //+kubebuilder:rbac:groups=mailhog.operators.patrick.mx,resources=mailhoginstances,verbs=*

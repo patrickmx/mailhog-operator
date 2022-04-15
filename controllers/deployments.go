@@ -20,7 +20,6 @@ func (r *MailhogInstanceReconciler) ensureDeployment(ctx context.Context, cr *ma
 		existingDeployment := &appsv1.Deployment{}
 		if err = r.Get(ctx, name, existingDeployment); err != nil {
 			if errors.IsNotFound(err) {
-				// create new deployment
 				deployment := r.deploymentNew(cr)
 				return r.create(ctx, cr, logger, deployment, deploymentCreate)
 			}

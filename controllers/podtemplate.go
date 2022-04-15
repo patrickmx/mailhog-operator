@@ -37,7 +37,7 @@ func (r *MailhogInstanceReconciler) podTemplate(cr *mailhogv1alpha1.MailhogInsta
 		ProbeHandler: corev1.ProbeHandler{
 			HTTPGet: &corev1.HTTPGetAction{
 				Port:   intstr.FromInt(portWeb),
-				Path:   cr.Spec.Settings.WebPath + "/api/v2/messages?limit=1",
+				Path:   cr.Spec.Settings.WebPath + httpHealthPath,
 				Scheme: corev1.URISchemeHTTP,
 			},
 		},
@@ -152,15 +152,15 @@ func jimArgs(cr *mailhogv1alpha1.MailhogInstance) []string {
 	args := make([]string, 0)
 
 	if cr.Spec.Settings.Jim.Invite == true {
-		args = append(args, "-invite-jim")
-		args = appendNonEmptyArg(args, "jim-disconnect", cr.Spec.Settings.Jim.Disconnect)
-		args = appendNonEmptyArg(args, "jim-accpet", cr.Spec.Settings.Jim.Accept)
-		args = appendNonEmptyArg(args, "jim-linkspeed-affect", cr.Spec.Settings.Jim.LinkspeedAffect)
-		args = appendNonEmptyArg(args, "jim-linkspeed-min", cr.Spec.Settings.Jim.LinkspeedMin)
-		args = appendNonEmptyArg(args, "jim-linkspeed-max", cr.Spec.Settings.Jim.LinkspeedMax)
-		args = appendNonEmptyArg(args, "jim-reject-sender", cr.Spec.Settings.Jim.RejectSender)
-		args = appendNonEmptyArg(args, "jim-reject-recipient", cr.Spec.Settings.Jim.RejectRecipient)
-		args = appendNonEmptyArg(args, "jim-reject-auth", cr.Spec.Settings.Jim.RejectAuth)
+		args = append(args, argsJimInvite)
+		args = appendNonEmptyArg(args, argsJimDisconnectRate, cr.Spec.Settings.Jim.Disconnect)
+		args = appendNonEmptyArg(args, argsJimAccept, cr.Spec.Settings.Jim.Accept)
+		args = appendNonEmptyArg(args, argsJimLinkSpeedAffect, cr.Spec.Settings.Jim.LinkspeedAffect)
+		args = appendNonEmptyArg(args, argsJimLinkSpeedMin, cr.Spec.Settings.Jim.LinkspeedMin)
+		args = appendNonEmptyArg(args, argsJimLinkSpeedMax, cr.Spec.Settings.Jim.LinkspeedMax)
+		args = appendNonEmptyArg(args, argsJimRejectSender, cr.Spec.Settings.Jim.RejectSender)
+		args = appendNonEmptyArg(args, argsJimRejectRecipient, cr.Spec.Settings.Jim.RejectRecipient)
+		args = appendNonEmptyArg(args, argsJimRejectAuth, cr.Spec.Settings.Jim.RejectAuth)
 	}
 
 	return args

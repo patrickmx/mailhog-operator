@@ -20,6 +20,7 @@ const (
 	portSmtpName = "smtp"
 	portWeb      = 8025
 	portWebName  = "http"
+	protoTcp     = "TCP"
 
 	crNameLabel          = "mailhoginstance_cr"
 	crTypeLabel          = "mailhogtype"
@@ -78,4 +79,33 @@ const (
 
 	reconcileStarted  = "staring reconcile"
 	reconcileFinished = "reconciliation finished, nothing to do"
+
+	envBindWebValue  = "0.0.0.0:8025"
+	envBindSmtpValue = "0.0.0.0:1025"
+
+	envSmtpBind         = "MH_SMTP_BIND_ADDR"
+	envApiBind          = "MH_API_BIND_ADDR"
+	envUiBind           = "MH_UI_BIND_ADDR"
+	envStorage          = "MH_STORAGE"
+	envMongoUri         = "MH_MONGO_URI"
+	envMongoDb          = "MH_MONGO_DB"
+	envMongoCollection  = "MH_MONGO_COLLECTION"
+	envMaildirPath      = "MH_MAILDIR_PATH"
+	envHostname         = "MH_HOSTNAME"
+	envCorsOrigin       = "MH_CORS_ORIGIN"
+	envWebPath          = "MH_UI_WEB_PATH"
+	envUpstreamSmtpFile = "MH_OUTGOING_SMTP"
+	envWebAuthFile      = "MH_AUTH_FILE"
+
+	argsJimInvite          = "-invite-jim"
+	argsJimDisconnectRate  = "jim-disconnect"
+	argsJimAccept          = "jim-accept"
+	argsJimLinkSpeedAffect = "jim-linkspeed-affect"
+	argsJimLinkSpeedMin    = "jim-linkspeed-min"
+	argsJimLinkSpeedMax    = "jim-linkspeed-max"
+	argsJimRejectSender    = "jim-reject-sender"
+	argsJimRejectRecipient = "jim-reject-recipient"
+	argsJimRejectAuth      = "jim-reject-auth"
+
+	httpHealthPath = "/api/v2/messages?limit=1"
 )

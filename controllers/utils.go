@@ -16,12 +16,12 @@ func portsForCr() (p []corev1.ContainerPort) {
 		{
 			Name:          portWebName,
 			ContainerPort: portWeb,
-			Protocol:      "TCP",
+			Protocol:      protoTcp,
 		},
 		{
 			Name:          portSmtpName,
 			ContainerPort: portSmtp,
-			Protocol:      "TCP",
+			Protocol:      protoTcp,
 		},
 	}
 }
@@ -29,42 +29,42 @@ func portsForCr() (p []corev1.ContainerPort) {
 func envForCr(crs *mailhogv1alpha1.MailhogInstance) (e []corev1.EnvVar) {
 	e = []corev1.EnvVar{
 		{
-			Name:  "MH_SMTP_BIND_ADDR",
-			Value: "0.0.0.0:1025",
+			Name:  envSmtpBind,
+			Value: envBindSmtpValue,
 		},
 		{
-			Name:  "MH_API_BIND_ADDR",
-			Value: "0.0.0.0:8025",
+			Name:  envApiBind,
+			Value: envBindWebValue,
 		},
 		{
-			Name:  "MH_UI_BIND_ADDR",
-			Value: "0.0.0.0:8025",
+			Name:  envUiBind,
+			Value: envBindWebValue,
 		},
 	}
 
-	e = appendNonEmptyEnv(e, "MH_STORAGE", string(crs.Spec.Settings.Storage))
+	e = appendNonEmptyEnv(e, envStorage, string(crs.Spec.Settings.Storage))
 
 	if crs.Spec.Settings.Storage == mailhogv1alpha1.MongoDBStorage {
-		e = appendNonEmptyEnv(e, "MH_MONGO_URI", crs.Spec.Settings.StorageMongoDb.URI)
-		e = appendNonEmptyEnv(e, "MH_MONGO_DB", crs.Spec.Settings.StorageMongoDb.Db)
-		e = appendNonEmptyEnv(e, "MH_MONGO_COLLECTION", crs.Spec.Settings.StorageMongoDb.Collection)
+		e = appendNonEmptyEnv(e, envMongoUri, crs.Spec.Settings.StorageMongoDb.URI)
+		e = appendNonEmptyEnv(e, envMongoDb, crs.Spec.Settings.StorageMongoDb.Db)
+		e = appendNonEmptyEnv(e, envMongoCollection, crs.Spec.Settings.StorageMongoDb.Collection)
 	}
 
 	if crs.Spec.Settings.Storage == mailhogv1alpha1.MaildirStorage {
-		e = appendNonEmptyEnv(e, "MH_MAILDIR_PATH", crs.Spec.Settings.StorageMaildir.Path)
+		e = appendNonEmptyEnv(e, envMaildirPath, crs.Spec.Settings.StorageMaildir.Path)
 	}
 
-	e = appendNonEmptyEnv(e, "MH_HOSTNAME", crs.Spec.Settings.Hostname)
-	e = appendNonEmptyEnv(e, "MH_CORS_ORIGIN", crs.Spec.Settings.CorsOrigin)
-	e = appendNonEmptyEnv(e, "MH_UI_WEB_PATH", crs.Spec.Settings.WebPath)
+	e = appendNonEmptyEnv(e, envHostname, crs.Spec.Settings.Hostname)
+	e = appendNonEmptyEnv(e, envCorsOrigin, crs.Spec.Settings.CorsOrigin)
+	e = appendNonEmptyEnv(e, envWebPath, crs.Spec.Settings.WebPath)
 
 	if crs.Spec.Settings.Files != nil {
 		if len(crs.Spec.Settings.Files.SmtpUpstreams) > 0 {
-			e = appendNonEmptyEnv(e, "MH_OUTGOING_SMTP", settingsFileUpstreamsPath)
+			e = appendNonEmptyEnv(e, envUpstreamSmtpFile, settingsFileUpstreamsPath)
 		}
 
 		if len(crs.Spec.Settings.Files.WebUsers) > 0 {
-			e = appendNonEmptyEnv(e, "MH_AUTH_FILE", settingsFilePasswordsPath)
+			e = appendNonEmptyEnv(e, envWebAuthFile, settingsFilePasswordsPath)
 		}
 	}
 
