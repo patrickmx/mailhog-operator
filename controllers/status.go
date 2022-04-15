@@ -55,3 +55,11 @@ func (r *MailhogInstanceReconciler) ensureStatus(ctx context.Context, cr *mailho
 	logger.Info(noCrUpdateNeeded)
 	return nil
 }
+
+func getPodNames(pods []corev1.Pod) []string {
+	podNames := make([]string, 0)
+	for _, pod := range pods {
+		podNames = append(podNames, pod.Name)
+	}
+	return podNames
+}

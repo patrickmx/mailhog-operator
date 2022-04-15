@@ -142,3 +142,9 @@ func checkPatch(oldO client.Object, newO client.Object) (updateNeeded bool, err 
 
 	return false, nil
 }
+
+type (
+	ReturnIndicator struct {
+		Err error
+	}
+)
