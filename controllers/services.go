@@ -21,9 +21,9 @@ func (r *MailhogInstanceReconciler) ensureService(ctx context.Context, cr *mailh
 		if errors.IsNotFound(err) {
 			// create new service
 			service := r.serviceNew(cr)
-			return r.create(ctx, cr, logger, "service", service, serviceCreate)
+			return r.create(ctx, cr, logger, service, serviceCreate)
 		}
-		logger.Error(err, "failed to get service")
+		logger.Error(err, "failed to get existing object")
 		return &ReturnIndicator{
 			Err: err,
 		}
@@ -32,15 +32,15 @@ func (r *MailhogInstanceReconciler) ensureService(ctx context.Context, cr *mailh
 	// check if the existing service needs an update
 	updatedService, updateNeeded, err := r.serviceUpdates(cr, existingService)
 	if err != nil {
-		logger.Error(err, "failure checking if a service update is needed")
+		logger.Error(err, "failure checking if object update is needed")
 		return &ReturnIndicator{
 			Err: err,
 		}
 	} else if updateNeeded {
-		return r.update(ctx, cr, logger, "service", updatedService, serviceUpdate)
+		return r.update(ctx, cr, logger, updatedService, serviceUpdate)
 	}
 
-	logger.Info("service state ensured")
+	logger.Info("object state ensured")
 	return nil
 }
 

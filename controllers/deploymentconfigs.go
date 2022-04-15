@@ -23,9 +23,9 @@ func (r *MailhogInstanceReconciler) ensureDeploymentConfig(ctx context.Context, 
 			if errors.IsNotFound(err) {
 				// create new deploymentConfig
 				deploymentConfig := r.deploymentConfigNew(cr)
-				return r.create(ctx, cr, logger, "deploymentConfig", deploymentConfig, deploymentConfigCreate)
+				return r.create(ctx, cr, logger, deploymentConfig, deploymentConfigCreate)
 			}
-			logger.Error(err, "failed to get deploymentConfig")
+			logger.Error(err, "failed to get existing object")
 			return &ReturnIndicator{
 				Err: err,
 			}
@@ -34,22 +34,22 @@ func (r *MailhogInstanceReconciler) ensureDeploymentConfig(ctx context.Context, 
 		// check if the existing DC needs an update
 		updatedDeploymentConfig, updateNeeded, err := r.deploymentConfigUpdates(cr, existingDeploymentConfig)
 		if err != nil {
-			logger.Error(err, "failed to check if deploymentConfig needs an update")
+			logger.Error(err, "failed to check if object needs an update")
 			return &ReturnIndicator{
 				Err: err,
 			}
 		} else if updateNeeded {
-			return r.update(ctx, cr, logger, "deploymentConfig", updatedDeploymentConfig, deploymentUpdate)
+			return r.update(ctx, cr, logger, updatedDeploymentConfig, deploymentUpdate)
 		}
 	} else {
 
 		toBeDeletedDeploymentConfig := &ocappsv1.DeploymentConfig{}
-		if indicator := r.delete(ctx, name, toBeDeletedDeploymentConfig, "deploymentConfig", logger, deploymentConfigDelete); indicator != nil {
+		if indicator := r.delete(ctx, name, toBeDeletedDeploymentConfig, logger, deploymentConfigDelete); indicator != nil {
 			return indicator
 		}
 	}
 
-	logger.Info("deploymentConfig state ensured")
+	logger.Info("object state ensured")
 	return nil
 }
 

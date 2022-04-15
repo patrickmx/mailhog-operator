@@ -23,9 +23,9 @@ func (r *MailhogInstanceReconciler) ensureRoute(ctx context.Context, cr *mailhog
 			if errors.IsNotFound(err) {
 				// create new route
 				route := r.routeNew(cr)
-				return r.create(ctx, cr, logger, "route", route, routeCreate)
+				return r.create(ctx, cr, logger, route, routeCreate)
 			}
-			logger.Error(err, "failed to get route")
+			logger.Error(err, "failed to get existing object")
 			return &ReturnIndicator{
 				Err: err,
 			}
@@ -34,23 +34,23 @@ func (r *MailhogInstanceReconciler) ensureRoute(ctx context.Context, cr *mailhog
 		// check if the existing route needs an update
 		updatedRoute, updateNeeded, err := r.routeUpdates(cr, existingRoute)
 		if err != nil {
-			logger.Error(err, "failure checking if a route update is needed")
+			logger.Error(err, "failure checking if object update is needed")
 			return &ReturnIndicator{
 				Err: err,
 			}
 		} else if updateNeeded {
-			return r.update(ctx, cr, logger, "route", updatedRoute, routeUpdate)
+			return r.update(ctx, cr, logger, updatedRoute, routeUpdate)
 		}
 
 	} else {
 
 		toBeDeletedRoute := &routev1.Route{}
-		if indicator := r.delete(ctx, name, toBeDeletedRoute, "route", logger, routeDelete); indicator != nil {
+		if indicator := r.delete(ctx, name, toBeDeletedRoute, logger, routeDelete); indicator != nil {
 			return indicator
 		}
 	}
 
-	logger.Info("route state ensured")
+	logger.Info("object state ensured")
 	return nil
 }
 

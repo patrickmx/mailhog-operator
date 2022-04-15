@@ -22,9 +22,9 @@ func (r *MailhogInstanceReconciler) ensureConfigMap(ctx context.Context, cr *mai
 			if errors.IsNotFound(err) {
 				// create new configmap
 				cm := r.configMapNew(cr)
-				return r.create(ctx, cr, logger, "configmap", cm, confMapCreate)
+				return r.create(ctx, cr, logger, cm, confMapCreate)
 			}
-			logger.Error(err, "unknown error while checking for service existence")
+			logger.Error(err, "unknown error while checking for existing object")
 			return &ReturnIndicator{
 				Err: err,
 			}
@@ -37,17 +37,17 @@ func (r *MailhogInstanceReconciler) ensureConfigMap(ctx context.Context, cr *mai
 				Err: err,
 			}
 		} else if updateNeeded {
-			return r.update(ctx, cr, logger, "configmap", updatedCM, confMapUpdate)
+			return r.update(ctx, cr, logger, updatedCM, confMapUpdate)
 		}
 
 	} else {
 		toBeDeletedCM := &corev1.ConfigMap{}
-		if indicator := r.delete(ctx, name, toBeDeletedCM, "configmap", logger, confMapDelete); indicator != nil {
+		if indicator := r.delete(ctx, name, toBeDeletedCM, logger, confMapDelete); indicator != nil {
 			return indicator
 		}
 	}
 
-	logger.Info("configmap state ensured")
+	logger.Info("object state ensured")
 	return nil
 }
 

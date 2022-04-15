@@ -32,7 +32,7 @@ func (r *MailhogInstanceReconciler) ensureStatus(ctx context.Context, cr *mailho
 	if !reflect.DeepEqual(podNames, cr.Status.Pods) {
 		mailhogUpdate := &mailhogv1alpha1.MailhogInstance{}
 		if err := r.Get(ctx, name, mailhogUpdate); err != nil {
-			logger.Error(err, "Failed to get latest cr version before update")
+			logger.Error(err, "failed to get latest cr version before update")
 			return &ReturnIndicator{
 				Err: err,
 			}
@@ -41,7 +41,7 @@ func (r *MailhogInstanceReconciler) ensureStatus(ctx context.Context, cr *mailho
 		mailhogUpdate.Status.PodCount = len(podNames)
 		mailhogUpdate.Status.LabelSelector = meta.GetSelector(true)
 		if err := r.Status().Update(ctx, mailhogUpdate); err != nil {
-			logger.Error(err, "Failed to update cr status")
+			logger.Error(err, "failed to update cr status")
 			return &ReturnIndicator{
 				Err: err,
 			}
