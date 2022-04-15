@@ -43,14 +43,14 @@ const (
 	messageFailedCreate           = "failed to create new object"
 	messageCreatedObject          = "created new object"
 
-	messageFailedGetDeletingObject = "cant check for to-be-removed object"
-	messageFailedDelete            = "cant remove obsolete object"
+	messageFailedGetDeletingObject = "failed to check for to-be-removed object"
+	messageFailedDelete            = "failed to remove obsolete object"
 	messageDeletedObject           = "removed obsolete object"
 
-	messageFailedSetOwnerRefUpdate   = "cant set owner reference of updated object"
-	messageFailedDeleteAfterInvalid  = "cant remove object which failed to update"
-	messageDeletedObjectAfterInvalid = "deleted object because update failed"
-	messageFailedUpdate              = "cant update object"
+	messageFailedSetOwnerRefUpdate   = "failed to set owner reference of updated object"
+	messageFailedDeleteAfterInvalid  = "failed to delete object after it failed to update"
+	messageDeletedObjectAfterInvalid = "deleted object after it failed to update"
+	messageFailedUpdate              = "failed to update object"
 	messageUpdated                   = "updated existing object"
 
 	eventUpdated = "updated by mailhog management"
