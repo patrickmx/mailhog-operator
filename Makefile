@@ -158,7 +158,7 @@ build-push-image-to-crc: docker-build ## push the image from the local podman to
 	podman push --tls-verify=false default-route-openshift-image-registry.apps-crc.testing/mailhog-operator-system/mailhog:v$(VERSION)
 
 .PHONY: crc-deploy
-crc-deploy: deploy build-push-image-to-crc latest
+crc-deploy: crc-login-admin deploy build-push-image-to-crc latest
 	oc -n mailhog-operator-system patch deployment/mailhog-operator-controller-manager -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"last-restart\":\"`date +'%s'`\"}}}}}"
 
 ##@ CRC Ad-Hoc Commands
@@ -179,9 +179,14 @@ crc-logs:
 install-cert-manager: ## yolo
 	kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.7.1/cert-manager.yaml
 
-.PHONY: crc-creds
-crc-creds:
-	crc console --credentials
+.PHONY: crc-login-admin
+crc-login-admin:
+	$(shell crc console --credentials | awk -F"[']" '{print $$2}' | tail -n1)
+
+.PHONY: crc-reset
+crc-reset:
+	crc delete -f
+	crc start
 
 .PHONY: crc-restore-pinning
 crc-restore-pinning:
