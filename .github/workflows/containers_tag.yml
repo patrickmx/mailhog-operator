@@ -26,6 +26,7 @@ jobs:
     name: build images
     if: github.repository == 'patrickmx/mailhog-operator'
     runs-on: ubuntu-latest
+    needs: test
     env:
       MANAGER_IMAGE_NAME: mailhog-operator
       BUNDLE_IMAGE_NAME: mailhog-operator-bundle
