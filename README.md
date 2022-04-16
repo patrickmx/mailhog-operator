@@ -14,11 +14,20 @@ A toy operator that deploys [mailhog](https://github.com/mailhog/MailHog) on [co
 
 Check out the [latest releases](https://github.com/patrickmx/mailhog-operator/pkgs/container/mailhog-operator)
 
+### Just the operator
+
 ```bash
 ### Get the latest tagged image release
 podman pull ghcr.io/patrickmx/mailhog-operator:latest
 ### Current pre-release development image
 podman pull ghcr.io/patrickmx/mailhog-operator:develop
+```
+
+### Bundle
+
+```bash
+operator-sdk run bundle ghcr.io/patrickmx/mailhog-operator-bundle:latest
+operator-sdk run bundle ghcr.io/patrickmx/mailhog-operator-bundle:develop
 ```
 
 ## CR Examples
