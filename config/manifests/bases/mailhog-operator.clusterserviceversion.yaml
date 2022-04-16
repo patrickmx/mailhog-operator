@@ -208,8 +208,7 @@ spec:
         displayName: Maildir Storage Settings
         path: settings.storageMaildir
         x-descriptors:
-        - urn:alm:descriptor:com.tectonic.ui:advanced
-        - urn:alm:descriptor:com.tectonic.ui:fieldDependency:.spec.settings.storage:maildir
+        - urn:alm:descriptor:com.tectonic.ui:fieldDependency:settings.storage:maildir
       - description: Path Maildir path (for maildir storage backend)
         displayName: Maildir path
         path: settings.storageMaildir.path
@@ -227,8 +226,7 @@ spec:
         displayName: MongoDB Storage Settings
         path: settings.storageMongoDb
         x-descriptors:
-        - urn:alm:descriptor:com.tectonic.ui:advanced
-        - urn:alm:descriptor:com.tectonic.ui:fieldDependency:.spec.settings.storage:mongodb
+        - urn:alm:descriptor:com.tectonic.ui:fieldDependency:settings.storage:mongodb
       - description: Collection MongoDB collection name for message storage
         displayName: MongoDB Collection
         path: settings.storageMongoDb.collection

@@ -127,7 +127,7 @@ type MailhogInstanceSettingsSpec struct {
 	//+kubebuilder:validation:Optional
 	//+optional
 	//+nullable
-	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="MongoDB Storage Settings",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:advanced","urn:alm:descriptor:com.tectonic.ui:fieldDependency:.spec.settings.storage:mongodb"}
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="MongoDB Storage Settings",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:fieldDependency:settings.storage:mongodb"}
 	StorageMongoDb MailhogStorageMongoDbSpec `json:"storageMongoDb,omitempty"`
 
 	// StorageMaildir is only used when storage is set to maildir
@@ -135,7 +135,7 @@ type MailhogInstanceSettingsSpec struct {
 	//+kubebuilder:validation:Optional
 	//+optional
 	//+nullable
-	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Maildir Storage Settings",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:advanced","urn:alm:descriptor:com.tectonic.ui:fieldDependency:.spec.settings.storage:maildir"}
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Maildir Storage Settings",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:fieldDependency:settings.storage:maildir"}
 	StorageMaildir MailhogStorageMaildirSpec `json:"storageMaildir,omitempty"`
 
 	// Files that configure more in-depth settings that require an additional configmap
