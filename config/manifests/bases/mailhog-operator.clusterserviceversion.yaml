@@ -55,8 +55,6 @@ spec:
           More info: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/'
         displayName: Affinity Settings
         path: settings.affinity
-        x-descriptors:
-        - urn:alm:descriptor:com.tectonic.ui:advanced
       - description: CorsOrigin if set, this value is added into the Access-Control-Allow-Origin
           header returned by the API
         displayName: Web CORS AllowOrigin
@@ -68,33 +66,26 @@ spec:
           configmap
         displayName: Mailhog Config Files
         path: settings.files
-        x-descriptors:
-        - urn:alm:descriptor:com.tectonic.ui:advanced
       - description: SmtpUpstreams Intercepted emails can be forwarded to upstreams
           via the UI
         displayName: SMTP Upstreams for release
         path: settings.files.smtpUpstreams
-        x-descriptors:
-        - urn:alm:descriptor:com.tectonic.ui:advanced
       - description: Email the target Email address where the mail will be resent
           to
         displayName: Destination Email on release
         path: settings.files.smtpUpstreams[0].email
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:text
-        - urn:alm:descriptor:com.tectonic.ui:advanced
       - description: Host SMTP target Host hostname
         displayName: Upstream SMTP server hostname
         path: settings.files.smtpUpstreams[0].host
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:text
-        - urn:alm:descriptor:com.tectonic.ui:advanced
       - description: Mechanism the SMTP login Mechanism used. This is _required_ when
           providing upstream user / password credentials
         displayName: Upstream SMTP server auth mechanism
         path: settings.files.smtpUpstreams[0].mechanism
         x-descriptors:
-        - 'urn:alm:descriptor:com.tectonic.ui:select:'
         - urn:alm:descriptor:com.tectonic.ui:select:PLAIN
         - urn:alm:descriptor:com.tectonic.ui:select:CRAMMD5
       - description: Name the Name this server will be shown under in the UI
@@ -102,31 +93,25 @@ spec:
         path: settings.files.smtpUpstreams[0].name
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:text
-        - urn:alm:descriptor:com.tectonic.ui:advanced
       - description: Password the Password used for SMTP authentication
         displayName: Upstream SMTP server password
         path: settings.files.smtpUpstreams[0].password
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:text
-        - urn:alm:descriptor:com.tectonic.ui:advanced
       - description: Port SMTP target Port
         displayName: Upstream SMTP server port
         path: settings.files.smtpUpstreams[0].port
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:text
-        - urn:alm:descriptor:com.tectonic.ui:advanced
       - description: Username the Username used for SMTP authentication
         displayName: Upstream SMTP server username
         path: settings.files.smtpUpstreams[0].username
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:text
-        - urn:alm:descriptor:com.tectonic.ui:advanced
       - description: WebUsers If WebUsers are defined, UI/API Access will be protected
           with basic auth
         displayName: HTTP Basic auth user restrictions
         path: settings.files.webUsers
-        x-descriptors:
-        - urn:alm:descriptor:com.tectonic.ui:advanced
       - description: Name is the username
         displayName: HTTP Basic Auth Username
         path: settings.files.webUsers[0].name
@@ -148,8 +133,6 @@ spec:
       - description: Jim is the chaos monkey
         displayName: Jim / ChaosMonkey Config
         path: settings.jim
-        x-descriptors:
-        - urn:alm:descriptor:com.tectonic.ui:advanced
       - description: Accept Chance of accepting an incoming connection (float, eg
           "0.99")
         displayName: Connection Accept Chance
@@ -212,8 +195,6 @@ spec:
           pods More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/'
         displayName: Resources reservations and limits
         path: settings.resources
-        x-descriptors:
-        - urn:alm:descriptor:com.tectonic.ui:advanced
       - description: Storage which storage backend to use, eg memory
         displayName: Mail Storage Type
         path: settings.storage
@@ -226,12 +207,12 @@ spec:
         path: settings.storageMaildir
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:advanced
+        - urn:alm:descriptor:com.tectonic.ui:fieldDependency:.spec.settings.storage:maildir
       - description: Path Maildir path (for maildir storage backend)
         displayName: Maildir path
         path: settings.storageMaildir.path
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:text
-        - urn:alm:descriptor:com.tectonic.ui:advanced
       - description: PvName if a PV name is given it will be used for maildir storage
           the pv needs to preexist, it will not be created without a pv name an emptydir
           will be used which could lead to inconsistencies when multiple replicas
@@ -240,31 +221,28 @@ spec:
         path: settings.storageMaildir.pvName
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:text
-        - urn:alm:descriptor:com.tectonic.ui:advanced
       - description: StorageMongoDb are only used when storage is set to mongodb
         displayName: MongoDB Storage Settings
         path: settings.storageMongoDb
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:advanced
+        - urn:alm:descriptor:com.tectonic.ui:fieldDependency:.spec.settings.storage:mongodb
       - description: Collection MongoDB collection name for message storage
         displayName: MongoDB Collection
         path: settings.storageMongoDb.collection
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:text
-        - urn:alm:descriptor:com.tectonic.ui:advanced
       - description: Db MongoDB database name for message storage
         displayName: MongoDB DB
         path: settings.storageMongoDb.db
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:text
-        - urn:alm:descriptor:com.tectonic.ui:advanced
       - description: URI MongoDB host and port [mongodb://][user:pass@]host1[:port1][,host2[:port2],...][/database][?options]
           for details about the URI format see https://pkg.go.dev/gopkg.in/mgo.v2#Dial
         displayName: MongoDB URI
         path: settings.storageMongoDb.uri
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:text
-        - urn:alm:descriptor:com.tectonic.ui:advanced
       - description: WebPath context root under which web resources are served (without
           leading or trailing slashes), e.g. 'mailhog' empty = no context root = serve
           all web resources under "/"
@@ -272,7 +250,6 @@ spec:
         path: settings.webPath
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:text
-        - urn:alm:descriptor:com.tectonic.ui:advanced
       - description: WebTrafficInlet defines how the webinterface is exposed
         displayName: Expose Mailhog with
         path: webTrafficInlet
