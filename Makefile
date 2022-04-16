@@ -225,7 +225,7 @@ app-clusterserviceversions:
 ##@ Release
 
 .PHONY: ship
-ship: test build
+ship: test build bundle
 	@if git show-ref --tags --quiet --verify -- "refs/tags/v$(VERSION)"; then \
     	echo "tag already exists"; \
     	exit 1; \
