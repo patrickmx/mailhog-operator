@@ -316,6 +316,14 @@ bundle-build: ## Build the bundle image.
 bundle-push: ## Push the bundle image.
 	$(MAKE) docker-push IMG=$(BUNDLE_IMG)
 
+.PHONY: bundle-clean
+bundle-clean:
+	operator-sdk cleanup mailhog-operator
+
+.PHONY: bundle-run-develop
+bundle-run-develop:
+	operator-sdk run bundle ghcr.io/patrickmx/mailhog-operator-bundle:develop
+
 .PHONY: opm
 OPM = ./bin/opm
 opm: ## Download opm locally if necessary.
