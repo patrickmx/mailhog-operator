@@ -15,7 +15,7 @@ func (r *MailhogInstanceReconciler) ensureStatus(ctx context.Context, cr *mailho
 	var err error
 	name := types.NamespacedName{Name: cr.Name, Namespace: cr.Namespace}
 	meta := CreateMetaMaker(cr)
-	logger := r.logger.WithValues(span, spanCr)
+	logger := r.logger.WithValues(span, spanCrStatus)
 
 	podList := &corev1.PodList{}
 	listOpts := []client.ListOption{

@@ -68,7 +68,8 @@ const (
 	noCrUpdateNeeded     = "no cr status update required"
 
 	span                 = "span"
-	spanCr               = "crStatus"
+	spanCrValid          = "cr.validation"
+	spanCrStatus         = "cr.status"
 	spanService          = "service"
 	spanRoute            = "route"
 	spanDeployment       = "deployment"

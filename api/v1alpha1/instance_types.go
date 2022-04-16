@@ -403,6 +403,13 @@ type MailhogInstanceStatus struct {
 	//+optional
 	//+nullable
 	LabelSelector string `json:"labelSelector,omitempty"`
+
+	// Error is used to signal illegal CR specs
+	//
+	//+kubebuilder:validation:Optional
+	//+optional
+	//+nullable
+	Error string `json:"error,omitempty"`
 }
 
 // MailhogInstance is the Schema for the mailhoginstances API

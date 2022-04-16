@@ -86,6 +86,7 @@ func (r *MailhogInstanceReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 
 	// ensure child objects
 	assurances := []func(context.Context, *mailhogv1alpha1.MailhogInstance) *ReturnIndicator{
+		r.ensureCrValid,
 		r.ensureDeployment,
 		r.ensureDeploymentConfig,
 		r.ensureService,

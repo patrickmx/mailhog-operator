@@ -1179,6 +1179,10 @@ spec:
             description: Status last observed status
             nullable: true
             properties:
+              error:
+                description: Error is used to signal illegal CR specs
+                nullable: true
+                type: string
               labelSelector:
                 description: LabelSelector is the labelselector which can be used
                   by HPA

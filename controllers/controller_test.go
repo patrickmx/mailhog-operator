@@ -205,6 +205,88 @@ var _ = Describe("MailhogInstance controller", func() {
 			Expect(createdConfigMap.Data[settingsFilePasswordsName]).ToNot(BeEmpty())
 		})
 	})
+
+	Context("reconcile with a mailhog cr that specifies an illegal mount", func() {
+		It("should return an error and refuse to proceed", func() {
+			paths := []string{
+				"/",
+				"/usr", "/usr/local", "/usr/local/bin", "/usr/local/bin/MailHog",
+				"/mailhog", "/mailhog/settings", "/mailhog/settings/files",
+			}
+			for _, path := range paths {
+				cr := getTestingCr(nsname, image, mailhogv1alpha1.NoTrafficInlet, mailhogv1alpha1.DeploymentBacking)
+				cr.Spec.Settings.Files = &mailhogv1alpha1.MailhogFilesSpec{
+					WebUsers: []mailhogv1alpha1.MailhogWebUserSpec{
+						{
+							Name:         "gOmega",
+							PasswordHash: "bcrypt.gibberish",
+						},
+					},
+				}
+				cr.Spec.Settings.StorageMaildir.Path = path
+				objects := []client.Object{
+					cr,
+				}
+				k8sClient = fake.NewClientBuilder().WithScheme(scheme).WithObjects(objects...).Build()
+
+				r := &MailhogInstanceReconciler{Client: k8sClient, Scheme: scheme}
+				_, err := r.Reconcile(ctx, req)
+				Expect(err).To(HaveOccurred())
+
+				updatedCr := &mailhogv1alpha1.MailhogInstance{}
+				err = k8sClient.Get(ctx, nsname, updatedCr)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(updatedCr.Status.Error).ToNot(BeEmpty())
+				Expect(updatedCr.Status.Error).To(Equal(errConflictingMount.Error()))
+			}
+		})
+	})
+
+	Context("reconcile with a mailhog cr that specifies an illegal jim float", func() {
+		It("should return an error and refuse to proceed", func() {
+			cr := getTestingCr(nsname, image, mailhogv1alpha1.NoTrafficInlet, mailhogv1alpha1.DeploymentBacking)
+			cr.Spec.Settings.Jim.Invite = true
+			cr.Spec.Settings.Jim.Accept = "aaa"
+			objects := []client.Object{
+				cr,
+			}
+			k8sClient = fake.NewClientBuilder().WithScheme(scheme).WithObjects(objects...).Build()
+
+			r := &MailhogInstanceReconciler{Client: k8sClient, Scheme: scheme}
+			_, err := r.Reconcile(ctx, req)
+			Expect(err).To(HaveOccurred())
+
+			updatedCr := &mailhogv1alpha1.MailhogInstance{}
+			err = k8sClient.Get(ctx, nsname, updatedCr)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(updatedCr.Status.Error).ToNot(BeEmpty())
+			Expect(updatedCr.Status.Error).To(Equal(errJimNonFloatFound.Error()))
+		})
+	})
+
+	Context("reconcile with a mailhog cr that specifies an non-relative webroot", func() {
+		It("should return an error and refuse to proceed", func() {
+			paths := []string{"/first", "/deep/below/", "last/"}
+			for _, path := range paths {
+				cr := getTestingCr(nsname, image, mailhogv1alpha1.NoTrafficInlet, mailhogv1alpha1.DeploymentBacking)
+				cr.Spec.Settings.WebPath = path
+				objects := []client.Object{
+					cr,
+				}
+				k8sClient = fake.NewClientBuilder().WithScheme(scheme).WithObjects(objects...).Build()
+
+				r := &MailhogInstanceReconciler{Client: k8sClient, Scheme: scheme}
+				_, err := r.Reconcile(ctx, req)
+				Expect(err).To(HaveOccurred())
+
+				updatedCr := &mailhogv1alpha1.MailhogInstance{}
+				err = k8sClient.Get(ctx, nsname, updatedCr)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(updatedCr.Status.Error).ToNot(BeEmpty())
+				Expect(updatedCr.Status.Error).To(Equal(errWebPathNonRelative.Error()))
+			}
+		})
+	})
 })
 
 func getTestingCr(nsname types.NamespacedName, image string, inlet mailhogv1alpha1.TrafficInletResource, deployment mailhogv1alpha1.BackingResource) *mailhogv1alpha1.MailhogInstance {
