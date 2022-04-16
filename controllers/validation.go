@@ -54,6 +54,7 @@ func (r *MailhogInstanceReconciler) ensureCrValid(ctx context.Context, cr *mailh
 	return nil
 }
 
+// checkOverlappingMounts returns an error if a forbidden mount path is used as maildir path
 func checkOverlappingMounts(cr *mailhogv1alpha1.MailhogInstance) error {
 	if userPath := cr.Spec.Settings.StorageMaildir.Path; userPath != "" {
 		conflictPathRegex := regexp.MustCompile("^\\/(usr|mailhog)?(\\/)?((settings)\\/?(files)?|(local)\\/?(bin)?\\/?(MailHog)?)?$")
@@ -64,6 +65,7 @@ func checkOverlappingMounts(cr *mailhogv1alpha1.MailhogInstance) error {
 	return nil
 }
 
+// checkMissingSettings returns an error if a storage config is missing detailed settings
 func checkMissingSettings(cr *mailhogv1alpha1.MailhogInstance) error {
 	if cr.Spec.Settings.Storage == mailhogv1alpha1.MongoDBStorage {
 		mongoSpec := cr.Spec.Settings.StorageMongoDb
@@ -80,6 +82,7 @@ func checkMissingSettings(cr *mailhogv1alpha1.MailhogInstance) error {
 	return nil
 }
 
+// checkSmtpUpstreams returns an error if a smtp upstream specifies credentials but no authentication mechanism
 func checkSmtpUpstreams(cr *mailhogv1alpha1.MailhogInstance) error {
 	if cr.Spec.Settings.Files != nil {
 		if len(cr.Spec.Settings.Files.SmtpUpstreams) > 0 {
@@ -95,6 +98,7 @@ func checkSmtpUpstreams(cr *mailhogv1alpha1.MailhogInstance) error {
 	return nil
 }
 
+// checkJimFloats returns an error if a a jim value can not be converted to a float
 func checkJimFloats(cr *mailhogv1alpha1.MailhogInstance) error {
 	if cr.Spec.Settings.Jim.Invite == true {
 		fields := []string{
@@ -114,6 +118,7 @@ func checkJimFloats(cr *mailhogv1alpha1.MailhogInstance) error {
 	return nil
 }
 
+// checkWebPath returns an error if the web path begins or ends in a slash
 func checkWebPath(cr *mailhogv1alpha1.MailhogInstance) error {
 	if path := cr.Spec.Settings.WebPath; path != "" {
 		if path[len(path)-1:] == "/" || path[0:1] == "/" {

@@ -397,6 +397,13 @@ type MailhogInstanceStatus struct {
 	//+nullable
 	PodCount int `json:"podCount,omitempty"`
 
+	// ReadyPodCount is the amount of pods last seen ready
+	//
+	//+kubebuilder:validation:Optional
+	//+optional
+	//+nullable
+	ReadyPodCount int `json:"readyPodCount,omitempty"`
+
 	// LabelSelector is the labelselector which can be used by HPA
 	//
 	//+kubebuilder:validation:Optional

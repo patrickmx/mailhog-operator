@@ -49,7 +49,7 @@ type MailhogInstanceReconciler struct {
 	logger   logr.Logger
 }
 
-// default ReconcileAfter value
+// requeueTime default ReconcileAfter value is 10 seconds
 var requeueTime = time.Duration(10) * time.Second
 
 //+kubebuilder:rbac:groups=mailhog.operators.patrick.mx,resources=mailhoginstances,verbs=*
@@ -128,7 +128,7 @@ func (r *MailhogInstanceReconciler) findObjectsForPod(watchedPod client.Object) 
 	return requests
 }
 
-// SetupWithManager sets up this controller with the Manager.
+// SetupWithManager sets up this controller with the Manager
 func (r *MailhogInstanceReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	patch.DefaultAnnotator = patch.NewAnnotator(lastApplied)
 
@@ -142,7 +142,7 @@ func (r *MailhogInstanceReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Watches(
 			&source.Kind{Type: &corev1.Pod{}},
 			handler.EnqueueRequestsFromMapFunc(r.findObjectsForPod),
-			builder.WithPredicates(predicate.LabelChangedPredicate{}),
+			builder.WithPredicates(predicate.ResourceVersionChangedPredicate{}),
 		).
 		Complete(r)
 }

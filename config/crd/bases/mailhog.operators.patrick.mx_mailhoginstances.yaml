@@ -1199,6 +1199,10 @@ spec:
                   type: string
                 nullable: true
                 type: array
+              readyPodCount:
+                description: ReadyPodCount is the amount of pods last seen ready
+                nullable: true
+                type: integer
             type: object
         type: object
     served: true

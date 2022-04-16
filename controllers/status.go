@@ -55,6 +55,18 @@ func getPodNames(pods []corev1.Pod) []string {
 	return podNames
 }
 
+// getReadyPods will return the amount of ready pods
+func getReadyPods(pods []corev1.Pod) int {
+	ready := 0
+	for _, pod := range pods {
+		if pod.Status.ContainerStatuses[0].Ready {
+			ready++
+		}
+	}
+	return ready
+}
+
+// desiredStatus is sued to check the CR status subresource against the desired state
 func (r *MailhogInstanceReconciler) desiredStatus(ctx context.Context, cr *mailhogv1alpha1.MailhogInstance, logger logr.Logger) (ri *ReturnIndicator, status mailhogv1alpha1.MailhogInstanceStatus) {
 	meta := CreateMetaMaker(cr)
 
@@ -73,6 +85,7 @@ func (r *MailhogInstanceReconciler) desiredStatus(ctx context.Context, cr *mailh
 	podNames := getPodNames(podList.Items)
 	status.Pods = podNames
 	status.PodCount = len(podNames)
+	status.PodCount = getReadyPods(podList.Items)
 	status.LabelSelector = meta.GetSelector(true)
 	status.Error = ""
 	return nil, status
