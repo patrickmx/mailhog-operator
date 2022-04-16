@@ -59,6 +59,7 @@ type MailhogInstanceSpec struct {
 	//+kubebuilder:validation:Required
 	//+kubebuilder:validation:MinLength=4
 	//+kubebuilder:default:="mailhog/mailhog:latest"
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Mailhog Image",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text"}
 	Image string `json:"image,omitempty"`
 
 	// Replicas is the count of pods to create
@@ -67,6 +68,7 @@ type MailhogInstanceSpec struct {
 	//+kubebuilder:validation:Maximum=10
 	//+kubebuilder:validation:Required
 	//+kubebuilder:default:=1
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Number of pods",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:podCount","urn:alm:descriptor:io.kubernetes:custom"}
 	Replicas int32 `json:"replicas,omitempty"`
 
 	// Settings are mailhog configuration options, see https://github.com/mailhog/MailHog/blob/master/docs/CONFIG.md
@@ -80,6 +82,7 @@ type MailhogInstanceSpec struct {
 	//+kubebuilder:validation:Required
 	//+kubebuilder:default:="none"
 	//+kubebuilder:validation:Enum=none;route
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Expose Mailhog with",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:select:route","urn:alm:descriptor:com.tectonic.ui:select:none"}
 	WebTrafficInlet TrafficInletResource `json:"webTrafficInlet,omitempty"`
 
 	// BackingResource controls if a deploymentConfig or deployment is used
@@ -87,6 +90,7 @@ type MailhogInstanceSpec struct {
 	//+kubebuilder:validation:Required
 	//+kubebuilder:default:="deployment"
 	//+kubebuilder:validation:Enum=deployment;deploymentConfig
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Deploy Mailhog with",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:select:deployment","urn:alm:descriptor:com.tectonic.ui:select:deploymentConfig"}
 	BackingResource BackingResource `json:"backingResource,omitempty"`
 }
 
@@ -98,6 +102,7 @@ type MailhogInstanceSettingsSpec struct {
 	//+kubebuilder:validation:Format=hostname
 	//+optional
 	//+nullable
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="SMTP Hostname",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text","urn:alm:descriptor:com.tectonic.ui:advanced"}
 	Hostname string `json:"hostname,omitempty"`
 
 	// CorsOrigin if set, this value is added into the Access-Control-Allow-Origin header returned by the API
@@ -105,6 +110,7 @@ type MailhogInstanceSettingsSpec struct {
 	//+kubebuilder:validation:Optional
 	//+optional
 	//+nullable
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Web CORS AllowOrigin",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text","urn:alm:descriptor:com.tectonic.ui:advanced"}
 	CorsOrigin string `json:"corsOrigin,omitempty"`
 
 	// Storage which storage backend to use, eg memory
@@ -112,6 +118,7 @@ type MailhogInstanceSettingsSpec struct {
 	//+kubebuilder:validation:Enum=memory;maildir;mongodb
 	//+kubebuilder:validation:Optional
 	//+kubebuilder:default:="memory"
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Mail Storage Type",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:select:memory","urn:alm:descriptor:com.tectonic.ui:select:maildir","urn:alm:descriptor:com.tectonic.ui:select:mongodb"}
 	Storage StorageSetting `json:"storage,omitempty"`
 
 	// StorageMongoDb are only used when storage is set to mongodb
@@ -177,6 +184,7 @@ type MailhogJimSpec struct {
 	//+kubebuilder:default:=false
 	//+optional
 	//+nullable
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Activate Chaosmonkey",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:booleanSwitch"}
 	Invite bool `json:"invite,omitempty"`
 
 	// Disconnect Chance of randomly disconnecting a session (float, eg "0.005")
@@ -427,6 +435,8 @@ type MailhogInstanceStatus struct {
 //+kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
 //+kubebuilder:subresource:status
 //+kubebuilder:subresource:scale:specpath=.spec.replicas,statuspath=.status.podCount,selectorpath=.status.labelSelector
+//+operator-sdk:csv:customresourcedefinitions:displayName="Mailhog Instance"
+//+operator-sdk:csv:customresourcedefinitions:resources={{Service,v1},{Deployment,v1},{DeploymentConfig,v1},{Route,v1},{ConfigMap,v1}}
 type MailhogInstance struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
