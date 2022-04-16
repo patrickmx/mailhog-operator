@@ -25,8 +25,11 @@ metadata:
         }
       ]
     capabilities: Basic Install
+    categories: Developer Tools
+    certified: "false"
     operators.operatorframework.io/builder: operator-sdk-v1.18.0+git
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v3
+    repository: https://github.com/patrickmx/mailhog-operator
   name: mailhog-operator.v0.1.7
   namespace: placeholder
 spec:

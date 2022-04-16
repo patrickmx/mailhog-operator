@@ -4,6 +4,9 @@ metadata:
   annotations:
     alm-examples: '[]'
     capabilities: Basic Install
+    categories: Developer Tools
+    certified: "false"
+    repository: https://github.com/patrickmx/mailhog-operator
   name: mailhog-operator.v0.0.0
   namespace: placeholder
 spec:
