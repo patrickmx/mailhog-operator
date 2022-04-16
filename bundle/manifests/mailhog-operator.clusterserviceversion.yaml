@@ -74,8 +74,6 @@ spec:
       - description: Settings are mailhog configuration options, see https://github.com/mailhog/MailHog/blob/master/docs/CONFIG.md
         displayName: Advanced Settings
         path: settings
-        x-descriptors:
-        - urn:alm:descriptor:com.tectonic.ui:advanced
       - description: 'Affinity allows to override the podtemplates affinity settings
           More info: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/'
         displayName: Affinity Settings
@@ -181,7 +179,6 @@ spec:
         path: settings.jim.accept
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:text
-        - urn:alm:descriptor:com.tectonic.ui:advanced
         - urn:alm:descriptor:com.tectonic.ui:fieldDependency:.spec.settings.jim.invite:true
       - description: Disconnect Chance of randomly disconnecting a session (float,
           eg "0.005")
@@ -189,7 +186,6 @@ spec:
         path: settings.jim.disconnect
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:text
-        - urn:alm:descriptor:com.tectonic.ui:advanced
         - urn:alm:descriptor:com.tectonic.ui:fieldDependency:.spec.settings.jim.invite:true
       - description: Invite set to true activates jim using the default values (see
           mh doc)
@@ -202,28 +198,24 @@ spec:
         path: settings.jim.linkspeedAffect
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:text
-        - urn:alm:descriptor:com.tectonic.ui:advanced
         - urn:alm:descriptor:com.tectonic.ui:fieldDependency:.spec.settings.jim.invite:true
       - description: LinkspeedMax Maximum link speed (in bytes per second, eg "10240")
         displayName: Connection Slow LinkSpeed Maximum bytes/sec
         path: settings.jim.linkspeedMax
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:text
-        - urn:alm:descriptor:com.tectonic.ui:advanced
         - urn:alm:descriptor:com.tectonic.ui:fieldDependency:.spec.settings.jim.invite:true
       - description: LinkspeedMin Minimum link speed (in bytes per second, eg "1024")
         displayName: Connection Slow LinkSpeed Minimum bytes/sec
         path: settings.jim.linkspeedMin
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:text
-        - urn:alm:descriptor:com.tectonic.ui:advanced
         - urn:alm:descriptor:com.tectonic.ui:fieldDependency:.spec.settings.jim.invite:true
       - description: RejectAuth Chance of rejecting an AUTH command (float, eg "0.05")
         displayName: Chance the authentication is rejected
         path: settings.jim.rejectAuth
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:text
-        - urn:alm:descriptor:com.tectonic.ui:advanced
         - urn:alm:descriptor:com.tectonic.ui:fieldDependency:.spec.settings.jim.invite:true
       - description: RejectRecipient Chance of rejecting a RCPT TO command (float,
           eg "0.05")
@@ -231,7 +223,6 @@ spec:
         path: settings.jim.rejectRecipient
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:text
-        - urn:alm:descriptor:com.tectonic.ui:advanced
         - urn:alm:descriptor:com.tectonic.ui:fieldDependency:.spec.settings.jim.invite:true
       - description: RejectSender Chance of rejecting a MAIL FROM command (float,
           eg "0.05")
@@ -239,7 +230,6 @@ spec:
         path: settings.jim.rejectSender
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:text
-        - urn:alm:descriptor:com.tectonic.ui:advanced
         - urn:alm:descriptor:com.tectonic.ui:fieldDependency:.spec.settings.jim.invite:true
       - description: 'Resources allows to override the default resources of the created
           pods More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/'

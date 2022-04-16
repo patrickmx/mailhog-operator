@@ -75,7 +75,7 @@ type MailhogInstanceSpec struct {
 	//
 	//+kubebuilder:validation:Optional
 	//+kubebuilder:default:={storage:"memory"}
-	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Advanced Settings",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:advanced"}
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Advanced Settings"
 	Settings MailhogInstanceSettingsSpec `json:"settings,omitempty"`
 
 	// WebTrafficInlet defines how the webinterface is exposed
@@ -200,7 +200,7 @@ type MailhogJimSpec struct {
 	//+kubebuilder:validation:Optional
 	//+optional
 	//+nullable
-	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Connection Disconnect Chance",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text","urn:alm:descriptor:com.tectonic.ui:advanced","urn:alm:descriptor:com.tectonic.ui:fieldDependency:.spec.settings.jim.invite:true"}
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Connection Disconnect Chance",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text","urn:alm:descriptor:com.tectonic.ui:fieldDependency:.spec.settings.jim.invite:true"}
 	Disconnect string `json:"disconnect,omitempty"`
 
 	// Accept Chance of accepting an incoming connection (float, eg "0.99")
@@ -208,7 +208,7 @@ type MailhogJimSpec struct {
 	//+kubebuilder:validation:Optional
 	//+optional
 	//+nullable
-	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Connection Accept Chance",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text","urn:alm:descriptor:com.tectonic.ui:advanced","urn:alm:descriptor:com.tectonic.ui:fieldDependency:.spec.settings.jim.invite:true"}
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Connection Accept Chance",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text","urn:alm:descriptor:com.tectonic.ui:fieldDependency:.spec.settings.jim.invite:true"}
 	Accept string `json:"accept,omitempty"`
 
 	// LinkspeedAffect Chance of applying a rate limit (float, eg "0.1")
@@ -216,7 +216,7 @@ type MailhogJimSpec struct {
 	//+kubebuilder:validation:Optional
 	//+optional
 	//+nullable
-	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Connection Slow LinkSpeed Chance",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text","urn:alm:descriptor:com.tectonic.ui:advanced","urn:alm:descriptor:com.tectonic.ui:fieldDependency:.spec.settings.jim.invite:true"}
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Connection Slow LinkSpeed Chance",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text","urn:alm:descriptor:com.tectonic.ui:fieldDependency:.spec.settings.jim.invite:true"}
 	LinkspeedAffect string `json:"linkspeedAffect,omitempty"`
 
 	// LinkspeedMin Minimum link speed (in bytes per second, eg "1024")
@@ -224,7 +224,7 @@ type MailhogJimSpec struct {
 	//+kubebuilder:validation:Optional
 	//+optional
 	//+nullable
-	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Connection Slow LinkSpeed Minimum bytes/sec",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text","urn:alm:descriptor:com.tectonic.ui:advanced","urn:alm:descriptor:com.tectonic.ui:fieldDependency:.spec.settings.jim.invite:true"}
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Connection Slow LinkSpeed Minimum bytes/sec",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text","urn:alm:descriptor:com.tectonic.ui:fieldDependency:.spec.settings.jim.invite:true"}
 	LinkspeedMin string `json:"linkspeedMin,omitempty"`
 
 	// LinkspeedMax Maximum link speed (in bytes per second, eg "10240")
@@ -232,7 +232,7 @@ type MailhogJimSpec struct {
 	//+kubebuilder:validation:Optional
 	//+optional
 	//+nullable
-	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Connection Slow LinkSpeed Maximum bytes/sec",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text","urn:alm:descriptor:com.tectonic.ui:advanced","urn:alm:descriptor:com.tectonic.ui:fieldDependency:.spec.settings.jim.invite:true"}
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Connection Slow LinkSpeed Maximum bytes/sec",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text","urn:alm:descriptor:com.tectonic.ui:fieldDependency:.spec.settings.jim.invite:true"}
 	LinkspeedMax string `json:"linkspeedMax,omitempty"`
 
 	// RejectSender Chance of rejecting a MAIL FROM command (float, eg "0.05")
@@ -240,7 +240,7 @@ type MailhogJimSpec struct {
 	//+kubebuilder:validation:Optional
 	//+optional
 	//+nullable
-	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Chance the sender is rejected",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text","urn:alm:descriptor:com.tectonic.ui:advanced","urn:alm:descriptor:com.tectonic.ui:fieldDependency:.spec.settings.jim.invite:true"}
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Chance the sender is rejected",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text","urn:alm:descriptor:com.tectonic.ui:fieldDependency:.spec.settings.jim.invite:true"}
 	RejectSender string `json:"rejectSender,omitempty"`
 
 	// RejectRecipient Chance of rejecting a RCPT TO command (float, eg "0.05")
@@ -248,7 +248,7 @@ type MailhogJimSpec struct {
 	//+kubebuilder:validation:Optional
 	//+optional
 	//+nullable
-	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Chance the recipient is rejected",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text","urn:alm:descriptor:com.tectonic.ui:advanced","urn:alm:descriptor:com.tectonic.ui:fieldDependency:.spec.settings.jim.invite:true"}
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Chance the recipient is rejected",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text","urn:alm:descriptor:com.tectonic.ui:fieldDependency:.spec.settings.jim.invite:true"}
 	RejectRecipient string `json:"rejectRecipient,omitempty"`
 
 	// RejectAuth Chance of rejecting an AUTH command (float, eg "0.05")
@@ -256,7 +256,7 @@ type MailhogJimSpec struct {
 	//+kubebuilder:validation:Optional
 	//+optional
 	//+nullable
-	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Chance the authentication is rejected",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text","urn:alm:descriptor:com.tectonic.ui:advanced","urn:alm:descriptor:com.tectonic.ui:fieldDependency:.spec.settings.jim.invite:true"}
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Chance the authentication is rejected",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text","urn:alm:descriptor:com.tectonic.ui:fieldDependency:.spec.settings.jim.invite:true"}
 	RejectAuth string `json:"rejectAuth,omitempty"`
 }
 
