@@ -78,3 +78,6 @@ jobs:
           image: ${{ env.BUNDLE_IMAGE_NAME }}
           tags: develop
           registry: ${{ env.REGISTRY }}
+
+      - name: bundle develop successfully pushed
+        run: echo "bundle develop image pushed to ${{ steps.bundle-develop-push-to-ghcr.outputs.registry-paths }}"
