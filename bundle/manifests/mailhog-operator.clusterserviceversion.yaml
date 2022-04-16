@@ -182,6 +182,7 @@ spec:
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:text
         - urn:alm:descriptor:com.tectonic.ui:advanced
+        - urn:alm:descriptor:com.tectonic.ui:fieldDependency:.spec.settings.jim.invite:true
       - description: Disconnect Chance of randomly disconnecting a session (float,
           eg "0.005")
         displayName: Connection Disconnect Chance
@@ -189,6 +190,7 @@ spec:
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:text
         - urn:alm:descriptor:com.tectonic.ui:advanced
+        - urn:alm:descriptor:com.tectonic.ui:fieldDependency:.spec.settings.jim.invite:true
       - description: Invite set to true activates jim using the default values (see
           mh doc)
         displayName: Activate Chaosmonkey
@@ -201,24 +203,28 @@ spec:
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:text
         - urn:alm:descriptor:com.tectonic.ui:advanced
+        - urn:alm:descriptor:com.tectonic.ui:fieldDependency:.spec.settings.jim.invite:true
       - description: LinkspeedMax Maximum link speed (in bytes per second, eg "10240")
         displayName: Connection Slow LinkSpeed Maximum bytes/sec
         path: settings.jim.linkspeedMax
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:text
         - urn:alm:descriptor:com.tectonic.ui:advanced
+        - urn:alm:descriptor:com.tectonic.ui:fieldDependency:.spec.settings.jim.invite:true
       - description: LinkspeedMin Minimum link speed (in bytes per second, eg "1024")
         displayName: Connection Slow LinkSpeed Minimum bytes/sec
         path: settings.jim.linkspeedMin
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:text
         - urn:alm:descriptor:com.tectonic.ui:advanced
+        - urn:alm:descriptor:com.tectonic.ui:fieldDependency:.spec.settings.jim.invite:true
       - description: RejectAuth Chance of rejecting an AUTH command (float, eg "0.05")
         displayName: Chance the authentication is rejected
         path: settings.jim.rejectAuth
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:text
         - urn:alm:descriptor:com.tectonic.ui:advanced
+        - urn:alm:descriptor:com.tectonic.ui:fieldDependency:.spec.settings.jim.invite:true
       - description: RejectRecipient Chance of rejecting a RCPT TO command (float,
           eg "0.05")
         displayName: Chance the recipient is rejected
@@ -226,6 +232,7 @@ spec:
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:text
         - urn:alm:descriptor:com.tectonic.ui:advanced
+        - urn:alm:descriptor:com.tectonic.ui:fieldDependency:.spec.settings.jim.invite:true
       - description: RejectSender Chance of rejecting a MAIL FROM command (float,
           eg "0.05")
         displayName: Chance the sender is rejected
@@ -233,6 +240,7 @@ spec:
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:text
         - urn:alm:descriptor:com.tectonic.ui:advanced
+        - urn:alm:descriptor:com.tectonic.ui:fieldDependency:.spec.settings.jim.invite:true
       - description: 'Resources allows to override the default resources of the created
           pods More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/'
         displayName: Resources reservations and limits
