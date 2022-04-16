@@ -19,3 +19,6 @@ testbin/*
 *.swp
 *.swo
 *~
+
+bundle_*
+bundle-*
