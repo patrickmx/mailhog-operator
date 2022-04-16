@@ -61,7 +61,6 @@ spec:
         path: settings.corsOrigin
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:text
-        - urn:alm:descriptor:com.tectonic.ui:advanced
       - description: Files that configure more in-depth settings that require an additional
           configmap
         displayName: Mailhog Config Files
@@ -103,6 +102,12 @@ spec:
         path: settings.files.smtpUpstreams[0].port
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:text
+      - description: Save is an option provided for compat reasons with mailhogs struct,
+          just set it to true
+        displayName: Server Name / Label
+        path: settings.files.smtpUpstreams[0].save
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:hidden
       - description: Username the Username used for SMTP authentication
         displayName: Upstream SMTP server username
         path: settings.files.smtpUpstreams[0].username
@@ -117,19 +122,16 @@ spec:
         path: settings.files.webUsers[0].name
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:text
-        - urn:alm:descriptor:com.tectonic.ui:advanced
       - description: PasswordHash is the bcrypt hash of the user's password
         displayName: Password bcrypt hash
         path: settings.files.webUsers[0].passwordHash
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:text
-        - urn:alm:descriptor:com.tectonic.ui:advanced
       - description: Hostname is the hostname for smtp ehlo/helo
         displayName: SMTP Hostname
         path: settings.hostname
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:text
-        - urn:alm:descriptor:com.tectonic.ui:advanced
       - description: Jim is the chaos monkey
         displayName: Jim / ChaosMonkey Config
         path: settings.jim
@@ -139,14 +141,14 @@ spec:
         path: settings.jim.accept
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:text
-        - urn:alm:descriptor:com.tectonic.ui:fieldDependency:.spec.settings.jim.invite:true
+        - urn:alm:descriptor:com.tectonic.ui:fieldDependency:settings.jim.invite:true
       - description: Disconnect Chance of randomly disconnecting a session (float,
           eg "0.005")
         displayName: Connection Disconnect Chance
         path: settings.jim.disconnect
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:text
-        - urn:alm:descriptor:com.tectonic.ui:fieldDependency:.spec.settings.jim.invite:true
+        - urn:alm:descriptor:com.tectonic.ui:fieldDependency:settings.jim.invite:true
       - description: Invite set to true activates jim using the default values (see
           mh doc)
         displayName: Activate Chaosmonkey
@@ -158,39 +160,39 @@ spec:
         path: settings.jim.linkspeedAffect
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:text
-        - urn:alm:descriptor:com.tectonic.ui:fieldDependency:.spec.settings.jim.invite:true
+        - urn:alm:descriptor:com.tectonic.ui:fieldDependency:settings.jim.invite:true
       - description: LinkspeedMax Maximum link speed (in bytes per second, eg "10240")
         displayName: Connection Slow LinkSpeed Maximum bytes/sec
         path: settings.jim.linkspeedMax
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:text
-        - urn:alm:descriptor:com.tectonic.ui:fieldDependency:.spec.settings.jim.invite:true
+        - urn:alm:descriptor:com.tectonic.ui:fieldDependency:settings.jim.invite:true
       - description: LinkspeedMin Minimum link speed (in bytes per second, eg "1024")
         displayName: Connection Slow LinkSpeed Minimum bytes/sec
         path: settings.jim.linkspeedMin
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:text
-        - urn:alm:descriptor:com.tectonic.ui:fieldDependency:.spec.settings.jim.invite:true
+        - urn:alm:descriptor:com.tectonic.ui:fieldDependency:settings.jim.invite:true
       - description: RejectAuth Chance of rejecting an AUTH command (float, eg "0.05")
         displayName: Chance the authentication is rejected
         path: settings.jim.rejectAuth
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:text
-        - urn:alm:descriptor:com.tectonic.ui:fieldDependency:.spec.settings.jim.invite:true
+        - urn:alm:descriptor:com.tectonic.ui:fieldDependency:settings.jim.invite:true
       - description: RejectRecipient Chance of rejecting a RCPT TO command (float,
           eg "0.05")
         displayName: Chance the recipient is rejected
         path: settings.jim.rejectRecipient
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:text
-        - urn:alm:descriptor:com.tectonic.ui:fieldDependency:.spec.settings.jim.invite:true
+        - urn:alm:descriptor:com.tectonic.ui:fieldDependency:settings.jim.invite:true
       - description: RejectSender Chance of rejecting a MAIL FROM command (float,
           eg "0.05")
         displayName: Chance the sender is rejected
         path: settings.jim.rejectSender
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:text
-        - urn:alm:descriptor:com.tectonic.ui:fieldDependency:.spec.settings.jim.invite:true
+        - urn:alm:descriptor:com.tectonic.ui:fieldDependency:settings.jim.invite:true
       - description: 'Resources allows to override the default resources of the created
           pods More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/'
         displayName: Resources reservations and limits
