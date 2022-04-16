@@ -1,0 +1,309 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  annotations:
+    alm-examples: |-
+      [
+        {
+          "apiVersion": "mailhog.operators.patrick.mx/v1alpha1",
+          "kind": "MailhogInstance",
+          "metadata": {
+            "labels": {
+              "app": "mailhog"
+            },
+            "name": "mh0-sample"
+          },
+          "spec": {
+            "backingResource": "deployment",
+            "image": "mailhog/mailhog:latest",
+            "replicas": 1,
+            "settings": {
+              "storage": "memory"
+            },
+            "webTrafficInlet": "none"
+          }
+        }
+      ]
+    capabilities: Basic Install
+    operators.operatorframework.io/builder: operator-sdk-v1.18.0+git
+    operators.operatorframework.io/project_layout: go.kubebuilder.io/v3
+  name: mailhog-operator.v0.1.7
+  namespace: placeholder
+spec:
+  apiservicedefinitions: {}
+  customresourcedefinitions:
+    owned:
+    - description: MailhogInstance is the Schema for the mailhoginstances API
+      displayName: Mailhog Instance
+      kind: MailhogInstance
+      name: mailhoginstances.mailhog.operators.patrick.mx
+      resources:
+      - kind: ConfigMap
+        name: ""
+        version: v1
+      - kind: Deployment
+        name: ""
+        version: v1
+      - kind: DeploymentConfig
+        name: ""
+        version: v1
+      - kind: Route
+        name: ""
+        version: v1
+      - kind: Service
+        name: ""
+        version: v1
+      specDescriptors:
+      - description: BackingResource controls if a deploymentConfig or deployment
+          is used
+        displayName: Deploy Mailhog with
+        path: backingResource
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:select:deployment
+        - urn:alm:descriptor:com.tectonic.ui:select:deploymentConfig
+      - description: Image is the mailhog image to be used
+        displayName: Mailhog Image
+        path: image
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:text
+      - description: Replicas is the count of pods to create
+        displayName: Number of pods
+        path: replicas
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:podCount
+        - urn:alm:descriptor:io.kubernetes:custom
+      - description: CorsOrigin if set, this value is added into the Access-Control-Allow-Origin
+          header returned by the API
+        displayName: Web CORS AllowOrigin
+        path: settings.corsOrigin
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:text
+        - urn:alm:descriptor:com.tectonic.ui:advanced
+      - description: Hostname is the hostname for smtp ehlo/helo
+        displayName: SMTP Hostname
+        path: settings.hostname
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:text
+        - urn:alm:descriptor:com.tectonic.ui:advanced
+      - description: Invite set to true activates jim using the default values (see
+          mh doc)
+        displayName: Activate Chaosmonkey
+        path: settings.jim.invite
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:booleanSwitch
+      - description: Storage which storage backend to use, eg memory
+        displayName: Mail Storage Type
+        path: settings.storage
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:select:memory
+        - urn:alm:descriptor:com.tectonic.ui:select:maildir
+        - urn:alm:descriptor:com.tectonic.ui:select:mongodb
+      - description: WebTrafficInlet defines how the webinterface is exposed
+        displayName: Expose Mailhog with
+        path: webTrafficInlet
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:select:route
+        - urn:alm:descriptor:com.tectonic.ui:select:none
+      version: v1alpha1
+  description: Deploy mailhogs on the fly
+  displayName: Mailhog Operator
+  icon:
+  - base64data: ""
+    mediatype: ""
+  install:
+    spec:
+      clusterPermissions:
+      - rules:
+        - apiGroups:
+          - ""
+          resources:
+          - configmaps
+          verbs:
+          - '*'
+        - apiGroups:
+          - ""
+          resources:
+          - events
+          verbs:
+          - create
+        - apiGroups:
+          - ""
+          resources:
+          - pods
+          verbs:
+          - get
+          - list
+          - watch
+        - apiGroups:
+          - ""
+          resources:
+          - services
+          verbs:
+          - '*'
+        - apiGroups:
+          - apps
+          resources:
+          - deployments
+          verbs:
+          - '*'
+        - apiGroups:
+          - apps.openshift.io
+          resources:
+          - deploymentconfigs
+          verbs:
+          - '*'
+        - apiGroups:
+          - apps.openshift.io
+          resources:
+          - deploymentconfigs/status
+          verbs:
+          - '*'
+        - apiGroups:
+          - mailhog.operators.patrick.mx
+          resources:
+          - mailhoginstances
+          verbs:
+          - '*'
+        - apiGroups:
+          - mailhog.operators.patrick.mx
+          resources:
+          - mailhoginstances/finalizers
+          verbs:
+          - '*'
+        - apiGroups:
+          - mailhog.operators.patrick.mx
+          resources:
+          - mailhoginstances/scale
+          verbs:
+          - '*'
+        - apiGroups:
+          - mailhog.operators.patrick.mx
+          resources:
+          - mailhoginstances/status
+          verbs:
+          - '*'
+        - apiGroups:
+          - route.openshift.io
+          resources:
+          - routes
+          verbs:
+          - '*'
+        serviceAccountName: mailhog-operator-controller-manager
+      deployments:
+      - name: mailhog-operator-controller-manager
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              control-plane: controller-manager
+          strategy: {}
+          template:
+            metadata:
+              annotations:
+                alpha.image.policy.openshift.io/resolve-names: '*'
+                kubectl.kubernetes.io/default-container: manager
+              labels:
+                control-plane: controller-manager
+            spec:
+              containers:
+              - args:
+                - -config
+                - /operatorconfig/controller_manager_config.yaml
+                - --zap-devel=false
+                command:
+                - /manager
+                image: ghcr.io/patrickmx/mailhog-operator:v0.1.7
+                imagePullPolicy: Always
+                livenessProbe:
+                  httpGet:
+                    path: /healthz
+                    port: 8081
+                  initialDelaySeconds: 15
+                  periodSeconds: 20
+                name: manager
+                readinessProbe:
+                  httpGet:
+                    path: /readyz
+                    port: 8081
+                  initialDelaySeconds: 7
+                  periodSeconds: 11
+                resources:
+                  limits:
+                    cpu: 220m
+                    memory: 90Mi
+                  requests:
+                    cpu: 220m
+                    memory: 90Mi
+                securityContext:
+                  allowPrivilegeEscalation: false
+                volumeMounts:
+                - mountPath: /operatorconfig
+                  name: config
+                  readOnly: true
+              securityContext:
+                runAsNonRoot: true
+              serviceAccountName: mailhog-operator-controller-manager
+              terminationGracePeriodSeconds: 12
+              volumes:
+              - configMap:
+                  name: mailhog-operator-manager-config
+                name: config
+      permissions:
+      - rules:
+        - apiGroups:
+          - ""
+          resources:
+          - configmaps
+          verbs:
+          - get
+          - list
+          - watch
+          - create
+          - update
+          - patch
+          - delete
+        - apiGroups:
+          - coordination.k8s.io
+          resources:
+          - leases
+          verbs:
+          - get
+          - list
+          - watch
+          - create
+          - update
+          - patch
+          - delete
+        - apiGroups:
+          - ""
+          resources:
+          - events
+          verbs:
+          - create
+          - patch
+        serviceAccountName: mailhog-operator-controller-manager
+    strategy: deployment
+  installModes:
+  - supported: false
+    type: OwnNamespace
+  - supported: false
+    type: SingleNamespace
+  - supported: false
+    type: MultiNamespace
+  - supported: true
+    type: AllNamespaces
+  keywords:
+  - mailhog
+  - testing
+  - ci
+  links:
+  - name: Mailhog Operator
+    url: https://mailhog-operator.domain
+  maintainers:
+  - email: 97127469+patrickmx@users.noreply.github.com
+    name: patrickmx
+  maturity: alpha
+  provider:
+    name: patrickmx
+    url: https://github.com/patrickmx
+  version: 0.1.7

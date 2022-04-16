@@ -210,6 +210,18 @@ crc-add-mongo:
            -l "app.kubernetes.io/part-of=mailhog,app.openshift.io/runtime=mongodb" \
            registry.redhat.io/rhscl/mongodb-26-rhel7
 
+.PHONY: all-catalogsources
+all-catalogsources:
+	oc get --all-namespaces=true catalogsources
+
+.PHONY: all-packagemanifests
+all-packagemanifests:
+	oc get --all-namespaces=true packagemanifests
+
+.PHONY: all-clusterserviceversions
+app-clusterserviceversions:
+	oc get --all-namespaces=true csv
+
 ##@ Release
 
 .PHONY: ship
