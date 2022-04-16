@@ -106,7 +106,7 @@ spec:
   - ci
   links:
   - name: Mailhog Operator
-    url: https://mailhog-operator.domain
+    url: https://github.com/patrickmx/mailhog-operator
   maintainers:
   - email: 97127469+patrickmx@users.noreply.github.com
     name: patrickmx
