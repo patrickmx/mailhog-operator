@@ -229,6 +229,7 @@ app-clusterserviceversions:
 .PHONY: clean-leftover-bundles
 clean-leftover-bundles:
 	find . -name "bundle-*" -type d -exec rmdir {} \;
+	find . -name "bundle_*" -type d -exec rm -rf {} \;
 
 ##@ Release
 
