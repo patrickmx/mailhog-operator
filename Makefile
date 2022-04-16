@@ -192,6 +192,10 @@ crc-reset:
 crc-start:
 	crc start
 
+.PHONY: crc-creds
+crc-creds:
+	crc console --credentials
+
 .PHONY: crc-restore-pinning
 crc-restore-pinning:
 	oc -n openshift-console-user-settings \
@@ -221,6 +225,10 @@ all-packagemanifests:
 .PHONY: all-clusterserviceversions
 app-clusterserviceversions:
 	oc get --all-namespaces=true csv
+
+.PHONY: clean-leftover-bundles
+clean-leftover-bundles:
+	find . -name "bundle-*" -type d -exec rmdir {} \;
 
 ##@ Release
 
