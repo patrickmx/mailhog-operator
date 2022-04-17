@@ -483,6 +483,14 @@ type MailhogInstanceStatus struct {
 	//+nullable
 	//+operator-sdk:csv:customresourcedefinitions:type=status,displayName="Error Message"
 	Error string `json:"error,omitempty"`
+
+	// RouteURL will be set to the path under which mailhog is reachable if openshift Route is enabled
+	//
+	//+kubebuilder:validation:Optional
+	//+optional
+	//+nullable
+	//+operator-sdk:csv:customresourcedefinitions:type=status,displayName="Mailhog Web UI",xDescriptors="urn:alm:descriptor:org.w3:link"
+	RouteURL string `json:"routeUrl,omitempty"`
 }
 
 type PodStatus struct {

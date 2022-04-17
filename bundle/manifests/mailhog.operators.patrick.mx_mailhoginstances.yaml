@@ -1234,6 +1234,11 @@ spec:
                 description: ReadyPodCount is the amount of pods last seen ready
                 nullable: true
                 type: integer
+              routeURL:
+                description: RouteURL will be set to the path under which mailhog
+                  is reachable if openshift Route is enabled
+                nullable: true
+                type: string
             type: object
         type: object
     served: true

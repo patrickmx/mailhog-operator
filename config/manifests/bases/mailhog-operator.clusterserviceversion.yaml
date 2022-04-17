@@ -293,6 +293,12 @@ spec:
       - description: ReadyPodCount is the amount of pods last seen ready
         displayName: Ready Pod Count
         path: readyPodCount
+      - description: RouteURL will be set to the path under which mailhog is reachable
+          if openshift Route is enabled
+        displayName: Mailhog Web UI
+        path: routeURL
+        x-descriptors:
+        - urn:alm:descriptor:org.w3:link
       version: v1alpha1
   description: Deploy mailhogs on the fly
   displayName: Mailhog Operator

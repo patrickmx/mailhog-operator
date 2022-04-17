@@ -4,6 +4,8 @@ import (
 	"context"
 	"reflect"
 
+	routev1 "github.com/openshift/api/route/v1"
+
 	"github.com/go-logr/logr"
 
 	mailhogv1alpha1 "goimports.patrick.mx/mailhog-operator/api/v1alpha1"
@@ -86,6 +88,23 @@ func getReadyPods(pods []corev1.Pod) int {
 	return ready
 }
 
+func getFirstRouteIfAdmitted(cr *mailhogv1alpha1.MailhogInstance, routeList *routev1.RouteList) string {
+	if len(routeList.Items) == 1 {
+		if routeStatus := routeList.Items[0].Status; len(routeStatus.Ingress) == 1 {
+			for _, cond := range routeStatus.Ingress[0].Conditions {
+				if cond.Type == routev1.RouteAdmitted && cond.Status == corev1.ConditionTrue {
+					fragment := "/"
+					if path := cr.Spec.Settings.WebPath; path != "" {
+						fragment = fragment + path + "/"
+					}
+					return "https://" + routeStatus.Ingress[0].Host + fragment
+				}
+			}
+		}
+	}
+	return ""
+}
+
 // desiredStatus is sued to check the CR status subresource against the desired state
 func (r *MailhogInstanceReconciler) desiredStatus(ctx context.Context, cr *mailhogv1alpha1.MailhogInstance, logger logr.Logger) (ri *ReturnIndicator, status mailhogv1alpha1.MailhogInstanceStatus) {
 	meta := CreateMetaMaker(cr)
@@ -100,6 +119,17 @@ func (r *MailhogInstanceReconciler) desiredStatus(ctx context.Context, cr *mailh
 		return &ReturnIndicator{
 			Err: err,
 		}, status
+	}
+
+	if cr.Spec.WebTrafficInlet == mailhogv1alpha1.RouteTrafficInlet {
+		routeList := &routev1.RouteList{}
+		if err := r.List(ctx, routeList, listOpts...); err != nil {
+			logger.Error(err, "failed to list routes")
+			return &ReturnIndicator{
+				Err: err,
+			}, status
+		}
+		status.RouteURL = getFirstRouteIfAdmitted(cr, routeList)
 	}
 
 	podNames := getPodNames(podList.Items)
