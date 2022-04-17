@@ -449,7 +449,7 @@ type MailhogInstanceStatus struct {
 	//+kubebuilder:validation:Optional
 	//+optional
 	//+nullable
-	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Pod Status",xDescriptors="urn:alm:descriptor:com.tectonic.ui:podStatuses"
+	//+operator-sdk:csv:customresourcedefinitions:type=status,displayName="Pod Status",xDescriptors="urn:alm:descriptor:com.tectonic.ui:podStatuses"
 	Pods PodStatus `json:"pods,omitempty"`
 
 	// PodCount is the amount of last seen pods belonging to this cr
@@ -457,7 +457,7 @@ type MailhogInstanceStatus struct {
 	//+kubebuilder:validation:Optional
 	//+optional
 	//+nullable
-	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Pod Count",xDescriptors="urn:alm:descriptor:com.tectonic.ui:podCount"
+	//+operator-sdk:csv:customresourcedefinitions:type=status,displayName="Pod Count",xDescriptors="urn:alm:descriptor:com.tectonic.ui:podCount"
 	PodCount int `json:"podCount,omitempty"`
 
 	// ReadyPodCount is the amount of pods last seen ready
@@ -465,7 +465,7 @@ type MailhogInstanceStatus struct {
 	//+kubebuilder:validation:Optional
 	//+optional
 	//+nullable
-	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Ready Pod Count"
+	//+operator-sdk:csv:customresourcedefinitions:type=status,displayName="Ready Pod Count"
 	ReadyPodCount int `json:"readyPodCount,omitempty"`
 
 	// LabelSelector is the labelselector which can be used by HPA
@@ -473,7 +473,7 @@ type MailhogInstanceStatus struct {
 	//+kubebuilder:validation:Optional
 	//+optional
 	//+nullable
-	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Label Selector"
+	//+operator-sdk:csv:customresourcedefinitions:type=status,displayName="Label Selector"
 	LabelSelector string `json:"labelSelector,omitempty"`
 
 	// Error is used to signal illegal CR specs
@@ -481,7 +481,7 @@ type MailhogInstanceStatus struct {
 	//+kubebuilder:validation:Optional
 	//+optional
 	//+nullable
-	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Error Message"
+	//+operator-sdk:csv:customresourcedefinitions:type=status,displayName="Error Message"
 	Error string `json:"error,omitempty"`
 }
 

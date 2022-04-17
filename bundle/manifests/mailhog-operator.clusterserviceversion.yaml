@@ -296,6 +296,26 @@ spec:
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:select:route
         - urn:alm:descriptor:com.tectonic.ui:select:none
+      statusDescriptors:
+      - description: Error is used to signal illegal CR specs
+        displayName: Error Message
+        path: error
+      - description: LabelSelector is the labelselector which can be used by HPA
+        displayName: Label Selector
+        path: labelSelector
+      - description: PodCount is the amount of last seen pods belonging to this cr
+        displayName: Pod Count
+        path: podCount
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:podCount
+      - description: Pods all the podnames owned by the cr
+        displayName: Pod Status
+        path: pods
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:podStatuses
+      - description: ReadyPodCount is the amount of pods last seen ready
+        displayName: Ready Pod Count
+        path: readyPodCount
       version: v1alpha1
   description: Deploy mailhogs on the fly
   displayName: Mailhog Operator
