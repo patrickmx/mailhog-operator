@@ -152,7 +152,7 @@ type MailhogInstanceSettingsSpec struct {
 	//+kubebuilder:validation:Optional
 	//+optional
 	//+nullable
-	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Resources reservations and limits"
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Resources reservations and limits",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:resourceRequirements"}
 	Resources *corev1.ResourceRequirements `json:"resources,omitempty"`
 
 	// Affinity allows to override the podtemplates affinity settings

@@ -212,6 +212,8 @@ spec:
           pods More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/'
         displayName: Resources reservations and limits
         path: settings.resources
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:resourceRequirements
       - description: Storage which storage backend to use, eg memory
         displayName: Mail Storage Type
         path: settings.storage
