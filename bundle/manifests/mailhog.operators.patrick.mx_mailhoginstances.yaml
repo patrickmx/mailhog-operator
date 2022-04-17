@@ -955,11 +955,6 @@ spec:
                             a message can be release to that mailhog has intercepted
                             (via gui/api) https://github.com/mailhog/MailHog-Server/blob/50f74a1aa2991b96313144d1ac718ce4d6739dfd/config/config.go#L55
                           properties:
-                            authentication:
-                              description: Authentication is used to show / hide authentication
-                                options in tectonic ui
-                              nullable: true
-                              type: boolean
                             email:
                               description: Email the target Email address where the
                                 mail will be resent to

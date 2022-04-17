@@ -337,20 +337,12 @@ type MailhogUpstreamSpec struct {
 	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Upstream SMTP server port",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text"}
 	Port string `json:"port,omitempty"`
 
-	// Authentication is used to show / hide authentication options in tectonic ui
-	//
-	//+kubebuilder:validation:Optional
-	//+optional
-	//+nullable
-	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Upstream Authentication",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:booleanSwitch"}
-	Authentication bool `json:"authentication,omitempty"`
-
 	// Username the Username used for SMTP authentication
 	//
 	//+kubebuilder:validation:Optional
 	//+optional
 	//+nullable
-	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Upstream SMTP server username",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text","urn:alm:descriptor:com.tectonic.ui:fieldDependency:settings.files.smtpUpstreams[0].authentication:true"}
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Upstream SMTP server username",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text"}
 	Username string `json:"username,omitempty"`
 
 	// Password the Password used for SMTP authentication
@@ -358,7 +350,7 @@ type MailhogUpstreamSpec struct {
 	//+kubebuilder:validation:Optional
 	//+optional
 	//+nullable
-	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Upstream SMTP server password",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text","urn:alm:descriptor:com.tectonic.ui:fieldDependency:settings.files.smtpUpstreams[0].authentication:true"}
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Upstream SMTP server password",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text"}
 	Password string `json:"password,omitempty"`
 
 	// Mechanism the SMTP login Mechanism used. This is _required_ when providing upstream user / password credentials
@@ -368,7 +360,7 @@ type MailhogUpstreamSpec struct {
 	//+kubebuilder:validation:Enum=PLAIN;CRAMMD5
 	//+optional
 	//+nullable
-	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Upstream SMTP server auth mechanism",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:select:PLAIN","urn:alm:descriptor:com.tectonic.ui:select:CRAMMD5","urn:alm:descriptor:com.tectonic.ui:fieldDependency:settings.files.smtpUpstreams[0].authentication:true"}
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Upstream SMTP server auth mechanism",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:select:PLAIN","urn:alm:descriptor:com.tectonic.ui:select:CRAMMD5"}
 	Mechanism string `json:"mechanism,omitempty"`
 }
 
