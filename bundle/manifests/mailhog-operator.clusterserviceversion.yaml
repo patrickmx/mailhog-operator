@@ -81,6 +81,18 @@ spec:
           More info: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/'
         displayName: Affinity Settings
         path: settings.affinity
+      - displayName: Node Affinity
+        path: settings.affinity.nodeAffinity
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:nodeAffinity
+      - displayName: Pod Affinity
+        path: settings.affinity.podAffinity
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:podAffinity
+      - displayName: Pod Anti Affinity
+        path: settings.affinity.podAntiAffinity
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:podAntiAffinity
       - description: CorsOrigin if set, this value is added into the Access-Control-Allow-Origin
           header returned by the API
         displayName: Web CORS AllowOrigin

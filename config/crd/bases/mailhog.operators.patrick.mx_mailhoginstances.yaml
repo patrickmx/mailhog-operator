@@ -76,8 +76,9 @@ spec:
                     nullable: true
                     properties:
                       nodeAffinity:
-                        description: Describes node affinity scheduling rules for
-                          the pod.
+                        description: Node affinity is a group of node affinity scheduling
+                          rules.
+                        nullable: true
                         properties:
                           preferredDuringSchedulingIgnoredDuringExecution:
                             description: The scheduler will prefer to schedule pods
@@ -289,9 +290,9 @@ spec:
                             type: object
                         type: object
                       podAffinity:
-                        description: Describes pod affinity scheduling rules (e.g.
-                          co-locate this pod in the same node, zone, etc. as some
-                          other pod(s)).
+                        description: Pod affinity is a group of inter pod affinity
+                          scheduling rules.
+                        nullable: true
                         properties:
                           preferredDuringSchedulingIgnoredDuringExecution:
                             description: The scheduler will prefer to schedule pods
@@ -613,9 +614,9 @@ spec:
                             type: array
                         type: object
                       podAntiAffinity:
-                        description: Describes pod anti-affinity scheduling rules
-                          (e.g. avoid putting this pod in the same node, zone, etc.
-                          as some other pod(s)).
+                        description: Pod anti affinity is a group of inter pod anti
+                          affinity scheduling rules.
+                        nullable: true
                         properties:
                           preferredDuringSchedulingIgnoredDuringExecution:
                             description: The scheduler will prefer to schedule pods

@@ -162,7 +162,7 @@ type MailhogInstanceSettingsSpec struct {
 	//+optional
 	//+nullable
 	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Affinity Settings"
-	Affinity *corev1.Affinity `json:"affinity,omitempty"`
+	Affinity *AffinitySpec `json:"affinity,omitempty"`
 
 	// Jim is the chaos monkey
 	//
@@ -180,6 +180,26 @@ type MailhogInstanceSettingsSpec struct {
 	//+nullable
 	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Web ContextRoot",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text"}
 	WebPath string `json:"webPath,omitempty"`
+}
+
+type AffinitySpec struct {
+	//+kubebuilder:validation:Optional
+	//+optional
+	//+nullable
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Pod Affinity",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:podAffinity"}
+	PodAffinity *corev1.PodAffinity `json:"podAffinity,omitempty"`
+
+	//+kubebuilder:validation:Optional
+	//+optional
+	//+nullable
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Pod Anti Affinity",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:podAntiAffinity"}
+	PodAntiAffinity *corev1.PodAntiAffinity `json:"podAntiAffinity,omitempty"`
+
+	//+kubebuilder:validation:Optional
+	//+optional
+	//+nullable
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Node Affinity",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:nodeAffinity"}
+	NodeAffinity *corev1.NodeAffinity `json:"nodeAffinity,omitempty"`
 }
 
 // MailhogJimSpec invites jim into mailhog, the builtin chaos monkey
