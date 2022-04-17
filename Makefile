@@ -192,6 +192,10 @@ crc-reset:
 crc-start:
 	crc start
 
+.PHONY: crc-creds
+crc-creds:
+	crc console --credentials
+
 .PHONY: crc-restore-pinning
 crc-restore-pinning:
 	oc -n openshift-console-user-settings \
@@ -210,10 +214,27 @@ crc-add-mongo:
            -l "app.kubernetes.io/part-of=mailhog,app.openshift.io/runtime=mongodb" \
            registry.redhat.io/rhscl/mongodb-26-rhel7
 
+.PHONY: all-catalogsources
+all-catalogsources:
+	oc get --all-namespaces=true catalogsources
+
+.PHONY: all-packagemanifests
+all-packagemanifests:
+	oc get --all-namespaces=true packagemanifests
+
+.PHONY: all-clusterserviceversions
+app-clusterserviceversions:
+	oc get --all-namespaces=true csv
+
+.PHONY: clean-leftover-bundles
+clean-leftover-bundles:
+	find . -name "bundle-*" -type d -exec rmdir {} \;
+	find . -name "bundle_*" -type d -exec rm -rf {} \;
+
 ##@ Release
 
 .PHONY: ship
-ship: test build
+ship: test build bundle
 	@if git show-ref --tags --quiet --verify -- "refs/tags/v$(VERSION)"; then \
     	echo "tag already exists"; \
     	exit 1; \
@@ -303,6 +324,14 @@ bundle-build: ## Build the bundle image.
 .PHONY: bundle-push
 bundle-push: ## Push the bundle image.
 	$(MAKE) docker-push IMG=$(BUNDLE_IMG)
+
+.PHONY: bundle-clean
+bundle-clean:
+	operator-sdk cleanup mailhog-operator
+
+.PHONY: bundle-run-develop
+bundle-run-develop:
+	operator-sdk run bundle ghcr.io/patrickmx/mailhog-operator-bundle:develop
 
 .PHONY: opm
 OPM = ./bin/opm

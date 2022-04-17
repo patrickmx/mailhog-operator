@@ -68,13 +68,14 @@ type MailhogInstanceSpec struct {
 	//+kubebuilder:validation:Maximum=10
 	//+kubebuilder:validation:Required
 	//+kubebuilder:default:=1
-	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Number of pods",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:podCount","urn:alm:descriptor:io.kubernetes:custom"}
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Number of pods",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:podCount"}
 	Replicas int32 `json:"replicas,omitempty"`
 
 	// Settings are mailhog configuration options, see https://github.com/mailhog/MailHog/blob/master/docs/CONFIG.md
 	//
 	//+kubebuilder:validation:Optional
 	//+kubebuilder:default:={storage:"memory"}
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Advanced Settings"
 	Settings MailhogInstanceSettingsSpec `json:"settings,omitempty"`
 
 	// WebTrafficInlet defines how the webinterface is exposed
@@ -102,7 +103,7 @@ type MailhogInstanceSettingsSpec struct {
 	//+kubebuilder:validation:Format=hostname
 	//+optional
 	//+nullable
-	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="SMTP Hostname",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text","urn:alm:descriptor:com.tectonic.ui:advanced"}
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="SMTP Hostname",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text"}
 	Hostname string `json:"hostname,omitempty"`
 
 	// CorsOrigin if set, this value is added into the Access-Control-Allow-Origin header returned by the API
@@ -110,7 +111,7 @@ type MailhogInstanceSettingsSpec struct {
 	//+kubebuilder:validation:Optional
 	//+optional
 	//+nullable
-	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Web CORS AllowOrigin",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text","urn:alm:descriptor:com.tectonic.ui:advanced"}
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Web CORS AllowOrigin",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text"}
 	CorsOrigin string `json:"corsOrigin,omitempty"`
 
 	// Storage which storage backend to use, eg memory
@@ -126,6 +127,7 @@ type MailhogInstanceSettingsSpec struct {
 	//+kubebuilder:validation:Optional
 	//+optional
 	//+nullable
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="MongoDB Storage Settings",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:fieldDependency:settings.storage:mongodb"}
 	StorageMongoDb MailhogStorageMongoDbSpec `json:"storageMongoDb,omitempty"`
 
 	// StorageMaildir is only used when storage is set to maildir
@@ -133,6 +135,7 @@ type MailhogInstanceSettingsSpec struct {
 	//+kubebuilder:validation:Optional
 	//+optional
 	//+nullable
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Maildir Storage Settings",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:fieldDependency:settings.storage:maildir"}
 	StorageMaildir MailhogStorageMaildirSpec `json:"storageMaildir,omitempty"`
 
 	// Files that configure more in-depth settings that require an additional configmap
@@ -140,6 +143,7 @@ type MailhogInstanceSettingsSpec struct {
 	//+kubebuilder:validation:Optional
 	//+optional
 	//+nullable
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Mailhog Config Files"
 	Files *MailhogFilesSpec `json:"files,omitempty"`
 
 	// Resources allows to override the default resources of the created pods
@@ -148,6 +152,7 @@ type MailhogInstanceSettingsSpec struct {
 	//+kubebuilder:validation:Optional
 	//+optional
 	//+nullable
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Resources reservations and limits",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:resourceRequirements"}
 	Resources *corev1.ResourceRequirements `json:"resources,omitempty"`
 
 	// Affinity allows to override the podtemplates affinity settings
@@ -156,13 +161,15 @@ type MailhogInstanceSettingsSpec struct {
 	//+kubebuilder:validation:Optional
 	//+optional
 	//+nullable
-	Affinity *corev1.Affinity `json:"affinity,omitempty"`
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Affinity Settings"
+	Affinity *AffinitySpec `json:"affinity,omitempty"`
 
 	// Jim is the chaos monkey
 	//
 	//+kubebuilder:validation:Optional
 	//+optional
 	//+nullable
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Jim / ChaosMonkey Config"
 	Jim MailhogJimSpec `json:"jim,omitempty"`
 
 	// WebPath context root under which web resources are served (without leading or trailing slashes), e.g. 'mailhog'
@@ -171,7 +178,28 @@ type MailhogInstanceSettingsSpec struct {
 	//+kubebuilder:validation:Optional
 	//+optional
 	//+nullable
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Web ContextRoot",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text"}
 	WebPath string `json:"webPath,omitempty"`
+}
+
+type AffinitySpec struct {
+	//+kubebuilder:validation:Optional
+	//+optional
+	//+nullable
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Pod Affinity",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:podAffinity"}
+	PodAffinity *corev1.PodAffinity `json:"podAffinity,omitempty"`
+
+	//+kubebuilder:validation:Optional
+	//+optional
+	//+nullable
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Pod Anti Affinity",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:podAntiAffinity"}
+	PodAntiAffinity *corev1.PodAntiAffinity `json:"podAntiAffinity,omitempty"`
+
+	//+kubebuilder:validation:Optional
+	//+optional
+	//+nullable
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Node Affinity",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:nodeAffinity"}
+	NodeAffinity *corev1.NodeAffinity `json:"nodeAffinity,omitempty"`
 }
 
 // MailhogJimSpec invites jim into mailhog, the builtin chaos monkey
@@ -192,6 +220,7 @@ type MailhogJimSpec struct {
 	//+kubebuilder:validation:Optional
 	//+optional
 	//+nullable
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Connection Disconnect Chance",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text","urn:alm:descriptor:com.tectonic.ui:fieldDependency:settings.jim.invite:true"}
 	Disconnect string `json:"disconnect,omitempty"`
 
 	// Accept Chance of accepting an incoming connection (float, eg "0.99")
@@ -199,6 +228,7 @@ type MailhogJimSpec struct {
 	//+kubebuilder:validation:Optional
 	//+optional
 	//+nullable
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Connection Accept Chance",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text","urn:alm:descriptor:com.tectonic.ui:fieldDependency:settings.jim.invite:true"}
 	Accept string `json:"accept,omitempty"`
 
 	// LinkspeedAffect Chance of applying a rate limit (float, eg "0.1")
@@ -206,6 +236,7 @@ type MailhogJimSpec struct {
 	//+kubebuilder:validation:Optional
 	//+optional
 	//+nullable
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Connection Slow LinkSpeed Chance",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text","urn:alm:descriptor:com.tectonic.ui:fieldDependency:settings.jim.invite:true"}
 	LinkspeedAffect string `json:"linkspeedAffect,omitempty"`
 
 	// LinkspeedMin Minimum link speed (in bytes per second, eg "1024")
@@ -213,6 +244,7 @@ type MailhogJimSpec struct {
 	//+kubebuilder:validation:Optional
 	//+optional
 	//+nullable
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Connection Slow LinkSpeed Minimum bytes/sec",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text","urn:alm:descriptor:com.tectonic.ui:fieldDependency:settings.jim.invite:true"}
 	LinkspeedMin string `json:"linkspeedMin,omitempty"`
 
 	// LinkspeedMax Maximum link speed (in bytes per second, eg "10240")
@@ -220,6 +252,7 @@ type MailhogJimSpec struct {
 	//+kubebuilder:validation:Optional
 	//+optional
 	//+nullable
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Connection Slow LinkSpeed Maximum bytes/sec",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text","urn:alm:descriptor:com.tectonic.ui:fieldDependency:settings.jim.invite:true"}
 	LinkspeedMax string `json:"linkspeedMax,omitempty"`
 
 	// RejectSender Chance of rejecting a MAIL FROM command (float, eg "0.05")
@@ -227,6 +260,7 @@ type MailhogJimSpec struct {
 	//+kubebuilder:validation:Optional
 	//+optional
 	//+nullable
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Chance the sender is rejected",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text","urn:alm:descriptor:com.tectonic.ui:fieldDependency:settings.jim.invite:true"}
 	RejectSender string `json:"rejectSender,omitempty"`
 
 	// RejectRecipient Chance of rejecting a RCPT TO command (float, eg "0.05")
@@ -234,6 +268,7 @@ type MailhogJimSpec struct {
 	//+kubebuilder:validation:Optional
 	//+optional
 	//+nullable
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Chance the recipient is rejected",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text","urn:alm:descriptor:com.tectonic.ui:fieldDependency:settings.jim.invite:true"}
 	RejectRecipient string `json:"rejectRecipient,omitempty"`
 
 	// RejectAuth Chance of rejecting an AUTH command (float, eg "0.05")
@@ -241,6 +276,7 @@ type MailhogJimSpec struct {
 	//+kubebuilder:validation:Optional
 	//+optional
 	//+nullable
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Chance the authentication is rejected",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text","urn:alm:descriptor:com.tectonic.ui:fieldDependency:settings.jim.invite:true"}
 	RejectAuth string `json:"rejectAuth,omitempty"`
 }
 
@@ -251,6 +287,7 @@ type MailhogFilesSpec struct {
 	//+kubebuilder:validation:Optional
 	//+optional
 	//+nullable
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="SMTP Upstreams for release"
 	SmtpUpstreams []MailhogUpstreamSpec `json:"smtpUpstreams,omitempty"`
 
 	// WebUsers If WebUsers are defined, UI/API Access will be protected with basic auth
@@ -258,6 +295,7 @@ type MailhogFilesSpec struct {
 	//+kubebuilder:validation:Optional
 	//+optional
 	//+nullable
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="HTTP Basic auth user restrictions"
 	WebUsers []MailhogWebUserSpec `json:"webUsers,omitempty"`
 }
 
@@ -268,30 +306,35 @@ type MailhogUpstreamSpec struct {
 	//
 	//+kubebuilder:validation:Required
 	//+kubebuilder:validation:MinLength=2
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Server Name / Label",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text"}
 	Name string `json:"name,omitempty"`
 
 	// Save is an option provided for compat reasons with mailhogs struct, just set it to true
 	//
 	//+kubebuilder:validation:Required
 	//+kubebuilder:default:=true
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Server Name / Label",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:hidden"}
 	Save bool `json:"save,omitempty"`
 
 	// Email the target Email address where the mail will be resent to
 	//
 	//+kubebuilder:validation:Required
 	//+kubebuilder:validation:MinLength=4
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Destination Email on release",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text"}
 	Email string `json:"email,omitempty"`
 
 	// Host SMTP target Host hostname
 	//
 	//+kubebuilder:validation:Required
 	//+kubebuilder:validation:MinLength=2
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Upstream SMTP server hostname",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text"}
 	Host string `json:"host,omitempty"`
 
 	// Port SMTP target Port
 	//
 	//+kubebuilder:validation:Required
 	//+kubebuilder:validation:MinLength=2
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Upstream SMTP server port",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text"}
 	Port string `json:"port,omitempty"`
 
 	// Username the Username used for SMTP authentication
@@ -299,6 +342,7 @@ type MailhogUpstreamSpec struct {
 	//+kubebuilder:validation:Optional
 	//+optional
 	//+nullable
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Upstream SMTP server username",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text"}
 	Username string `json:"username,omitempty"`
 
 	// Password the Password used for SMTP authentication
@@ -306,6 +350,7 @@ type MailhogUpstreamSpec struct {
 	//+kubebuilder:validation:Optional
 	//+optional
 	//+nullable
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Upstream SMTP server password",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text"}
 	Password string `json:"password,omitempty"`
 
 	// Mechanism the SMTP login Mechanism used. This is _required_ when providing upstream user / password credentials
@@ -315,6 +360,7 @@ type MailhogUpstreamSpec struct {
 	//+kubebuilder:validation:Enum=PLAIN;CRAMMD5
 	//+optional
 	//+nullable
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Upstream SMTP server auth mechanism",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:select:PLAIN","urn:alm:descriptor:com.tectonic.ui:select:CRAMMD5"}
 	Mechanism string `json:"mechanism,omitempty"`
 }
 
@@ -325,12 +371,14 @@ type MailhogWebUserSpec struct {
 	//
 	//+kubebuilder:validation:Required
 	//+kubebuilder:validation:MinLength=2
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="HTTP Basic Auth Username",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text"}
 	Name string `json:"name,omitempty"`
 
 	// PasswordHash is the bcrypt hash of the user's password
 	//
 	//+kubebuilder:validation:Required
 	//+kubebuilder:validation:MinLength=3
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Password bcrypt hash",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text"}
 	PasswordHash string `json:"passwordHash,omitempty"`
 }
 
@@ -344,6 +392,7 @@ type MailhogStorageMaildirSpec struct {
 	//+kubebuilder:validation:Pattern:=`^(/)([\S]+(/)?)+$`
 	//+optional
 	//+nullable
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Maildir path",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text"}
 	Path string `json:"path,omitempty"`
 
 	// PvName if a PV name is given it will be used for maildir storage the pv needs to preexist, it will not be created
@@ -353,6 +402,7 @@ type MailhogStorageMaildirSpec struct {
 	//+kubebuilder:validation:MinLength:=3
 	//+optional
 	//+nullable
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="PV Name",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text"}
 	PvName string `json:"pvName"`
 }
 
@@ -368,6 +418,7 @@ type MailhogStorageMongoDbSpec struct {
 	//+kubebuilder:validation:Format=uri
 	//+optional
 	//+nullable
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="MongoDB URI",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text"}
 	URI string `json:"uri,omitempty"`
 
 	// Db MongoDB database name for message storage
@@ -377,6 +428,7 @@ type MailhogStorageMongoDbSpec struct {
 	//+kubebuilder:validation:Pattern:=`^[\w-_]+$`
 	//+optional
 	//+nullable
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="MongoDB DB",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text"}
 	Db string `json:"db,omitempty"`
 
 	// Collection MongoDB collection name for message storage
@@ -386,6 +438,7 @@ type MailhogStorageMongoDbSpec struct {
 	//+kubebuilder:validation:Pattern:=`^[\w-_]+$`
 	//+optional
 	//+nullable
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="MongoDB Collection",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text"}
 	Collection string `json:"collection,omitempty"`
 }
 
@@ -396,13 +449,15 @@ type MailhogInstanceStatus struct {
 	//+kubebuilder:validation:Optional
 	//+optional
 	//+nullable
-	Pods []string `json:"pods,omitempty"`
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Pod Status",xDescriptors="urn:alm:descriptor:com.tectonic.ui:podStatuses"
+	Pods PodStatus `json:"pods,omitempty"`
 
 	// PodCount is the amount of last seen pods belonging to this cr
 	//
 	//+kubebuilder:validation:Optional
 	//+optional
 	//+nullable
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Pod Count",xDescriptors="urn:alm:descriptor:com.tectonic.ui:podCount"
 	PodCount int `json:"podCount,omitempty"`
 
 	// ReadyPodCount is the amount of pods last seen ready
@@ -410,6 +465,7 @@ type MailhogInstanceStatus struct {
 	//+kubebuilder:validation:Optional
 	//+optional
 	//+nullable
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Ready Pod Count"
 	ReadyPodCount int `json:"readyPodCount,omitempty"`
 
 	// LabelSelector is the labelselector which can be used by HPA
@@ -417,6 +473,7 @@ type MailhogInstanceStatus struct {
 	//+kubebuilder:validation:Optional
 	//+optional
 	//+nullable
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Label Selector"
 	LabelSelector string `json:"labelSelector,omitempty"`
 
 	// Error is used to signal illegal CR specs
@@ -424,7 +481,45 @@ type MailhogInstanceStatus struct {
 	//+kubebuilder:validation:Optional
 	//+optional
 	//+nullable
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Error Message"
 	Error string `json:"error,omitempty"`
+}
+
+type PodStatus struct {
+	// Pending podStatus
+	//
+	//+kubebuilder:validation:Optional
+	//+optional
+	//+nullable
+	Pending []string `json:"pending,omitempty"`
+
+	// Failed podSTatus
+	//
+	//+kubebuilder:validation:Optional
+	//+optional
+	//+nullable
+	Failed []string `json:"failed,omitempty"`
+
+	// Ready mailhog container ready ?
+	//
+	//+kubebuilder:validation:Optional
+	//+optional
+	//+nullable
+	Ready []string `json:"ready,omitempty"`
+
+	// Restarting mailhog container restarted more then 3 times
+	//
+	//+kubebuilder:validation:Optional
+	//+optional
+	//+nullable
+	Restarting []string `json:"restarting,omitempty"`
+
+	// Other condition not caught by the other podstatuses (e.g. pod running bot container not ready)
+	//
+	//+kubebuilder:validation:Optional
+	//+optional
+	//+nullable
+	Other []string `json:"other,omitempty"`
 }
 
 // MailhogInstance is the Schema for the mailhoginstances API

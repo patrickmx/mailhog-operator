@@ -55,6 +55,26 @@ func getPodNames(pods []corev1.Pod) []string {
 	return podNames
 }
 
+// getPodStates will return the names of the given pods
+//
+//nolint:gocritic
+func getPodStates(pods []corev1.Pod) (states mailhogv1alpha1.PodStatus) {
+	for _, pod := range pods {
+		if pod.Status.Phase == corev1.PodPending {
+			states.Pending = append(states.Pending, pod.Name)
+		} else if pod.Status.Phase == corev1.PodFailed {
+			states.Failed = append(states.Failed, pod.Name)
+		} else if pod.Status.ContainerStatuses[0].RestartCount > 3 {
+			states.Restarting = append(states.Restarting, pod.Name)
+		} else if pod.Status.ContainerStatuses[0].Ready {
+			states.Ready = append(states.Ready, pod.Name)
+		} else {
+			states.Other = append(states.Other, pod.Name)
+		}
+	}
+	return
+}
+
 // getReadyPods will return the amount of ready pods
 func getReadyPods(pods []corev1.Pod) int {
 	ready := 0
@@ -83,7 +103,7 @@ func (r *MailhogInstanceReconciler) desiredStatus(ctx context.Context, cr *mailh
 	}
 
 	podNames := getPodNames(podList.Items)
-	status.Pods = podNames
+	status.Pods = getPodStates(podList.Items)
 	status.PodCount = len(podNames)
 	status.PodCount = getReadyPods(podList.Items)
 	status.LabelSelector = meta.GetSelector(true)

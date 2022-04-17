@@ -27,6 +27,7 @@ jobs:
     env:
       MANAGER_IMAGE_NAME: mailhog-operator
       BUNDLE_IMAGE_NAME: mailhog-operator-bundle
+      CATALOG_IMAGE_NAME: mailhog-operator-catalog
       REGISTRY: ghcr.io/patrickmx
     steps:
 
@@ -60,3 +61,23 @@ jobs:
 
       - name: manager develop successfully pushed
         run: echo "manager develop image pushed to ${{ steps.manager-develop-push-to-ghcr.outputs.registry-paths }}"
+
+      - name: buildah bundle
+        id: bundle-build-image
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: ${{ env.BUNDLE_IMAGE_NAME }}
+          tags: ${{ github.sha }} develop
+          containerfiles: |
+            ./bundle.Dockerfile
+
+      - name: push bundle develop image to GHCR
+        id: bundle-develop-push-to-ghcr
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ env.BUNDLE_IMAGE_NAME }}
+          tags: develop
+          registry: ${{ env.REGISTRY }}
+
+      - name: bundle develop successfully pushed
+        run: echo "bundle develop image pushed to ${{ steps.bundle-develop-push-to-ghcr.outputs.registry-paths }}"

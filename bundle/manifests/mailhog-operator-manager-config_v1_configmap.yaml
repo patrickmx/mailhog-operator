@@ -1,0 +1,18 @@
+apiVersion: v1
+data:
+  controller_manager_config.yaml: |-
+    apiVersion: mailhog.operators.patrick.mx/v1alpha1
+    kind: OperatorConfig
+    health:
+      healthProbeBindAddress: :8081
+    metrics:
+      bindAddress: :8080
+    webhook:
+      port: 9443
+    leaderElection:
+      leaderElect: true
+      resourceName: 26f4c8adfee.mailhog.patrick.mx
+    namespace: ""
+kind: ConfigMap
+metadata:
+  name: mailhog-operator-manager-config

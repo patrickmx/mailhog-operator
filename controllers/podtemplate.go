@@ -53,8 +53,17 @@ func podTemplate(cr *mailhogv1alpha1.MailhogInstance) corev1.PodTemplateSpec {
 		pod.Spec.Containers[0].Args = jimArgs(cr)
 	}
 
-	if cr.Spec.Settings.Affinity != nil {
-		pod.Spec.Affinity = cr.Spec.Settings.Affinity.DeepCopy()
+	if affinity := cr.Spec.Settings.Affinity; affinity != nil {
+		pod.Spec.Affinity = new(corev1.Affinity)
+		if affinity.PodAffinity != nil {
+			pod.Spec.Affinity.PodAffinity = affinity.PodAffinity.DeepCopy()
+		}
+		if affinity.PodAntiAffinity != nil {
+			pod.Spec.Affinity.PodAntiAffinity = affinity.PodAntiAffinity.DeepCopy()
+		}
+		if affinity.NodeAffinity != nil {
+			pod.Spec.Affinity.NodeAffinity = affinity.NodeAffinity.DeepCopy()
+		}
 	}
 
 	if cr.Spec.Settings.Files != nil && len(cr.Spec.Settings.Files.WebUsers) > 0 {
