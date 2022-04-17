@@ -105,7 +105,7 @@ func (r *MailhogInstanceReconciler) desiredStatus(ctx context.Context, cr *mailh
 	podNames := getPodNames(podList.Items)
 	status.Pods = getPodStates(podList.Items)
 	status.PodCount = len(podNames)
-	status.PodCount = getReadyPods(podList.Items)
+	status.ReadyPodCount = getReadyPods(podList.Items)
 	status.LabelSelector = meta.GetSelector(true)
 	status.Error = ""
 	return nil, status
