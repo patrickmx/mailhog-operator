@@ -333,8 +333,8 @@ bundle-clean: crc-start crc-login-admin
 bundle-run-develop: crc-start crc-login-admin
 	operator-sdk run bundle ghcr.io/patrickmx/mailhog-operator-bundle:develop
 
-.PHONY: bundle-run-master
-bundle-run-master: crc-start crc-login-admin
+.PHONY: bundle-run-release
+bundle-run-release: crc-start crc-login-admin
 	operator-sdk run bundle ghcr.io/patrickmx/mailhog-operator-bundle:latest
 
 .PHONY: opm
