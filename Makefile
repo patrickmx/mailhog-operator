@@ -321,20 +321,20 @@ bundle: manifests kustomize ## Generate bundle manifests and metadata, then vali
 bundle-build: ## Build the bundle image.
 	podman build -f bundle.Dockerfile -t $(BUNDLE_IMG) .
 
-.PHONY: bundle-push
-bundle-push: ## Push the bundle image.
-	$(MAKE) docker-push IMG=$(BUNDLE_IMG)
+#.PHONY: bundle-push
+#bundle-push: ## Push the bundle image.
+#	$(MAKE) docker-push IMG=$(BUNDLE_IMG)
 
 .PHONY: bundle-clean
-bundle-clean:
+bundle-clean: crc-start crc-login-admin
 	operator-sdk cleanup mailhog-operator
 
 .PHONY: bundle-run-develop
-bundle-run-develop:
+bundle-run-develop: crc-start crc-login-admin
 	operator-sdk run bundle ghcr.io/patrickmx/mailhog-operator-bundle:develop
 
 .PHONY: bundle-run-master
-bundle-run-master:
+bundle-run-master: crc-start crc-login-admin
 	operator-sdk run bundle ghcr.io/patrickmx/mailhog-operator-bundle:latest
 
 .PHONY: opm
