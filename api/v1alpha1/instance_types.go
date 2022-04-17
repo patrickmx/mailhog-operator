@@ -429,13 +429,15 @@ type MailhogInstanceStatus struct {
 	//+kubebuilder:validation:Optional
 	//+optional
 	//+nullable
-	Pods []string `json:"pods,omitempty"`
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Pod Status",xDescriptors="urn:alm:descriptor:com.tectonic.ui:podStatuses"
+	Pods PodStatus `json:"pods,omitempty"`
 
 	// PodCount is the amount of last seen pods belonging to this cr
 	//
 	//+kubebuilder:validation:Optional
 	//+optional
 	//+nullable
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Pod Count",xDescriptors="urn:alm:descriptor:com.tectonic.ui:podCount"
 	PodCount int `json:"podCount,omitempty"`
 
 	// ReadyPodCount is the amount of pods last seen ready
@@ -443,6 +445,7 @@ type MailhogInstanceStatus struct {
 	//+kubebuilder:validation:Optional
 	//+optional
 	//+nullable
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Ready Pod Count"
 	ReadyPodCount int `json:"readyPodCount,omitempty"`
 
 	// LabelSelector is the labelselector which can be used by HPA
@@ -450,6 +453,7 @@ type MailhogInstanceStatus struct {
 	//+kubebuilder:validation:Optional
 	//+optional
 	//+nullable
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Label Selector"
 	LabelSelector string `json:"labelSelector,omitempty"`
 
 	// Error is used to signal illegal CR specs
@@ -457,7 +461,45 @@ type MailhogInstanceStatus struct {
 	//+kubebuilder:validation:Optional
 	//+optional
 	//+nullable
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Error Message"
 	Error string `json:"error,omitempty"`
+}
+
+type PodStatus struct {
+	// Pending podStatus
+	//
+	//+kubebuilder:validation:Optional
+	//+optional
+	//+nullable
+	Pending []string `json:"pending,omitempty"`
+
+	// Failed podSTatus
+	//
+	//+kubebuilder:validation:Optional
+	//+optional
+	//+nullable
+	Failed []string `json:"failed,omitempty"`
+
+	// Ready mailhog container ready ?
+	//
+	//+kubebuilder:validation:Optional
+	//+optional
+	//+nullable
+	Ready []string `json:"ready,omitempty"`
+
+	// Restarting mailhog container restarted more then 3 times
+	//
+	//+kubebuilder:validation:Optional
+	//+optional
+	//+nullable
+	Restarting []string `json:"restarting,omitempty"`
+
+	// Other condition not caught by the other podstatuses (e.g. pod running bot container not ready)
+	//
+	//+kubebuilder:validation:Optional
+	//+optional
+	//+nullable
+	Other []string `json:"other,omitempty"`
 }
 
 // MailhogInstance is the Schema for the mailhoginstances API

@@ -1194,10 +1194,41 @@ spec:
                 type: integer
               pods:
                 description: Pods all the podnames owned by the cr
-                items:
-                  type: string
                 nullable: true
-                type: array
+                properties:
+                  failed:
+                    description: Failed podSTatus
+                    items:
+                      type: string
+                    nullable: true
+                    type: array
+                  other:
+                    description: Other condition not caught by the other podstatuses
+                      (e.g. pod running bot container not ready)
+                    items:
+                      type: string
+                    nullable: true
+                    type: array
+                  pending:
+                    description: Pending podStatus
+                    items:
+                      type: string
+                    nullable: true
+                    type: array
+                  ready:
+                    description: Ready mailhog container ready ?
+                    items:
+                      type: string
+                    nullable: true
+                    type: array
+                  restarting:
+                    description: Restarting mailhog container restarted more then
+                      3 times
+                    items:
+                      type: string
+                    nullable: true
+                    type: array
+                type: object
               readyPodCount:
                 description: ReadyPodCount is the amount of pods last seen ready
                 nullable: true
