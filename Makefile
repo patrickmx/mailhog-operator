@@ -5,7 +5,6 @@
 # - use environment variables to overwrite this value (e.g export VERSION=0.0.2)
 # IMAGE_TAG_BASE defines the docker.io namespace and part of the image name for remote images.
 # This variable is used to construct full image tags for bundle and catalog images.
-#
 # For example, running 'make bundle-build bundle-push catalog-build catalog-push' will build and push both
 # operators.patrick.mx/mailhog-operator-bundle:$VERSION and operators.patrick.mx/mailhog-operator-catalog:$VERSION.
 # VERSION and IMAGE_TAG_BASE from params.mak file
@@ -16,18 +15,14 @@ include ./params.mak
 # To re-generate a bundle for other specific channels without changing the standard setup, you can:
 # - use the CHANNELS as arg of the bundle target (e.g make bundle CHANNELS=candidate,fast,stable)
 # - use environment variables to overwrite this value (e.g export CHANNELS="candidate,fast,stable")
-ifneq ($(origin CHANNELS), undefined)
-BUNDLE_CHANNELS := --channels=$(CHANNELS)
-endif
+CHANNELS ?= fest
 
 # DEFAULT_CHANNEL defines the default channel used in the bundle.
 # Add a new line here if you would like to change its default config. (E.g DEFAULT_CHANNEL = "stable")
 # To re-generate a bundle for any other default channel without changing the default setup, you can:
 # - use the DEFAULT_CHANNEL as arg of the bundle target (e.g make bundle DEFAULT_CHANNEL=stable)
 # - use environment variables to overwrite this value (e.g export DEFAULT_CHANNEL="stable")
-ifneq ($(origin DEFAULT_CHANNEL), undefined)
-BUNDLE_DEFAULT_CHANNEL := --default-channel=$(DEFAULT_CHANNEL)
-endif
+DEFAULT_CHANNEL ?= fast
 BUNDLE_METADATA_OPTS ?= $(BUNDLE_CHANNELS) $(BUNDLE_DEFAULT_CHANNEL)
 
 # BUNDLE_IMG defines the image:tag used for the bundle.
@@ -57,17 +52,6 @@ SHELL = /usr/bin/env bash -o pipefail
 all: build
 
 ##@ General
-
-# The help target prints out all targets with their descriptions organized
-# beneath their categories. The categories are represented by '##@' and the
-# target descriptions by '##'. The awk commands is responsible for reading the
-# entire set of makefiles included in this invocation, looking for lines of the
-# file as xyz: ## something, and then pretty-format the target and help. Then,
-# if there's a line with ##@ something, that gets pretty-printed as a category.
-# More info on the usage of ANSI control characters for terminal formatting:
-# https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_parameters
-# More info on the awk command:
-# http://linuxcommand.org/lc3_adv_awk.php
 
 .PHONY: help
 help: ## Display this help.
@@ -105,17 +89,16 @@ tidy: ## Run go vet against code.
 sec: gosec ## Run gosec
 	$(GOSEC) ./...
 
-
 .PHONY: test
-test: manifests generate fmt vet envtest lint ## Run tests.
+test: manifests generate fmt vet lint ## Run tests.
 	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) -p path)" go test ./... -coverprofile cover.out
 
 .PHONY: lint
-lint: manifests generate fmt vet sec golangci-lint
+lint: manifests generate fmt vet sec golangci-lint ## run linter with normal settings
 	$(GOLANGCILINT) run
 
 .PHONY: lint-strict
-lint-strict: manifests generate fmt vet sec golangci-lint
+lint-strict: manifests generate fmt vet sec golangci-lint ## run linter with more strict tips
 	$(GOLANGCILINT) run -E funlen,revive,dupl,lll,gocognit,cyclop
 
 ##@ Build
@@ -128,10 +111,8 @@ build: generate fmt vet lint ## Build manager binary.
 run: manifests generate fmt vet ## Run a controller from your host.
 	go run ./main.go -config config/manager/controller_manager_config.yaml
 
-# Run with Delve for development purposes against the configured Kubernetes cluster in ~/.kube/config
-# Delve is a debugger for the Go programming language. More info: https://github.com/go-delve/delve
 .PHONY: debug
-debug: generate fmt vet manifests
+debug: generate fmt vet manifests ## run with delve debugger
 	go build -gcflags "all=-trimpath=$(shell go env GOPATH)" -o bin/manager main.go
 	dlv --listen=:2345 --headless=true --api-version=2 --accept-multiclient exec ./bin/manager -config config/manager/controller_manager_config.yaml
 
@@ -140,16 +121,16 @@ docker-build: test docker-refresh-base ## Build docker image with the manager.
 	podman build -t ${IMG} .
 
 .PHONY: docker-refresh-base
-docker-refresh-base:
+docker-refresh-base: ## refresh manager builder base image
 	podman pull docker.io/library/golang:1.18
 
 .PHONY: latest
-latest:
+latest: ## get information about the latest image / commit
 	podman inspect ${IMG} | jq .[0].Id
 	podman inspect ${IMG} | jq .[0].Created
 	git rev-parse HEAD
 
-##@ CRC
+##@ CRC Deploy
 
 .PHONY: build-push-image-to-crc
 build-push-image-to-crc: docker-build ## push the image from the local podman to imagestream
@@ -160,57 +141,53 @@ build-push-image-to-crc: docker-build ## push the image from the local podman to
 	podman push --tls-verify=false default-route-openshift-image-registry.apps-crc.testing/mailhog-operator-system/mailhog:v$(VERSION)
 
 .PHONY: crc-deploy
-crc-deploy: crc-start crc-login-admin deploy build-push-image-to-crc latest
+crc-deploy: crc-start crc-login-admin deploy build-push-image-to-crc latest ## set manager deployment to the local imagestream
 	oc -n mailhog-operator-system patch deployment/mailhog-operator-controller-manager -p "{\"spec\":{\"template\":{\"spec\":{\"containers\":[{\"name\":\"manager\",\"image\":\"$(IMG_LOCAL)\"}]}}}}"
-
-#.PHONY: crc-patch
-#crc-patch:
-#	oc -n mailhog-operator-system patch deployment/mailhog-operator-controller-manager -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"last-restart\":\"`date +'%s'`\"}}},{\"spec\":{\"containers\":[{\"name\":\"manager\",\"image\":\"$(IMG)\"}]}}}}"
 
 ##@ CRC Ad-Hoc Commands
 
 .PHONY: crc-images
-crc-images:
+crc-images: ## show state of the local manager imagestream
 	oc get is -n mailhog-operator-system
 
 .PHONY: crc-pods
-crc-pods:
+crc-pods: ## get pods in the local manager namespace
 	oc get pods -n mailhog-operator-system
 
 .PHONY: crc-logs
-crc-logs:
+crc-logs: ## tail the logs of the latest manager pod
 	oc -n mailhog-operator-system logs deployment/mailhog-operator-controller-manager -c manager -f
 
 .PHONY: install-cert-manager
-install-cert-manager: ## yolo
+install-cert-manager: ## install cert manager
 	kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.7.1/cert-manager.yaml
 
 .PHONY: crc-login-admin
-crc-login-admin:
+crc-login-admin: ## ensure kubeadmin is logged in
 	$(shell crc console --credentials | awk -F"[']" '{print $$2}' | tail -n1)
 
 .PHONY: crc-reset
-crc-reset:
+crc-reset: ## destroy and recreate CRC
 	crc delete -f
 	crc start
 
 .PHONY: crc-start
-crc-start:
+crc-start: ## ensure crc is started
 	crc start
 
 .PHONY: crc-creds
-crc-creds:
+crc-creds: ## show crc credentials
 	crc console --credentials
 
 .PHONY: crc-restore-pinning
-crc-restore-pinning:
+crc-restore-pinning: ## restore web console developer pinning. Need to login / pin something before
 	oc -n openshift-console-user-settings \
 		patch --type merge \
 		cm/user-settings-$(shell oc get -o json users/kubeadmin | jq -r .metadata.uid) \
 		-p '{"data":{"console.pinnedResources":"{\"admin\":[],\"dev\":[\"core~v1~ConfigMap\",\"apps~v1~Deployment\",\"apps.openshift.io~v1~DeploymentConfig\",\"mailhog.operators.patrick.mx~v1alpha1~MailhogInstance\",\"core~v1~Service\",\"core~v1~Pod\",\"route.openshift.io~v1~Route\"]}"}}'
 
 .PHONY: crc-add-mongo
-crc-add-mongo:
+crc-add-mongo: ## deploy a matching mongo for the mongodb console example
 	oc -n project new-app \
            -e MONGODB_USER=user \
            -e MONGODB_PASSWORD=password \
@@ -221,26 +198,26 @@ crc-add-mongo:
            registry.redhat.io/rhscl/mongodb-26-rhel7
 
 .PHONY: all-catalogsources
-all-catalogsources:
+all-catalogsources: ## list all catalogsources
 	oc get --all-namespaces=true catalogsources
 
 .PHONY: all-packagemanifests
-all-packagemanifests:
+all-packagemanifests: ## list all packagemanifests
 	oc get --all-namespaces=true packagemanifests
 
 .PHONY: all-clusterserviceversions
-app-clusterserviceversions:
+app-clusterserviceversions: ## list all clusterserviceversions
 	oc get --all-namespaces=true csv
 
 .PHONY: clean-leftover-bundles
-clean-leftover-bundles:
+clean-leftover-bundles: ## clean some temp files that get left over when working with bundles
 	find . -name "bundle-*" -type d -exec rmdir {} \;
 	find . -name "bundle_*" -type d -exec rm -rf {} \;
 
 ##@ Release
 
 .PHONY: ship
-ship: test build bundle
+ship: test build bundle ## create a tag from the current version in params.mak
 	@if git show-ref --tags --quiet --verify -- "refs/tags/v$(VERSION)"; then \
     	echo "tag already exists"; \
     	exit 1; \
@@ -327,21 +304,17 @@ bundle: manifests kustomize ## Generate bundle manifests and metadata, then vali
 bundle-build: ## Build the bundle image.
 	podman build -f bundle.Dockerfile -t $(BUNDLE_IMG) .
 
-#.PHONY: bundle-push
-#bundle-push: ## Push the bundle image.
-#	$(MAKE) docker-push IMG=$(BUNDLE_IMG)
-
 .PHONY: bundle-clean
-bundle-clean: crc-start crc-login-admin
+bundle-clean: crc-start crc-login-admin ## remove old manually installed bundle
 	operator-sdk cleanup mailhog-operator
 	sleep 10 # giving the old pod some seconds to terminate
 
 .PHONY: bundle-run-develop
-bundle-run-develop: crc-start crc-login-admin bundle-clean
+bundle-run-develop: crc-start crc-login-admin bundle-clean ## install latest develop bundle
 	operator-sdk run bundle ghcr.io/patrickmx/mailhog-operator-bundle:develop
 
 .PHONY: bundle-run-release
-bundle-run-release: crc-start crc-login-admin bundle-clean
+bundle-run-release: crc-start crc-login-admin bundle-clean ## install latest release bundle
 	operator-sdk run bundle ghcr.io/patrickmx/mailhog-operator-bundle:latest
 
 .PHONY: opm
