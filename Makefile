@@ -328,13 +328,14 @@ bundle-build: ## Build the bundle image.
 .PHONY: bundle-clean
 bundle-clean: crc-start crc-login-admin
 	operator-sdk cleanup mailhog-operator
+	sleep 10 # giving the old pod some seconds to terminate
 
 .PHONY: bundle-run-develop
-bundle-run-develop: crc-start crc-login-admin
+bundle-run-develop: crc-start crc-login-admin bundle-clean
 	operator-sdk run bundle ghcr.io/patrickmx/mailhog-operator-bundle:develop
 
 .PHONY: bundle-run-release
-bundle-run-release: crc-start crc-login-admin
+bundle-run-release: crc-start crc-login-admin bundle-clean
 	operator-sdk run bundle ghcr.io/patrickmx/mailhog-operator-bundle:latest
 
 .PHONY: opm
