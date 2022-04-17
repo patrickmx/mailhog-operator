@@ -4,10 +4,8 @@ import (
 	"context"
 	"reflect"
 
-	routev1 "github.com/openshift/api/route/v1"
-
 	"github.com/go-logr/logr"
-
+	routev1 "github.com/openshift/api/route/v1"
 	mailhogv1alpha1 "goimports.patrick.mx/mailhog-operator/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -57,7 +55,7 @@ func getPodNames(pods []corev1.Pod) []string {
 	return podNames
 }
 
-// getPodStates will return the names of the given pods
+// getPodStates will return the names of the given pods in their state category
 //
 //nolint:gocritic
 func getPodStates(pods []corev1.Pod) (states mailhogv1alpha1.PodStatus) {
@@ -88,6 +86,7 @@ func getReadyPods(pods []corev1.Pod) int {
 	return ready
 }
 
+// getFirstRouteIfAdmitted is a helper to get a working link to mailhog webui (if the route was admitted)
 func getFirstRouteIfAdmitted(cr *mailhogv1alpha1.MailhogInstance, routeList *routev1.RouteList) string {
 	if len(routeList.Items) == 1 {
 		if routeStatus := routeList.Items[0].Status; len(routeStatus.Ingress) == 1 {
@@ -124,7 +123,7 @@ func (r *MailhogInstanceReconciler) desiredStatus(ctx context.Context, cr *mailh
 	if cr.Spec.WebTrafficInlet == mailhogv1alpha1.RouteTrafficInlet {
 		routeList := &routev1.RouteList{}
 		if err := r.List(ctx, routeList, listOpts...); err != nil {
-			logger.Error(err, "failed to list routes")
+			logger.Error(err, failedListRoutes)
 			return &ReturnIndicator{
 				Err: err,
 			}, status

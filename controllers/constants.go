@@ -62,6 +62,7 @@ const (
 	stateEnsured      = "object state ensured"
 
 	failedListPods       = "failed to list pods"
+	failedListRoutes     = "failed to list routes"
 	failedCrRefresh      = "failed to get latest cr version before update"
 	failedCrUpdateStatus = "failed to update cr status"
 	updatedCrStatus      = "updated cr status"
