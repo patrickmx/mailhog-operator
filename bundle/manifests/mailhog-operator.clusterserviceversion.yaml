@@ -319,7 +319,7 @@ spec:
       - description: RouteURL will be set to the path under which mailhog is reachable
           if openshift Route is enabled
         displayName: Mailhog Web UI
-        path: routeURL
+        path: routeUrl
         x-descriptors:
         - urn:alm:descriptor:org.w3:link
       version: v1alpha1
