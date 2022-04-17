@@ -36,6 +36,7 @@ BUNDLE_IMG ?= $(IMAGE_TAG_BASE)-bundle:v$(VERSION)
 
 # Image URL to use all building/pushing image targets
 IMG ?= $(IMAGE_TAG_BASE):v$(VERSION)
+IMG_LOCAL ?= $(IMAGE_TAG_BASE_LOCAL):v$(VERSION)
 # ENVTEST_K8S_VERSION refers to the version of kubebuilder assets to be downloaded by envtest binary.
 ENVTEST_K8S_VERSION = 1.23
 
@@ -155,11 +156,16 @@ build-push-image-to-crc: docker-build ## push the image from the local podman to
 	$(KUSTOMIZE) build config/codeready | kubectl apply -f -
 	podman login -u kubeadmin -p $(oc whoami -t) default-route-openshift-image-registry.apps-crc.testing --tls-verify=false
 	oc registry login --insecure=true
+	podman tag $(IMG) $(IMG_LOCAL)
 	podman push --tls-verify=false default-route-openshift-image-registry.apps-crc.testing/mailhog-operator-system/mailhog:v$(VERSION)
 
 .PHONY: crc-deploy
 crc-deploy: crc-start crc-login-admin deploy build-push-image-to-crc latest
-	oc -n mailhog-operator-system patch deployment/mailhog-operator-controller-manager -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"last-restart\":\"`date +'%s'`\"}}}}}"
+	oc -n mailhog-operator-system patch deployment/mailhog-operator-controller-manager -p "{\"spec\":{\"template\":{\"spec\":{\"containers\":[{\"name\":\"manager\",\"image\":\"$(IMG_LOCAL)\"}]}}}}"
+
+#.PHONY: crc-patch
+#crc-patch:
+#	oc -n mailhog-operator-system patch deployment/mailhog-operator-controller-manager -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"last-restart\":\"`date +'%s'`\"}}},{\"spec\":{\"containers\":[{\"name\":\"manager\",\"image\":\"$(IMG)\"}]}}}}"
 
 ##@ CRC Ad-Hoc Commands
 
