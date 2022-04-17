@@ -333,6 +333,10 @@ bundle-clean:
 bundle-run-develop:
 	operator-sdk run bundle ghcr.io/patrickmx/mailhog-operator-bundle:develop
 
+.PHONY: bundle-run-master
+bundle-run-master:
+	operator-sdk run bundle ghcr.io/patrickmx/mailhog-operator-bundle:latest
+
 .PHONY: opm
 OPM = ./bin/opm
 opm: ## Download opm locally if necessary.
