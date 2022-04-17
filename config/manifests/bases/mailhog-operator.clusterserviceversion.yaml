@@ -72,6 +72,12 @@ spec:
           via the UI
         displayName: SMTP Upstreams for release
         path: settings.files.smtpUpstreams
+      - description: Authentication is used to show / hide authentication options
+          in tectonic ui
+        displayName: Upstream Authentication
+        path: settings.files.smtpUpstreams[0].authentication
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:booleanSwitch
       - description: Email the target Email address where the mail will be resent
           to
         displayName: Destination Email on release
@@ -90,6 +96,7 @@ spec:
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:select:PLAIN
         - urn:alm:descriptor:com.tectonic.ui:select:CRAMMD5
+        - urn:alm:descriptor:com.tectonic.ui:fieldDependency:settings.files.smtpUpstreams[0].authentication:true
       - description: Name the Name this server will be shown under in the UI
         displayName: Server Name / Label
         path: settings.files.smtpUpstreams[0].name
@@ -100,6 +107,7 @@ spec:
         path: settings.files.smtpUpstreams[0].password
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:text
+        - urn:alm:descriptor:com.tectonic.ui:fieldDependency:settings.files.smtpUpstreams[0].authentication:true
       - description: Port SMTP target Port
         displayName: Upstream SMTP server port
         path: settings.files.smtpUpstreams[0].port
@@ -116,6 +124,7 @@ spec:
         path: settings.files.smtpUpstreams[0].username
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:text
+        - urn:alm:descriptor:com.tectonic.ui:fieldDependency:settings.files.smtpUpstreams[0].authentication:true
       - description: WebUsers If WebUsers are defined, UI/API Access will be protected
           with basic auth
         displayName: HTTP Basic auth user restrictions
