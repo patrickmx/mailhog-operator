@@ -16,8 +16,6 @@ limitations under the License.
 
 package v1alpha1
 
-// Important: Run "make" to regenerate code after modifying this file
-
 import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -182,19 +180,26 @@ type MailhogInstanceSettingsSpec struct {
 	WebPath string `json:"webPath,omitempty"`
 }
 
+// AffinitySpec offers pod placement configuration
 type AffinitySpec struct {
+	// PodAffinity is used to get placed together with certain pods
+	//
 	//+kubebuilder:validation:Optional
 	//+optional
 	//+nullable
 	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Pod Affinity",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:podAffinity"}
 	PodAffinity *corev1.PodAffinity `json:"podAffinity,omitempty"`
 
+	// PodAffinity is used to get placed apart from certain pods
+	//
 	//+kubebuilder:validation:Optional
 	//+optional
 	//+nullable
 	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Pod Anti Affinity",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:podAntiAffinity"}
 	PodAntiAffinity *corev1.PodAntiAffinity `json:"podAntiAffinity,omitempty"`
 
+	// NodeAffinity configures which nodes are preferred
+	//
 	//+kubebuilder:validation:Optional
 	//+optional
 	//+nullable
@@ -493,36 +498,37 @@ type MailhogInstanceStatus struct {
 	RouteURL string `json:"routeUrl,omitempty"`
 }
 
+// PodStatus will divide the child pods into a grouping
 type PodStatus struct {
-	// Pending podStatus
+	// Pending contains pod names where the podStatus is pending
 	//
 	//+kubebuilder:validation:Optional
 	//+optional
 	//+nullable
 	Pending []string `json:"pending,omitempty"`
 
-	// Failed podSTatus
+	// Failed contains pod names where the podStatus is failed
 	//
 	//+kubebuilder:validation:Optional
 	//+optional
 	//+nullable
 	Failed []string `json:"failed,omitempty"`
 
-	// Ready mailhog container ready ?
+	// Ready contains pod names where the mailhog container is in ready state
 	//
 	//+kubebuilder:validation:Optional
 	//+optional
 	//+nullable
 	Ready []string `json:"ready,omitempty"`
 
-	// Restarting mailhog container restarted more then 3 times
+	// Restarting contains pod names where the mailhog container restarted more than 3 times
 	//
 	//+kubebuilder:validation:Optional
 	//+optional
 	//+nullable
 	Restarting []string `json:"restarting,omitempty"`
 
-	// Other condition not caught by the other podstatuses (e.g. pod running bot container not ready)
+	// Other contains pod names where the condition is not caught by the other states (e.g. pod running bot container not ready)
 	//
 	//+kubebuilder:validation:Optional
 	//+optional
