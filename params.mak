@@ -1,3 +1,3 @@
-VERSION ?= 0.1.11
+VERSION ?= 0.1.12
 IMAGE_TAG_BASE_LOCAL ?= default-route-openshift-image-registry.apps-crc.testing/mailhog-operator-system/mailhog
 IMAGE_TAG_BASE ?= ghcr.io/patrickmx/mailhog-operator
