@@ -16,13 +16,16 @@ jobs:
       REGISTRY: ghcr.io/patrickmx
     steps:
 
-      - uses: actions/setup-go@v3
+      - name: setup go
+        uses: actions/setup-go@v3
         with:
           go-version: 1.18
 
-      - uses: actions/checkout@v3
+      - name: checkout
+        uses: actions/checkout@v3
 
-      - run: make test
+      - name: run unit test
+        run: make test
 
       - name: buildah manager
         id: manager-build-image
@@ -72,7 +75,8 @@ jobs:
       - name: bundle develop successfully pushed
         run: echo "bundle develop image pushed to ${{ steps.bundle-develop-push-to-ghcr.outputs.registry-paths }}"
 
-      - run: make catalog-build CATALOG_IMG=ghcr.io/patrickmx/mailhog-operator-catalog:develop BUNDLE_IMG=ghcr.io/patrickmx/mailhog-operator-bundle:develop
+      - name: Create catalog
+        run: make catalog-build CATALOG_IMG=ghcr.io/patrickmx/mailhog-operator-catalog:develop BUNDLE_IMG=ghcr.io/patrickmx/mailhog-operator-bundle:develop
 
       - name: push catalog develop image to GHCR
         id: catalog-develop-push-to-ghcr
