@@ -114,6 +114,7 @@ func delegateNamespacesOlm() string {
 	if !found {
 		return ""
 	}
+	setupLog.Info("delegate namespace from environment will override configfile value")
 	return ns
 }
 
