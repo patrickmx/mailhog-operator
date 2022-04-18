@@ -76,3 +76,16 @@ jobs:
       - name: bundle tag successfully pushed
         if: startsWith(github.ref, 'refs/tags/v')
         run: echo "bundle image pushed to ${{ steps.bundle-tag-push-to-ghcr.outputs.registry-paths }}"
+
+      - run: make catalog-build
+
+      - name: push catalog develop image to GHCR
+        id: catalog-develop-push-to-ghcr
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ env.CATALOG_IMAGE_NAME }}
+          tags: develop
+          registry: ${{ env.REGISTRY }}
+
+      - name: catalog develop successfully pushed
+        run: echo "catalog develop image pushed to ${{ steps.catalog-develop-push-to-ghcr.outputs.registry-paths }}"
