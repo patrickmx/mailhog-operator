@@ -102,8 +102,10 @@ func loadConfig() (options ctrl.Options, err error) {
 	if ns := delegateNamespacesOlm(); ns != "" {
 		namespaces := strings.Split(ns, ",")
 		if len(namespaces) > 1 {
+			setupLog.Info("delegate namespaces from environment will override configfile value", "namespaces", ns)
 			options.NewCache = cache.MultiNamespacedCacheBuilder(namespaces)
 		} else {
+			setupLog.Info("delegate namespace from environment will override configfile value", "namespace", ns)
 			options.Namespace = ns
 		}
 	}
