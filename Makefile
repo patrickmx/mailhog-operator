@@ -217,7 +217,7 @@ clean-leftover-bundles: ## clean some temp files that get left over when working
 ##@ Release
 
 .PHONY: ship
-ship: test build bundle catalog-build ## create a tag from the current version in params.mak
+ship: test build create-kustomize-release-patch bundle ## create a tag from the current version in params.mak
 	git diff --exit-code >/dev/null
 	@if git show-ref --tags --quiet --verify -- "refs/tags/v$(VERSION)"; then \
     	echo "tag already exists"; \
@@ -351,7 +351,7 @@ endif
 # This recipe invokes 'opm' in 'semver' bundle add mode. For more information on add modes, see:
 # https://github.com/operator-framework/community-operators/blob/7f1438c/docs/packaging-operator.md#updating-your-existing-operator
 .PHONY: catalog-build
-catalog-build: opm create-kustomize-release-patch bundle ## Build a catalog image.
+catalog-build: opm ## Build a catalog image.
 	$(OPM) index add --container-tool podman --mode semver-skippatch --tag $(CATALOG_IMG) --bundles $(BUNDLE_IMGS) $(FROM_INDEX_OPT)
 
 #BUNDLE_IMGS_RELEASE ?= $(shell podman search --list-tags --format json ghcr.io/patrickmx/mailhog-operator-bundle | jq -r '[.[0].Tags[]|select(. | startswith("v"))|"$(IMAGE_TAG_BASE)-bundle:"+.]|reverse | join(",")')
