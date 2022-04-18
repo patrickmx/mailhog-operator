@@ -38,6 +38,8 @@ metadata:
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
+  cleanup:
+    enabled: true
   customresourcedefinitions:
     owned:
     - description: MailhogInstance is the Schema for the mailhoginstances API
