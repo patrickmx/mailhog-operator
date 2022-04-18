@@ -34,7 +34,7 @@ metadata:
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v3
     repository: https://github.com/patrickmx/mailhog-operator
     support: DIY
-  name: mailhog-operator.v0.1.20
+  name: mailhog-operator.v0.1.22
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -453,7 +453,7 @@ spec:
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.annotations['olm.targetNamespaces']
-                image: ghcr.io/patrickmx/mailhog-operator:v0.1.20
+                image: ghcr.io/patrickmx/mailhog-operator:v0.1.22
                 imagePullPolicy: Always
                 livenessProbe:
                   httpGet:
@@ -560,4 +560,4 @@ spec:
   - mailhog-operator.v0.1.17
   - mailhog-operator.v0.1.18
   - mailhog-operator.v0.1.19
-  version: 0.1.20
+  version: 0.1.22
