@@ -20,6 +20,7 @@ import (
 	"flag"
 	"os"
 	"runtime/debug"
+	"strings"
 
 	ocappsv1 "github.com/openshift/api/apps/v1"
 	routev1 "github.com/openshift/api/route/v1"
@@ -27,7 +28,9 @@ import (
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
+
 	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/cache"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
@@ -97,7 +100,12 @@ func loadConfig() (options ctrl.Options, err error) {
 	}
 	options, err = options.AndFrom(ctrl.ConfigFile().AtPath(configFile).OfKind(&format))
 	if ns := delegateNamespacesOlm(); ns != "" {
-		options.Namespace = ns
+		namespaces := strings.Split(ns, ",")
+		if len(namespaces) > 1 {
+			options.NewCache = cache.MultiNamespacedCacheBuilder(namespaces)
+		} else {
+			options.Namespace = ns
+		}
 	}
 	setupLog.Info("mailhog-operator is configured", "configfile", configFile,
 		"watching.namespace", options.Namespace,
