@@ -352,12 +352,12 @@ endif
 # https://github.com/operator-framework/community-operators/blob/7f1438c/docs/packaging-operator.md#updating-your-existing-operator
 .PHONY: catalog-build
 catalog-build: opm ## Build a catalog image.
-	$(OPM) index add --container-tool podman --mode replaces --tag $(CATALOG_IMG) --bundles $(BUNDLE_IMGS) $(FROM_INDEX_OPT)
+	$(OPM) index add --container-tool podman --mode semver-skippatch --tag $(CATALOG_IMG) --bundles $(BUNDLE_IMGS) $(FROM_INDEX_OPT)
 
-#BUNDLE_IMGS_RELEASE ?= $(shell podman search --list-tags --format json ghcr.io/patrickmx/mailhog-operator-bundle | jq -r '[.[0].Tags[]|select(. | startswith("v"))|"$(IMAGE_TAG_BASE)-bundle:"+.]|reverse | join(",")')
-#.PHONY: catalog-build-release
-#catalog-build-release: opm create-kustomize-release-patch bundle ## Build a catalog image including the previous releases
-#	$(OPM) index add --container-tool podman --mode semver-skippatch --tag $(CATALOG_IMG) --bundles $(BUNDLE_IMGS_RELEASE) $(FROM_INDEX_OPT)
+BUNDLE_IMGS_RELEASE ?= $(shell podman search --list-tags --format json ghcr.io/patrickmx/mailhog-operator-bundle | jq -r '[.[0].Tags[]|select(. | startswith("v"))|"$(IMAGE_TAG_BASE)-bundle:"+.]|reverse | join(",")')
+.PHONY: catalog-build-release
+catalog-build-release: opm ## Build a catalog image including the previous releases
+	$(OPM) index add --container-tool podman --mode replaces --tag $(CATALOG_IMG) --bundles $(BUNDLE_IMGS_RELEASE) $(FROM_INDEX_OPT)
 
 .PHONY: catalog-add
 catalog-add: crc-login-admin
