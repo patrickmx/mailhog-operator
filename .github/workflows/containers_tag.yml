@@ -79,7 +79,7 @@ jobs:
         run: echo "bundle image pushed to ${{ steps.bundle-tag-push-to-ghcr.outputs.registry-paths }}"
 
       - run: make catalog-build
-      - run: make catalog-build CATALOG_IMG=ghcr.io/patrickmx/mailhog-operator-catalog:latest
+      - run: podman tag ghcr.io/patrickmx/mailhog-operator-catalog:${{github.ref_name}} ghcr.io/patrickmx/mailhog-operator-catalog:latest
 
       - name: push catalog develop image to GHCR
         id: catalog-develop-push-to-ghcr
