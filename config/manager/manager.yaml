@@ -37,6 +37,11 @@ spec:
         - -config
         - /operatorconfig/controller_manager_config.yaml
         - --zap-devel=false
+        env:
+        - name: OLM_TARGET_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.annotations['olm.targetNamespaces']
         image: controller:latest
         imagePullPolicy: Always
         name: manager

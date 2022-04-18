@@ -96,10 +96,25 @@ func loadConfig() (options ctrl.Options, err error) {
 		Scheme: scheme,
 	}
 	options, err = options.AndFrom(ctrl.ConfigFile().AtPath(configFile).OfKind(&format))
+	if ns := delegateNamespacesOlm(); ns != "" {
+		options.Namespace = ns
+	}
 	setupLog.Info("mailhog-operator is configured", "configfile", configFile,
 		"watching.namespace", options.Namespace,
 		"leaderelection", options.LeaderElection, "leaderelection.namespace", options.LeaderElectionNamespace)
 	return
+}
+
+const (
+	OlmDelegateNamespace = "OLM_TARGET_NAMESPACE"
+)
+
+func delegateNamespacesOlm() string {
+	ns, found := os.LookupEnv(OlmDelegateNamespace)
+	if !found {
+		return ""
+	}
+	return ns
 }
 
 func errExit(err error, msg string) {
