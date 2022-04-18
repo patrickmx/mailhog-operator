@@ -15,7 +15,7 @@ include ./params.mak
 # To re-generate a bundle for other specific channels without changing the standard setup, you can:
 # - use the CHANNELS as arg of the bundle target (e.g make bundle CHANNELS=candidate,fast,stable)
 # - use environment variables to overwrite this value (e.g export CHANNELS="candidate,fast,stable")
-CHANNELS ?= fest
+CHANNELS ?= fast
 
 # DEFAULT_CHANNEL defines the default channel used in the bundle.
 # Add a new line here if you would like to change its default config. (E.g DEFAULT_CHANNEL = "stable")
@@ -217,7 +217,8 @@ clean-leftover-bundles: ## clean some temp files that get left over when working
 ##@ Release
 
 .PHONY: ship
-ship: test build bundle ## create a tag from the current version in params.mak
+ship: test build bundle catalog-build ## create a tag from the current version in params.mak
+	git diff --exit-code >/dev/null
 	@if git show-ref --tags --quiet --verify -- "refs/tags/v$(VERSION)"; then \
     	echo "tag already exists"; \
     	exit 1; \
@@ -350,12 +351,13 @@ endif
 # This recipe invokes 'opm' in 'semver' bundle add mode. For more information on add modes, see:
 # https://github.com/operator-framework/community-operators/blob/7f1438c/docs/packaging-operator.md#updating-your-existing-operator
 .PHONY: catalog-build
-catalog-build: opm ## Build a catalog image.
+catalog-build: opm create-kustomize-release-patch bundle ## Build a catalog image.
 	$(OPM) index add --container-tool podman --mode semver-skippatch --tag $(CATALOG_IMG) --bundles $(BUNDLE_IMGS) $(FROM_INDEX_OPT)
 
-.PHONY: catalog-build-release
-catalog-build-release: opm ## Build a catalog image including the previous releases
-	$(OPM) index add --container-tool podman --mode semver-skippatch --tag $(CATALOG_IMG) --bundles $(BUNDLE_IMGS_RELEASE) $(FROM_INDEX_OPT)
+#BUNDLE_IMGS_RELEASE ?= $(shell podman search --list-tags --format json ghcr.io/patrickmx/mailhog-operator-bundle | jq -r '[.[0].Tags[]|select(. | startswith("v"))|"$(IMAGE_TAG_BASE)-bundle:"+.]|reverse | join(",")')
+#.PHONY: catalog-build-release
+#catalog-build-release: opm create-kustomize-release-patch bundle ## Build a catalog image including the previous releases
+#	$(OPM) index add --container-tool podman --mode semver-skippatch --tag $(CATALOG_IMG) --bundles $(BUNDLE_IMGS_RELEASE) $(FROM_INDEX_OPT)
 
 .PHONY: catalog-add
 catalog-add: crc-login-admin
@@ -365,8 +367,12 @@ catalog-add: crc-login-admin
 catalog-remove:
 	oc -n openshift-marketplace delete catalogsources/patrickmx-mailhog-catalog
 
-BUNDLE_IMGS_RELEASE ?= $(shell podman search --list-tags --format json ghcr.io/patrickmx/mailhog-operator-bundle | jq -r '[.[0].Tags[]|select(. | startswith("v"))|"$(IMAGE_TAG_BASE)-bundle:"+.] | join(",")')
-
 .PHONY: show-bundle-releases
 show-bundle-releases: ## show published bundle tags
 	echo $(BUNDLE_IMGS_RELEASE)
+
+.PHONY: create-kustomize-release-patch
+create-kustomize-release-patch:
+	echo -e "- op: replace\n  path: /spec/skips\n  value:" > config/manifests/old-releases-patch.yaml
+	podman search --list-tags --format json ghcr.io/patrickmx/mailhog-operator-bundle | jq -r '[.[0].Tags[]|select(. | startswith("v"))|"    - mailhog-operator."+.][]' | grep -v $(VERSION)  >> config/manifests/old-releases-patch.yaml
+	cd config/manifests && $(KUSTOMIZE) edit add patch --kind ClusterServiceVersion --path old-releases-patch.yaml

@@ -348,4 +348,5 @@ spec:
   provider:
     name: patrickmx
     url: https://github.com/patrickmx
+  replaces: mailhog-operator.v0.1.8
   version: 0.0.0

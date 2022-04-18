@@ -1,0 +1,12 @@
+- op: replace
+  path: /spec/skips
+  value:
+    - mailhog-operator.v0.1.8
+    - mailhog-operator.v0.1.9
+    - mailhog-operator.v0.1.11
+    - mailhog-operator.v0.1.12
+    - mailhog-operator.v0.1.13
+    - mailhog-operator.v0.1.14
+    - mailhog-operator.v0.1.15
+    - mailhog-operator.v0.1.16
+    - mailhog-operator.v0.1.17
