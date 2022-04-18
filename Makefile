@@ -372,7 +372,7 @@ show-bundle-releases: ## show published bundle tags
 	echo $(BUNDLE_IMGS_RELEASE)
 
 .PHONY: create-kustomize-release-patch
-create-kustomize-release-patch:
+create-kustomize-release-patch: manifests kustomize
 	echo -e "- op: replace\n  path: /spec/skips\n  value:" > config/manifests/old-releases-patch.yaml
 	podman search --list-tags --format json ghcr.io/patrickmx/mailhog-operator-bundle | jq -r '[.[0].Tags[]|select(. | startswith("v"))|"    - mailhog-operator."+.][]' | grep -v $(VERSION)  >> config/manifests/old-releases-patch.yaml
 	cd config/manifests && $(KUSTOMIZE) edit add patch --kind ClusterServiceVersion --path old-releases-patch.yaml
