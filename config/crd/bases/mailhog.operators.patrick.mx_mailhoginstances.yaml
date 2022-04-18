@@ -76,8 +76,7 @@ spec:
                     nullable: true
                     properties:
                       nodeAffinity:
-                        description: Node affinity is a group of node affinity scheduling
-                          rules.
+                        description: NodeAffinity configures which nodes are preferred
                         nullable: true
                         properties:
                           preferredDuringSchedulingIgnoredDuringExecution:
@@ -290,8 +289,8 @@ spec:
                             type: object
                         type: object
                       podAffinity:
-                        description: Pod affinity is a group of inter pod affinity
-                          scheduling rules.
+                        description: PodAffinity is used to get placed together with
+                          certain pods
                         nullable: true
                         properties:
                           preferredDuringSchedulingIgnoredDuringExecution:
@@ -614,8 +613,8 @@ spec:
                             type: array
                         type: object
                       podAntiAffinity:
-                        description: Pod anti affinity is a group of inter pod anti
-                          affinity scheduling rules.
+                        description: PodAffinity is used to get placed apart from
+                          certain pods
                         nullable: true
                         properties:
                           preferredDuringSchedulingIgnoredDuringExecution:
@@ -1199,33 +1198,37 @@ spec:
                 nullable: true
                 properties:
                   failed:
-                    description: Failed podSTatus
+                    description: Failed contains pod names where the podStatus is
+                      failed
                     items:
                       type: string
                     nullable: true
                     type: array
                   other:
-                    description: Other condition not caught by the other podstatuses
-                      (e.g. pod running bot container not ready)
+                    description: Other contains pod names where the condition is not
+                      caught by the other states (e.g. pod running bot container not
+                      ready)
                     items:
                       type: string
                     nullable: true
                     type: array
                   pending:
-                    description: Pending podStatus
+                    description: Pending contains pod names where the podStatus is
+                      pending
                     items:
                       type: string
                     nullable: true
                     type: array
                   ready:
-                    description: Ready mailhog container ready ?
+                    description: Ready contains pod names where the mailhog container
+                      is in ready state
                     items:
                       type: string
                     nullable: true
                     type: array
                   restarting:
-                    description: Restarting mailhog container restarted more then
-                      3 times
+                    description: Restarting contains pod names where the mailhog container
+                      restarted more than 3 times
                     items:
                       type: string
                     nullable: true

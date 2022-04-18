@@ -58,15 +58,18 @@ spec:
           More info: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/'
         displayName: Affinity Settings
         path: settings.affinity
-      - displayName: Node Affinity
+      - description: NodeAffinity configures which nodes are preferred
+        displayName: Node Affinity
         path: settings.affinity.nodeAffinity
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:nodeAffinity
-      - displayName: Pod Affinity
+      - description: PodAffinity is used to get placed together with certain pods
+        displayName: Pod Affinity
         path: settings.affinity.podAffinity
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:podAffinity
-      - displayName: Pod Anti Affinity
+      - description: PodAffinity is used to get placed apart from certain pods
+        displayName: Pod Anti Affinity
         path: settings.affinity.podAntiAffinity
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:podAntiAffinity
