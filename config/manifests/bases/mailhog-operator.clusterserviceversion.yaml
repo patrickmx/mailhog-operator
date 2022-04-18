@@ -7,8 +7,10 @@ metadata:
     categories: Developer Tools
     certified: "false"
     containerImage: ghcr.io/patrickmx/mailhog-operator:latest
+    createdAt: "2022-04-18T16:30:00+00:00"
     operatorframework.io/suggested-namespace: openshift-operators
     repository: https://github.com/patrickmx/mailhog-operator
+    support: DIY
   name: mailhog-operator.v0.0.0
   namespace: placeholder
 spec:
