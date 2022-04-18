@@ -72,7 +72,7 @@ jobs:
       - name: bundle develop successfully pushed
         run: echo "bundle develop image pushed to ${{ steps.bundle-develop-push-to-ghcr.outputs.registry-paths }}"
 
-      - run: make catalog-build CATALOG_IMG=ghcr.io/patrickmx/mailhog-operator-catalog:develop
+      - run: make catalog-build CATALOG_IMG=ghcr.io/patrickmx/mailhog-operator-catalog:develop BUNDLE_IMG=ghcr.io/patrickmx/mailhog-operator-bundle:develop
 
       - name: push catalog develop image to GHCR
         id: catalog-develop-push-to-ghcr
