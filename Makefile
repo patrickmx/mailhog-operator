@@ -354,7 +354,7 @@ catalog-build: opm ## Build a catalog image.
 	$(OPM) index add --container-tool podman --mode semver --tag $(CATALOG_IMG) --bundles $(BUNDLE_IMGS) $(FROM_INDEX_OPT)
 
 .PHONY: catalog-add
-catalog-add:
+catalog-add: crc-login-admin
 	oc -n openshift-marketplace apply -f config/catalogsource/mailhog-catalogsource.yaml
 
 .PHONY: catalog-remove

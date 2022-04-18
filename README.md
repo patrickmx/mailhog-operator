@@ -35,6 +35,7 @@ operator-sdk run bundle ghcr.io/patrickmx/mailhog-operator-bundle:develop
 ```bash
 # Install the CatalogSource on oc/crc/origin
 oc -n openshift-marketplace create -f config/catalogsource/mailhog-catalogsource.yaml
+# To watch multiple namespaces or watch a different one than where the operator is, add a separate operator group
 ```
 
 ## CR Examples
