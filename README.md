@@ -30,15 +30,27 @@ operator-sdk run bundle ghcr.io/patrickmx/mailhog-operator-bundle:latest
 operator-sdk run bundle ghcr.io/patrickmx/mailhog-operator-bundle:develop
 ```
 
+### Catalog Source
+
+```bash
+# Install the CatalogSource on oc/crc/origin
+oc -n openshift-marketplace create -f config/catalogsource/mailhog-catalogsource.yaml
+```
+
 ## CR Examples
 
-Some example CR configurations can be found as OC Console Examples in [examples.yaml](config/codeready/mailhogInstance_console_examples.yaml)
+Some example CR configurations can be found as OC Console Examples in [console_examples.yaml](config/codeready/mailhogInstance_console_examples.yaml) or the [bare minimal cr](config/samples/mailhog_v1alpha1_mailhoginstance.yaml).
+
+```bash
+# Load Openshift Console Examples:
+oc create -f config/codeready/mailhogInstance_console_examples.yaml
+```
 
 ## Development
 
+Build current repo code and deploy to a local CRC installation:
+
 ```bash
-### Create project
-# As developer in the crc console add a project named "project"
 ### Deploy the operator to crc (tested on fedora)
 make crc-deploy
 ### Check the MailhogInstance type in the web console, a sample should be ready to go
