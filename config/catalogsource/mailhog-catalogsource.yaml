@@ -2,7 +2,6 @@ apiVersion: operators.coreos.com/v1alpha1
 kind: CatalogSource
 metadata:
   name: patrickmx-mailhog-catalog
-  namespace: openshift-marketplace
 spec:
   sourceType: grpc
   image: ghcr.io/patrickmx/mailhog-operator-catalog:latest
