@@ -35,7 +35,7 @@ metadata:
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v3
     repository: https://github.com/patrickmx/mailhog-operator
     support: DIY
-  name: mailhog-operator.v0.1.14
+  name: mailhog-operator.v0.1.15
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -452,7 +452,7 @@ spec:
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.annotations['olm.targetNamespaces']
-                image: ghcr.io/patrickmx/mailhog-operator:v0.1.14
+                image: ghcr.io/patrickmx/mailhog-operator:v0.1.15
                 imagePullPolicy: Always
                 livenessProbe:
                   httpGet:
@@ -528,7 +528,7 @@ spec:
     type: OwnNamespace
   - supported: true
     type: SingleNamespace
-  - supported: false
+  - supported: true
     type: MultiNamespace
   - supported: true
     type: AllNamespaces
@@ -546,4 +546,4 @@ spec:
   provider:
     name: patrickmx
     url: https://github.com/patrickmx
-  version: 0.1.14
+  version: 0.1.15
