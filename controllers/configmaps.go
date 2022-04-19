@@ -55,6 +55,7 @@ func (r *MailhogInstanceReconciler) configMapNew(cr *mailhogv1alpha1.MailhogInst
 	data := make(map[string]string)
 
 	if len(cr.Spec.Settings.Files.SmtpUpstreams) > 0 {
+		// TODO write test & check if there i a better way to fiddle this together
 		var serverLines []string
 		for _, server := range cr.Spec.Settings.Files.SmtpUpstreams {
 			text, _ := json.Marshal(server)

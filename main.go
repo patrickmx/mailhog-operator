@@ -53,6 +53,8 @@ func init() {
 	//+kubebuilder:scaffold:scheme
 }
 
+// TODO constantize reused string
+
 func main() {
 	flag.StringVar(&configFile, "config", "/operatorconfig/defaultconfig.yml", "config file path")
 	opts := zap.Options{Development: true}

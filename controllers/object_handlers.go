@@ -104,6 +104,7 @@ func (r *MailhogInstanceReconciler) update(ctx context.Context,
 		}
 	}
 	if err = r.Update(ctx, obj); err != nil {
+		// TODO restrict to deployment where this was actually the problem
 		if errors.IsInvalid(err) {
 			if deleteErr := r.Delete(ctx, obj, deleteOptions(100)); deleteErr != nil {
 				logger.Error(deleteErr, messageFailedDeleteAfterInvalid)
@@ -123,6 +124,7 @@ func (r *MailhogInstanceReconciler) update(ctx context.Context,
 	logger.Info(messageUpdated)
 	tickFunc.Inc()
 
+	// TODO emit this object for the CR instead of the child
 	r.Recorder.Event(obj, corev1.EventTypeNormal, "SuccessEvent", eventUpdated)
 	return &ReturnIndicator{}
 }

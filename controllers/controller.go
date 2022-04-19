@@ -119,6 +119,7 @@ func (r *MailhogInstanceReconciler) findObjectsForPod(watchedPod client.Object) 
 		return requests
 	}
 
+	// TODO dont return result if label is empty
 	requests = append(requests, reconcile.Request{
 		NamespacedName: types.NamespacedName{
 			Namespace: ns,
