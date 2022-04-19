@@ -1,5 +1,7 @@
 package controllers
 
+// TODO I'd just go with Deployment and skip DeploymentConfig
+
 import (
 	"context"
 

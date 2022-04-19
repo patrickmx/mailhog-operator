@@ -85,6 +85,7 @@ func (r *MailhogInstanceReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 	}
 
 	// ensure child objects
+	// TODO could be refactored as global variable
 	assurances := []func(context.Context, *mailhogv1alpha1.MailhogInstance) *ReturnIndicator{
 		r.ensureCrValid,
 		r.ensureDeployment,

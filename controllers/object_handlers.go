@@ -150,6 +150,7 @@ func checkPatch(oldO client.Object, newO client.Object) (updateNeeded bool, err 
 
 type (
 	// ReturnIndicator is used to indicate to the main Reconcile if a Return / Requeue is needed or not
+	// TODO why not just return an error or nil?
 	ReturnIndicator struct {
 		Err error
 	}
