@@ -115,17 +115,16 @@ func (r *MailhogInstanceReconciler) findObjectsForPod(watchedPod client.Object) 
 	requests := make([]reconcile.Request, 0)
 
 	pod := &corev1.Pod{}
-	if err := r.Get(context.TODO(), types.NamespacedName{Namespace: ns, Name: name}, pod); err != nil {
-		return requests
+	if err := r.Get(context.TODO(), types.NamespacedName{Namespace: ns, Name: name}, pod); err == nil {
+		if belongsToCr := pod.Labels[crNameLabel]; belongsToCr != "" {
+			requests = append(requests, reconcile.Request{
+				NamespacedName: types.NamespacedName{
+					Namespace: ns,
+					Name:      belongsToCr,
+				},
+			})
+		}
 	}
-
-	// TODO dont return result if label is empty
-	requests = append(requests, reconcile.Request{
-		NamespacedName: types.NamespacedName{
-			Namespace: ns,
-			Name:      pod.Labels[crNameLabel],
-		},
-	})
 
 	return requests
 }
