@@ -9,8 +9,6 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 )
 
-// TODO add test
-
 func ensureIngress(ctx context.Context, r *MailhogInstanceReconciler, cr *mailhogv1alpha1.MailhogInstance) (err error) {
 	name := types.NamespacedName{Name: cr.Name, Namespace: cr.Namespace}
 	logger := r.logger.WithValues(span, spanIgress)

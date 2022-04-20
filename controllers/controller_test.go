@@ -4,6 +4,8 @@ import (
 	"context"
 	"testing"
 
+	networkingv1 "k8s.io/api/networking/v1"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	routev1 "github.com/openshift/api/route/v1"
@@ -127,6 +129,28 @@ var _ = Describe("MailhogInstance controller", func() {
 			err = k8sClient.Get(ctx, nsname, createdRoute)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(createdRoute.Spec.To.Name).To(Equal(cr.Name))
+		})
+	})
+
+	Context("reconcile with a mailhog cr, a deployment and a service", func() {
+		It("should create a ingress", func() {
+			cr := getTestingCr(nsname, image, mailhogv1alpha1.IngressTrafficInlet)
+			deployment := getTestingDeployment(cr)
+			service := getTestingService(cr)
+			objects := []client.Object{
+				cr, deployment, service,
+			}
+			k8sClient = fake.NewClientBuilder().WithScheme(scheme).WithObjects(objects...).Build()
+
+			r := &MailhogInstanceReconciler{Client: k8sClient, Scheme: scheme}
+			res, err := r.Reconcile(ctx, req)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(res).Should(Equal(reconcile.Result{}))
+
+			createdIngress := &networkingv1.Ingress{}
+			err = k8sClient.Get(ctx, nsname, createdIngress)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(createdIngress.Spec.Rules[0].HTTP.Paths[0].Path).To(Equal("/"))
 		})
 	})
 
