@@ -124,8 +124,7 @@ func (r *MailhogInstanceReconciler) update(ctx context.Context,
 	logger.Info(messageUpdated)
 	tickFunc.Inc()
 
-	// TODO emit this object for the CR instead of the child
-	r.Recorder.Event(obj, corev1.EventTypeNormal, "SuccessEvent", eventUpdated)
+	r.Recorder.Event(cr, corev1.EventTypeNormal, "SuccessEvent", eventUpdated)
 	return &ReturnIndicator{}
 }
 
