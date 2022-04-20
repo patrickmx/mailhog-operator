@@ -68,7 +68,7 @@ func (r *MailhogInstanceReconciler) configMapNew(cr *mailhogv1alpha1.MailhogInst
 	meta := CreateMetaMaker(cr)
 	notImmutable := false
 	configMap := &corev1.ConfigMap{
-		ObjectMeta: meta.GetMeta(false),
+		ObjectMeta: meta.GetMeta(),
 		Immutable:  &notImmutable,
 		Data:       data,
 	}

@@ -8,7 +8,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
-// podTemplate will return the desired PodTemplate used in Deployments and DeploymentConfigs
+// podTemplate will return the desired PodTemplate used in Deployments
 func podTemplate(cr *mailhogv1alpha1.MailhogInstance) corev1.PodTemplateSpec {
 	meta := CreateMetaMaker(cr)
 	env := envForCr(cr)
@@ -26,7 +26,7 @@ func podTemplate(cr *mailhogv1alpha1.MailhogInstance) corev1.PodTemplateSpec {
 
 	pod := corev1.PodTemplateSpec{
 		ObjectMeta: metav1.ObjectMeta{
-			Labels: meta.GetLabels(true),
+			Labels: meta.GetLabels(),
 		},
 		Spec: corev1.PodSpec{
 			Containers: []corev1.Container{

@@ -44,14 +44,6 @@ spec:
           spec:
             description: MailhogInstanceSpec defines the desired state of MailhogInstance
             properties:
-              backingResource:
-                default: deployment
-                description: BackingResource controls if a deploymentConfig or deployment
-                  is used
-                enum:
-                - deployment
-                - deploymentConfig
-                type: string
               image:
                 default: mailhog/mailhog:latest
                 description: Image is the mailhog image to be used

@@ -23,7 +23,6 @@ import (
 
 type (
 	StorageSetting       string
-	BackingResource      string
 	TrafficInletResource string
 )
 
@@ -36,12 +35,6 @@ const (
 
 	// MongoDBStorage incoming mails will be stored in a mongodb database
 	MongoDBStorage StorageSetting = "mongodb"
-
-	// DeploymentBacking mailhog will be deployed as a kubernetes deployment
-	DeploymentBacking BackingResource = "deployment"
-
-	// DeploymentConfigBacking mailhog will be deployed as an openshift DeploymentConfig
-	DeploymentConfigBacking BackingResource = "deploymentConfig"
 
 	// RouteTrafficInlet an openshift route will be created to allow gui/api access
 	RouteTrafficInlet TrafficInletResource = "route"
@@ -83,14 +76,6 @@ type MailhogInstanceSpec struct {
 	//+kubebuilder:validation:Enum=none;route
 	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Expose Mailhog with",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:select:route","urn:alm:descriptor:com.tectonic.ui:select:none"}
 	WebTrafficInlet TrafficInletResource `json:"webTrafficInlet,omitempty"`
-
-	// BackingResource controls if a deploymentConfig or deployment is used
-	//
-	//+kubebuilder:validation:Required
-	//+kubebuilder:default:="deployment"
-	//+kubebuilder:validation:Enum=deployment;deploymentConfig
-	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Deploy Mailhog with",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:select:deployment","urn:alm:descriptor:com.tectonic.ui:select:deploymentConfig"}
-	BackingResource BackingResource `json:"backingResource,omitempty"`
 }
 
 // MailhogInstanceSettingsSpec are settings related to the mailhog instance
@@ -545,7 +530,7 @@ type PodStatus struct {
 //+kubebuilder:subresource:status
 //+kubebuilder:subresource:scale:specpath=.spec.replicas,statuspath=.status.podCount,selectorpath=.status.labelSelector
 //+operator-sdk:csv:customresourcedefinitions:displayName="Mailhog Instance"
-//+operator-sdk:csv:customresourcedefinitions:resources={{Service,v1},{Deployment,v1},{DeploymentConfig,v1},{Route,v1},{ConfigMap,v1}}
+//+operator-sdk:csv:customresourcedefinitions:resources={{Service,v1},{Deployment,v1},{Route,v1},{ConfigMap,v1}}
 type MailhogInstance struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`

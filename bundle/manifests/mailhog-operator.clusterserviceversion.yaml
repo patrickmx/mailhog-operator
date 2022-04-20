@@ -53,9 +53,6 @@ spec:
       - kind: Deployment
         name: ""
         version: v1
-      - kind: DeploymentConfig
-        name: ""
-        version: v1
       - kind: Route
         name: ""
         version: v1
@@ -63,13 +60,6 @@ spec:
         name: ""
         version: v1
       specDescriptors:
-      - description: BackingResource controls if a deploymentConfig or deployment
-          is used
-        displayName: Deploy Mailhog with
-        path: backingResource
-        x-descriptors:
-        - urn:alm:descriptor:com.tectonic.ui:select:deployment
-        - urn:alm:descriptor:com.tectonic.ui:select:deploymentConfig
       - description: Image is the mailhog image to be used
         displayName: Mailhog Image
         path: image
@@ -380,18 +370,6 @@ spec:
           - apps
           resources:
           - deployments
-          verbs:
-          - '*'
-        - apiGroups:
-          - apps.openshift.io
-          resources:
-          - deploymentconfigs
-          verbs:
-          - '*'
-        - apiGroups:
-          - apps.openshift.io
-          resources:
-          - deploymentconfigs/status
           verbs:
           - '*'
         - apiGroups:

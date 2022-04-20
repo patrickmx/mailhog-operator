@@ -21,7 +21,6 @@ import (
 
 	"github.com/banzaicloud/k8s-objectmatcher/patch"
 	"github.com/go-logr/logr"
-	ocappsv1 "github.com/openshift/api/apps/v1"
 	routev1 "github.com/openshift/api/route/v1"
 	mailhogv1alpha1 "goimports.patrick.mx/mailhog-operator/api/v1alpha1"
 	appsv1 "k8s.io/api/apps/v1"
@@ -57,8 +56,6 @@ type MailhogInstanceReconciler struct {
 //+kubebuilder:rbac:groups="",resources=services,verbs=*
 //+kubebuilder:rbac:groups="",resources=configmaps,verbs=*
 //+kubebuilder:rbac:groups=route.openshift.io,resources=routes,verbs=*
-//+kubebuilder:rbac:groups=apps.openshift.io,resources=deploymentconfigs,verbs=*
-//+kubebuilder:rbac:groups=apps.openshift.io,resources=deploymentconfigs/status,verbs=*
 //+kubebuilder:rbac:groups="",resources=events,verbs=create
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
@@ -85,7 +82,6 @@ func (r *MailhogInstanceReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 	assurances := []func(context.Context, *mailhogv1alpha1.MailhogInstance) error{
 		r.ensureCrValid,
 		r.ensureDeployment,
-		r.ensureDeploymentConfig,
 		r.ensureService,
 		r.ensureConfigMap,
 		r.ensureRoute,
@@ -129,7 +125,6 @@ func (r *MailhogInstanceReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&mailhogv1alpha1.MailhogInstance{}).
 		Owns(&appsv1.Deployment{}).
-		Owns(&ocappsv1.DeploymentConfig{}).
 		Owns(&corev1.Service{}).
 		Owns(&routev1.Route{}).
 		Owns(&corev1.ConfigMap{}).

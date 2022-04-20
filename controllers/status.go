@@ -107,7 +107,7 @@ func (r *MailhogInstanceReconciler) desiredStatus(ctx context.Context, cr *mailh
 	podList := &corev1.PodList{}
 	listOpts := []client.ListOption{
 		client.InNamespace(cr.Namespace),
-		client.MatchingLabels(meta.GetLabels(false)),
+		client.MatchingLabels(meta.GetLabels()),
 	}
 	if err := r.List(ctx, podList, listOpts...); err != nil {
 		logger.Error(err, failedListPods)
@@ -127,7 +127,7 @@ func (r *MailhogInstanceReconciler) desiredStatus(ctx context.Context, cr *mailh
 	status.Pods = getPodStates(podList.Items)
 	status.PodCount = len(podNames)
 	status.ReadyPodCount = getReadyPods(podList.Items)
-	status.LabelSelector = meta.GetSelector(true)
+	status.LabelSelector = meta.GetSelector()
 	status.Error = ""
 	return nil, status
 }

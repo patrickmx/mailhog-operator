@@ -42,9 +42,9 @@ func (r *MailhogInstanceReconciler) serviceNew(cr *mailhogv1alpha1.MailhogInstan
 	meta := CreateMetaMaker(cr)
 
 	service := &corev1.Service{
-		ObjectMeta: meta.GetMeta(false),
+		ObjectMeta: meta.GetMeta(),
 		Spec: corev1.ServiceSpec{
-			Selector: meta.GetLabels(true),
+			Selector: meta.GetLabels(),
 			Ports: []corev1.ServicePort{
 				{
 					Port: portSmtp,

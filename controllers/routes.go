@@ -54,7 +54,7 @@ func (r *MailhogInstanceReconciler) routeNew(cr *mailhogv1alpha1.MailhogInstance
 	meta := CreateMetaMaker(cr)
 
 	route := &routev1.Route{
-		ObjectMeta: meta.GetMeta(false),
+		ObjectMeta: meta.GetMeta(),
 		Spec: routev1.RouteSpec{
 			To: routev1.RouteTargetReference{
 				Kind: "Service",

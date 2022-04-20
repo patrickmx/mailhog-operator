@@ -184,7 +184,7 @@ crc-restore-pinning: ## restore web console developer pinning. Need to login / p
 	oc -n openshift-console-user-settings \
 		patch --type merge \
 		cm/user-settings-$(shell oc get -o json users/kubeadmin | jq -r .metadata.uid) \
-		-p '{"data":{"console.pinnedResources":"{\"admin\":[],\"dev\":[\"core~v1~ConfigMap\",\"apps~v1~Deployment\",\"apps.openshift.io~v1~DeploymentConfig\",\"mailhog.operators.patrick.mx~v1alpha1~MailhogInstance\",\"core~v1~Service\",\"core~v1~Pod\",\"route.openshift.io~v1~Route\"]}"}}'
+		-p '{"data":{"console.pinnedResources":"{\"admin\":[],\"dev\":[\"core~v1~ConfigMap\",\"apps~v1~Deployment\",\"mailhog.operators.patrick.mx~v1alpha1~MailhogInstance\",\"core~v1~Service\",\"core~v1~Pod\",\"route.openshift.io~v1~Route\"]}"}}'
 
 .PHONY: crc-add-mongo
 crc-add-mongo: ## deploy a matching mongo for the mongodb console example

@@ -26,32 +26,6 @@ spec:
 apiVersion: console.openshift.io/v1
 kind: ConsoleYAMLSample
 metadata:
-  name: mhi2-dc
-spec:
-  targetResource:
-    apiVersion: mailhog.operators.patrick.mx/v1alpha1
-    kind: MailhogInstance
-  title: 2 - DeploymentConfig
-  description: MailhogInstance deployed using an oc deploymentconfig
-  yaml: |
-    apiVersion: mailhog.operators.patrick.mx/v1alpha1
-    kind: MailhogInstance
-    metadata:
-      name: mhi2-dc
-      namespace: project
-      annotations:
-        app.openshift.io/vcs-uri: 'https://console-openshift-console.apps-crc.testing/k8s/ns/project/mailhog.operators.patrick.mx~v1alpha1~MailhogInstance/mhi2-dc/yaml'
-    spec:
-      image: 'mailhog/mailhog:latest'
-      replicas: 1
-      settings:
-        storage: memory
-      webTrafficInlet: route
-      backingResource: deploymentConfig
----
-apiVersion: console.openshift.io/v1
-kind: ConsoleYAMLSample
-metadata:
   name: mhi3-jim
 spec:
   targetResource:
