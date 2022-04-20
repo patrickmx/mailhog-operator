@@ -305,6 +305,8 @@ spec:
     * Inspired by MailCatcher, Mailhog is a SMTP server to prevent mails from leaving your non-productive environments
     * GUI & API access to the mails received by mailhog allows to quickly view what would be outgoing mails
     * The integrated chaos monkey jim allows to simulate connection failures between the app and the SMTP server
+    * MailHog is written in go and released under MIT, [check out the contributor list](https://github.com/mailhog/MailHog/graphs/contributors)
+    * [Image on Dockerhub](https://registry.hub.docker.com/r/mailhog/mailhog/)
     ### About the [mailhog-operator](https://github.com/patrickmx/mailhog-operator)
     * This operator was created to easily deploy mailhog into testing environments without having to rewrite deployments over and over again
     ### CR Examples
