@@ -41,6 +41,9 @@ const (
 
 	// NoTrafficInlet no external access to the gui/api will be provided
 	NoTrafficInlet TrafficInletResource = "none"
+
+	// IngressTrafficInlet a k8s ingress will be created for gui/api access
+	IngressTrafficInlet TrafficInletResource = "ingress"
 )
 
 // MailhogInstanceSpec defines the desired state of MailhogInstance
@@ -163,6 +166,14 @@ type MailhogInstanceSettingsSpec struct {
 	//+nullable
 	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Web ContextRoot",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text"}
 	WebPath string `json:"webPath,omitempty"`
+
+	// IngressClass will set the kubernetes.io/ingress.class of created k8s ingresses
+	//
+	//+kubebuilder:validation:Optional
+	//+optional
+	//+nullable
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Ingress Class",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text","urn:alm:descriptor:com.tectonic.ui:fieldDependency:webTrafficInlet:ingress"}
+	IngressClass string `json:"ingressClass,omitempty"`
 }
 
 // AffinitySpec offers pod placement configuration
@@ -530,7 +541,7 @@ type PodStatus struct {
 //+kubebuilder:subresource:status
 //+kubebuilder:subresource:scale:specpath=.spec.replicas,statuspath=.status.podCount,selectorpath=.status.labelSelector
 //+operator-sdk:csv:customresourcedefinitions:displayName="Mailhog Instance"
-//+operator-sdk:csv:customresourcedefinitions:resources={{Service,v1},{Deployment,v1},{Route,v1},{ConfigMap,v1}}
+//+operator-sdk:csv:customresourcedefinitions:resources={{Service,v1},{Deployment,v1},{Route,v1},{ConfigMap,v1},{Ingress,v1}}
 type MailhogInstance struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`

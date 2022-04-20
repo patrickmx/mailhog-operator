@@ -1016,6 +1016,11 @@ spec:
                     format: hostname
                     nullable: true
                     type: string
+                  ingressClass:
+                    description: IngressClass will set the kubernetes.io/ingress.class
+                      of created k8s ingresses
+                    nullable: true
+                    type: string
                   jim:
                     description: Jim is the chaos monkey
                     nullable: true

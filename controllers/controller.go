@@ -52,6 +52,7 @@ type MailhogInstanceReconciler struct {
 //+kubebuilder:rbac:groups=mailhog.operators.patrick.mx,resources=mailhoginstances/scale,verbs=*
 //+kubebuilder:rbac:groups=mailhog.operators.patrick.mx,resources=mailhoginstances/finalizers,verbs=*
 //+kubebuilder:rbac:groups=apps,resources=deployments,verbs=*
+//+kubebuilder:rbac:groups=networking,resources=ingress,verbs=*
 //+kubebuilder:rbac:groups="",resources=pods,verbs=get;list;watch
 //+kubebuilder:rbac:groups="",resources=services,verbs=*
 //+kubebuilder:rbac:groups="",resources=configmaps,verbs=*
@@ -94,6 +95,7 @@ var controllerAssurances = []func(context.Context, *MailhogInstanceReconciler, *
 	ensureService,
 	ensureConfigMap,
 	ensureRoute,
+	ensureIngress,
 	ensureStatus,
 }
 

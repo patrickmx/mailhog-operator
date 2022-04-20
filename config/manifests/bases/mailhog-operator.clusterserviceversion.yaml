@@ -30,6 +30,9 @@ spec:
       - kind: Deployment
         name: ""
         version: v1
+      - kind: Ingress
+        name: ""
+        version: v1
       - kind: Route
         name: ""
         version: v1
@@ -146,6 +149,13 @@ spec:
         path: settings.hostname
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:text
+      - description: IngressClass will set the kubernetes.io/ingress.class of created
+          k8s ingresses
+        displayName: Ingress Class
+        path: settings.ingressClass
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:text
+        - urn:alm:descriptor:com.tectonic.ui:fieldDependency:webTrafficInlet:ingress
       - description: Jim is the chaos monkey
         displayName: Jim / ChaosMonkey Config
         path: settings.jim

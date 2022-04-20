@@ -62,6 +62,12 @@ rules:
   verbs:
   - '*'
 - apiGroups:
+  - networking
+  resources:
+  - ingress
+  verbs:
+  - '*'
+- apiGroups:
   - route.openshift.io
   resources:
   - routes
