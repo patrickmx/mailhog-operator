@@ -167,6 +167,12 @@ spec:
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:text
         - urn:alm:descriptor:com.tectonic.ui:fieldDependency:webTrafficInlet:ingress
+      - description: TlsSecret which will be used for this ingress
+        displayName: TLS Secret
+        path: settings.ingress.tlsSecret
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:text
+        - urn:alm:descriptor:com.tectonic.ui:fieldDependency:webTrafficInlet:ingress
       - description: Jim is the chaos monkey
         displayName: Jim / ChaosMonkey Config
         path: settings.jim

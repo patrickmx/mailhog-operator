@@ -9,7 +9,6 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 )
 
-// TODO allow setting spec.tls.secretName
 // TODO add test
 
 func ensureIngress(ctx context.Context, r *MailhogInstanceReconciler, cr *mailhogv1alpha1.MailhogInstance) (err error) {
@@ -69,7 +68,7 @@ func ingressNew(cr *mailhogv1alpha1.MailhogInstance) (newIngress *networkingv1.I
 			},
 		},
 	}
-	return &networkingv1.Ingress{
+	ingress := &networkingv1.Ingress{
 		ObjectMeta: meta.GetMeta(),
 		Spec: networkingv1.IngressSpec{
 			IngressClassName: &class,
@@ -83,6 +82,14 @@ func ingressNew(cr *mailhogv1alpha1.MailhogInstance) (newIngress *networkingv1.I
 			},
 		},
 	}
+	if secretName := cr.Spec.Settings.Ingress.TlsSecret; secretName != "" {
+		secret := networkingv1.IngressTLS{
+			SecretName: secretName,
+			Hosts:      []string{cr.Spec.Settings.Ingress.Host},
+		}
+		ingress.Spec.TLS = append(ingress.Spec.TLS, secret)
+	}
+	return ingress
 }
 
 func ingressUpdates(cr *mailhogv1alpha1.MailhogInstance, oldIngress *networkingv1.Ingress) (updatedIngress *networkingv1.Ingress, updateNeeded bool, err error) {

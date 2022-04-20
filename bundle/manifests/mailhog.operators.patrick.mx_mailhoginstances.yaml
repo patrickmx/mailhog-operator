@@ -1029,6 +1029,10 @@ spec:
                         description: Host used for mailhog's ingress rule
                         nullable: true
                         type: string
+                      tlsSecret:
+                        description: TlsSecret which will be used for this ingress
+                        nullable: true
+                        type: string
                     type: object
                   jim:
                     description: Jim is the chaos monkey

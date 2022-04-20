@@ -193,6 +193,14 @@ type IngressSpec struct {
 	//+nullable
 	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Hostname",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text","urn:alm:descriptor:com.tectonic.ui:fieldDependency:webTrafficInlet:ingress"}
 	Host string `json:"ingressClass,omitempty"`
+
+	// TlsSecret which will be used for this ingress
+	//
+	//+kubebuilder:validation:Optional
+	//+optional
+	//+nullable
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="TLS Secret",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text","urn:alm:descriptor:com.tectonic.ui:fieldDependency:webTrafficInlet:ingress"}
+	TlsSecret string `json:"tlsSecret,omitempty"`
 }
 
 // AffinitySpec offers pod placement configuration
