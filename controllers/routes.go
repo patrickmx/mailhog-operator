@@ -13,7 +13,7 @@ import (
 )
 
 // ensureRoute reconciles openshift Route child objects
-func (r *MailhogInstanceReconciler) ensureRoute(ctx context.Context, cr *mailhogv1alpha1.MailhogInstance) (err error) {
+func ensureRoute(ctx context.Context, r *MailhogInstanceReconciler, cr *mailhogv1alpha1.MailhogInstance) (err error) {
 	name := types.NamespacedName{Name: cr.Name, Namespace: cr.Namespace}
 	logger := r.logger.WithValues(span, spanRoute)
 

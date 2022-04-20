@@ -78,23 +78,23 @@ func (r *MailhogInstanceReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 	}
 
 	// ensure child objects
-	// TODO could be refactored as global variable
-	assurances := []func(context.Context, *mailhogv1alpha1.MailhogInstance) error{
-		r.ensureCrValid,
-		r.ensureDeployment,
-		r.ensureService,
-		r.ensureConfigMap,
-		r.ensureRoute,
-		r.ensureStatus,
-	}
-	for _, ensure := range assurances {
-		if err := ensure(ctx, cr); err != nil {
+	for _, ensure := range controllerAssurances {
+		if err := ensure(ctx, r, cr); err != nil {
 			return ctrl.Result{}, err
 		}
 	}
 
 	r.logger.Info(reconcileFinished)
 	return ctrl.Result{}, nil
+}
+
+var controllerAssurances = []func(context.Context, *MailhogInstanceReconciler, *mailhogv1alpha1.MailhogInstance) error{
+	ensureCrValid,
+	ensureDeployment,
+	ensureService,
+	ensureConfigMap,
+	ensureRoute,
+	ensureStatus,
 }
 
 // findObjectsForPod is mapper to find which CR needs to be reconciled when a pod is updated

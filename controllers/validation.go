@@ -10,7 +10,7 @@ import (
 )
 
 // ensureCrValid ensures no invalid CRs are processed
-func (r *MailhogInstanceReconciler) ensureCrValid(ctx context.Context, cr *mailhogv1alpha1.MailhogInstance) (err error) {
+func ensureCrValid(ctx context.Context, r *MailhogInstanceReconciler, cr *mailhogv1alpha1.MailhogInstance) (err error) {
 	logger := r.logger.WithValues(span, spanCrValid)
 
 	checks := []func(*mailhogv1alpha1.MailhogInstance) error{

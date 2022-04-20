@@ -11,7 +11,7 @@ import (
 )
 
 // ensureDeployment reconciles Deployment child objects
-func (r *MailhogInstanceReconciler) ensureDeployment(ctx context.Context, cr *mailhogv1alpha1.MailhogInstance) (err error) {
+func ensureDeployment(ctx context.Context, r *MailhogInstanceReconciler, cr *mailhogv1alpha1.MailhogInstance) (err error) {
 	name := types.NamespacedName{Name: cr.Name, Namespace: cr.Namespace}
 	logger := r.logger.WithValues(span, spanDeployment)
 
