@@ -53,10 +53,23 @@ func init() {
 	//+kubebuilder:scaffold:scheme
 }
 
-// TODO constantize reused string
+const (
+	configFilePath       = "/operatorconfig/defaultconfig.yml"
+	configFileFlag       = "config"
+	configFileUsage      = "config file path"
+	OlmDelegateNamespace = "OLM_TARGET_NAMESPACE"
+	eventRecorderSource  = "mailhog-operator"
+
+	errLoadConfig       = "unable to load config file"
+	errCreateManager    = "unable to create new manager with config"
+	errCreateController = "unable to create new controller"
+	errAddHealthCheck   = "unable to add health check"
+	errAddReadyCheck    = "unable to add ready check"
+	errStartManager     = "unable to start manager"
+)
 
 func main() {
-	flag.StringVar(&configFile, "config", "/operatorconfig/defaultconfig.yml", "config file path")
+	flag.StringVar(&configFile, configFileFlag, configFilePath, configFileUsage)
 	opts := zap.Options{Development: true}
 	opts.BindFlags(flag.CommandLine)
 	flag.Parse()
@@ -65,33 +78,33 @@ func main() {
 
 	options, err := loadConfig()
 	if err != nil {
-		errExit(err, "unable to load config file")
+		errExit(err, errLoadConfig)
 	}
 
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), options)
 	if err != nil {
-		errExit(err, "unable to create new manager")
+		errExit(err, errCreateManager)
 	}
 
 	if err = (&controllers.MailhogInstanceReconciler{
 		Client:   mgr.GetClient(),
 		Scheme:   mgr.GetScheme(),
-		Recorder: mgr.GetEventRecorderFor("mailhog-operator"),
+		Recorder: mgr.GetEventRecorderFor(eventRecorderSource),
 	}).SetupWithManager(mgr); err != nil {
-		errExit(err, "unable to create controller")
+		errExit(err, errCreateController)
 	}
 	//+kubebuilder:scaffold:builder
 
 	if err := mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {
-		errExit(err, "unable to set up health check")
+		errExit(err, errAddHealthCheck)
 	}
 	if err := mgr.AddReadyzCheck("readyz", healthz.Ping); err != nil {
-		errExit(err, "unable to set up ready check")
+		errExit(err, errAddReadyCheck)
 	}
 
 	setupLog.Info("starting manager")
 	if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil {
-		errExit(err, "problem starting manager")
+		errExit(err, errStartManager)
 	}
 }
 
@@ -116,10 +129,6 @@ func loadConfig() (options ctrl.Options, err error) {
 		"leaderelection", options.LeaderElection, "leaderelection.namespace", options.LeaderElectionNamespace)
 	return
 }
-
-const (
-	OlmDelegateNamespace = "OLM_TARGET_NAMESPACE"
-)
 
 func delegateNamespacesOlm() string {
 	ns, found := os.LookupEnv(OlmDelegateNamespace)
