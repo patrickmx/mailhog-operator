@@ -7,6 +7,7 @@ import (
 	"github.com/go-logr/logr"
 	"github.com/prometheus/client_golang/prometheus"
 	mailhogv1alpha1 "goimports.patrick.mx/mailhog-operator/api/v1alpha1"
+	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
@@ -104,8 +105,7 @@ func (r *MailhogInstanceReconciler) update(ctx context.Context,
 		}
 	}
 	if err = r.Update(ctx, obj); err != nil {
-		// TODO restrict to deployment where this was actually the problem
-		if errors.IsInvalid(err) {
+		if errors.IsInvalid(err) && obj.GetObjectKind().GroupVersionKind() == appsv1.SchemeGroupVersion.WithKind("Deployment") {
 			if deleteErr := r.Delete(ctx, obj, deleteOptions(100)); deleteErr != nil {
 				logger.Error(deleteErr, messageFailedDeleteAfterInvalid)
 				return &ReturnIndicator{
