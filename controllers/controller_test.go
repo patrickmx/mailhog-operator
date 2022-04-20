@@ -81,7 +81,7 @@ var _ = Describe("MailhogInstance controller", func() {
 			r := &MailhogInstanceReconciler{Client: k8sClient, Scheme: scheme}
 			res, err := r.Reconcile(ctx, req)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(res).Should(Equal(reconcile.Result{RequeueAfter: requeueTime}))
+			Expect(res).Should(Equal(reconcile.Result{}))
 
 			createdDeployment := &appsv1.Deployment{}
 			err = k8sClient.Get(ctx, nsname, createdDeployment)
@@ -101,7 +101,7 @@ var _ = Describe("MailhogInstance controller", func() {
 			r := &MailhogInstanceReconciler{Client: k8sClient, Scheme: scheme}
 			res, err := r.Reconcile(ctx, req)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(res).Should(Equal(reconcile.Result{RequeueAfter: requeueTime}))
+			Expect(res).Should(Equal(reconcile.Result{}))
 
 			createdDeploymentConfig := &ocappsv1.DeploymentConfig{}
 			err = k8sClient.Get(ctx, nsname, createdDeploymentConfig)
@@ -122,7 +122,7 @@ var _ = Describe("MailhogInstance controller", func() {
 			r := &MailhogInstanceReconciler{Client: k8sClient, Scheme: scheme}
 			res, err := r.Reconcile(ctx, req)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(res).Should(Equal(reconcile.Result{RequeueAfter: requeueTime}))
+			Expect(res).Should(Equal(reconcile.Result{}))
 
 			createdService := &corev1.Service{}
 			err = k8sClient.Get(ctx, nsname, createdService)
@@ -144,7 +144,7 @@ var _ = Describe("MailhogInstance controller", func() {
 			r := &MailhogInstanceReconciler{Client: k8sClient, Scheme: scheme}
 			res, err := r.Reconcile(ctx, req)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(res).Should(Equal(reconcile.Result{RequeueAfter: requeueTime}))
+			Expect(res).Should(Equal(reconcile.Result{}))
 
 			createdRoute := &routev1.Route{}
 			err = k8sClient.Get(ctx, nsname, createdRoute)
@@ -167,7 +167,7 @@ var _ = Describe("MailhogInstance controller", func() {
 			r := &MailhogInstanceReconciler{Client: k8sClient, Scheme: scheme}
 			res, err := r.Reconcile(ctx, req)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(res).Should(Equal(reconcile.Result{RequeueAfter: requeueTime}))
+			Expect(res).Should(Equal(reconcile.Result{}))
 
 			createdRoute := &routev1.Route{}
 			err = k8sClient.Get(ctx, nsname, createdRoute)
@@ -197,7 +197,7 @@ var _ = Describe("MailhogInstance controller", func() {
 			r := &MailhogInstanceReconciler{Client: k8sClient, Scheme: scheme}
 			res, err := r.Reconcile(ctx, req)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(res).Should(Equal(reconcile.Result{RequeueAfter: requeueTime}))
+			Expect(res).Should(Equal(reconcile.Result{}))
 
 			createdConfigMap := &corev1.ConfigMap{}
 			err = k8sClient.Get(ctx, nsname, createdConfigMap)
@@ -236,7 +236,7 @@ var _ = Describe("MailhogInstance controller", func() {
 			r := &MailhogInstanceReconciler{Client: k8sClient, Scheme: scheme}
 			res, err := r.Reconcile(ctx, req)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(res).Should(Equal(reconcile.Result{RequeueAfter: requeueTime}))
+			Expect(res).Should(Equal(reconcile.Result{}))
 
 			createdConfigMap := &corev1.ConfigMap{}
 			err = k8sClient.Get(ctx, nsname, createdConfigMap)

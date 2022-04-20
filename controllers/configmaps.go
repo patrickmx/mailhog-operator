@@ -11,8 +11,7 @@ import (
 )
 
 // ensureConfigMap reconciles ConfigMap child objects
-func (r *MailhogInstanceReconciler) ensureConfigMap(ctx context.Context, cr *mailhogv1alpha1.MailhogInstance) *ReturnIndicator {
-	var err error
+func (r *MailhogInstanceReconciler) ensureConfigMap(ctx context.Context, cr *mailhogv1alpha1.MailhogInstance) (err error) {
 	name := types.NamespacedName{Name: cr.Name, Namespace: cr.Namespace}
 	logger := r.logger.WithValues(span, spanConfigMap)
 
@@ -24,16 +23,12 @@ func (r *MailhogInstanceReconciler) ensureConfigMap(ctx context.Context, cr *mai
 				return r.create(ctx, cr, logger, cm, confMapCreate)
 			}
 			logger.Error(err, failedGetExisting)
-			return &ReturnIndicator{
-				Err: err,
-			}
+			return err
 		}
 		updatedCM, updateNeeded, err := r.configMapUpdates(cr, existingCM)
 		if err != nil {
 			logger.Error(err, failedUpdateCheck)
-			return &ReturnIndicator{
-				Err: err,
-			}
+			return err
 		} else if updateNeeded {
 			return r.update(ctx, cr, logger, updatedCM, confMapUpdate)
 		}

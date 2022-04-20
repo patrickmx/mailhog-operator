@@ -13,8 +13,7 @@ import (
 )
 
 // ensureDeploymentConfig reconciles openshift DeploymentConfig child objects
-func (r *MailhogInstanceReconciler) ensureDeploymentConfig(ctx context.Context, cr *mailhogv1alpha1.MailhogInstance) *ReturnIndicator {
-	var err error
+func (r *MailhogInstanceReconciler) ensureDeploymentConfig(ctx context.Context, cr *mailhogv1alpha1.MailhogInstance) (err error) {
 	name := types.NamespacedName{Name: cr.Name, Namespace: cr.Namespace}
 	logger := r.logger.WithValues(span, spanDeploymentConfig)
 
@@ -27,25 +26,21 @@ func (r *MailhogInstanceReconciler) ensureDeploymentConfig(ctx context.Context, 
 				return r.create(ctx, cr, logger, deploymentConfig, deploymentConfigCreate)
 			}
 			logger.Error(err, failedGetExisting)
-			return &ReturnIndicator{
-				Err: err,
-			}
+			return err
 		}
 
 		updatedDeploymentConfig, updateNeeded, err := r.deploymentConfigUpdates(cr, existingDeploymentConfig)
 		if err != nil {
 			logger.Error(err, failedUpdateCheck)
-			return &ReturnIndicator{
-				Err: err,
-			}
+			return err
 		} else if updateNeeded {
 			return r.update(ctx, cr, logger, updatedDeploymentConfig, deploymentUpdate)
 		}
 	} else {
 
 		toBeDeletedDeploymentConfig := &ocappsv1.DeploymentConfig{}
-		if indicator := r.delete(ctx, name, toBeDeletedDeploymentConfig, logger, deploymentConfigDelete); indicator != nil {
-			return indicator
+		if err = r.delete(ctx, name, toBeDeletedDeploymentConfig, logger, deploymentConfigDelete); err != nil {
+			return err
 		}
 	}
 

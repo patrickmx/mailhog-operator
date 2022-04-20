@@ -11,8 +11,7 @@ import (
 )
 
 // ensureService reconciles Service child objects
-func (r *MailhogInstanceReconciler) ensureService(ctx context.Context, cr *mailhogv1alpha1.MailhogInstance) *ReturnIndicator {
-	var err error
+func (r *MailhogInstanceReconciler) ensureService(ctx context.Context, cr *mailhogv1alpha1.MailhogInstance) (err error) {
 	name := types.NamespacedName{Name: cr.Name, Namespace: cr.Namespace}
 	logger := r.logger.WithValues(span, spanService)
 
@@ -23,17 +22,13 @@ func (r *MailhogInstanceReconciler) ensureService(ctx context.Context, cr *mailh
 			return r.create(ctx, cr, logger, service, serviceCreate)
 		}
 		logger.Error(err, failedGetExisting)
-		return &ReturnIndicator{
-			Err: err,
-		}
+		return err
 	}
 
 	updatedService, updateNeeded, err := r.serviceUpdates(cr, existingService)
 	if err != nil {
 		logger.Error(err, failedUpdateCheck)
-		return &ReturnIndicator{
-			Err: err,
-		}
+		return err
 	} else if updateNeeded {
 		return r.update(ctx, cr, logger, updatedService, serviceUpdate)
 	}

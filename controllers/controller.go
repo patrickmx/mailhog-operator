@@ -18,7 +18,6 @@ package controllers
 
 import (
 	"context"
-	"time"
 
 	"github.com/banzaicloud/k8s-objectmatcher/patch"
 	"github.com/go-logr/logr"
@@ -48,9 +47,6 @@ type MailhogInstanceReconciler struct {
 	Recorder record.EventRecorder
 	logger   logr.Logger
 }
-
-// requeueTime default ReconcileAfter value is 10 seconds
-var requeueTime = time.Duration(10) * time.Second
 
 //+kubebuilder:rbac:groups=mailhog.operators.patrick.mx,resources=mailhoginstances,verbs=*
 //+kubebuilder:rbac:groups=mailhog.operators.patrick.mx,resources=mailhoginstances/status,verbs=*
@@ -86,7 +82,7 @@ func (r *MailhogInstanceReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 
 	// ensure child objects
 	// TODO could be refactored as global variable
-	assurances := []func(context.Context, *mailhogv1alpha1.MailhogInstance) *ReturnIndicator{
+	assurances := []func(context.Context, *mailhogv1alpha1.MailhogInstance) error{
 		r.ensureCrValid,
 		r.ensureDeployment,
 		r.ensureDeploymentConfig,
@@ -96,11 +92,8 @@ func (r *MailhogInstanceReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 		r.ensureStatus,
 	}
 	for _, ensure := range assurances {
-		if ri := ensure(ctx, cr); ri != nil {
-			if ri.Err != nil {
-				return ctrl.Result{}, ri.Err
-			}
-			return ctrl.Result{RequeueAfter: requeueTime}, nil
+		if err := ensure(ctx, cr); err != nil {
+			return ctrl.Result{}, err
 		}
 	}
 

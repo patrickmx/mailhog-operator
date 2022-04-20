@@ -11,8 +11,7 @@ import (
 )
 
 // ensureDeployment reconciles Deployment child objects
-func (r *MailhogInstanceReconciler) ensureDeployment(ctx context.Context, cr *mailhogv1alpha1.MailhogInstance) *ReturnIndicator {
-	var err error
+func (r *MailhogInstanceReconciler) ensureDeployment(ctx context.Context, cr *mailhogv1alpha1.MailhogInstance) (err error) {
 	name := types.NamespacedName{Name: cr.Name, Namespace: cr.Namespace}
 	logger := r.logger.WithValues(span, spanDeployment)
 
@@ -25,25 +24,21 @@ func (r *MailhogInstanceReconciler) ensureDeployment(ctx context.Context, cr *ma
 				return r.create(ctx, cr, logger, deployment, deploymentCreate)
 			}
 			logger.Error(err, failedGetExisting)
-			return &ReturnIndicator{
-				Err: err,
-			}
+			return err
 		}
 
 		updatedDeployment, updateNeeded, err := r.deploymentUpdates(cr, existingDeployment)
 		if err != nil {
 			logger.Error(err, failedUpdateCheck)
-			return &ReturnIndicator{
-				Err: err,
-			}
+			return err
 		} else if updateNeeded {
 			return r.update(ctx, cr, logger, updatedDeployment, deploymentUpdate)
 		}
 	} else {
 
 		toBeDeletedDeployment := &appsv1.Deployment{}
-		if indicator := r.delete(ctx, name, toBeDeletedDeployment, logger, deploymentDelete); indicator != nil {
-			return indicator
+		if err = r.delete(ctx, name, toBeDeletedDeployment, logger, deploymentDelete); err != nil {
+			return err
 		}
 	}
 
