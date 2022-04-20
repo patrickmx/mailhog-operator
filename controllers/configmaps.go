@@ -3,7 +3,6 @@ package controllers
 import (
 	"context"
 	"encoding/json"
-	"strings"
 
 	mailhogv1alpha1 "goimports.patrick.mx/mailhog-operator/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
@@ -55,13 +54,12 @@ func (r *MailhogInstanceReconciler) configMapNew(cr *mailhogv1alpha1.MailhogInst
 	data := make(map[string]string)
 
 	if len(cr.Spec.Settings.Files.SmtpUpstreams) > 0 {
-		// TODO write test & check if there i a better way to fiddle this together
-		var serverLines []string
+		servers := make(map[string]mailhogv1alpha1.MailhogUpstreamSpec)
 		for _, server := range cr.Spec.Settings.Files.SmtpUpstreams {
-			text, _ := json.Marshal(server)
-			serverLines = append(serverLines, "\""+server.Name+"\":"+string(text))
+			servers[server.Name] = server
 		}
-		data[settingsFileUpstreamsName] = "{" + strings.Join(serverLines, ",") + "}"
+		serverBytes, _ := json.Marshal(servers)
+		data[settingsFileUpstreamsName] = string(serverBytes)
 	}
 
 	if len(cr.Spec.Settings.Files.WebUsers) > 0 {

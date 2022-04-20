@@ -225,7 +225,7 @@ var _ = Describe("MailhogInstance controller", func() {
 					},
 				},
 			}
-			expectedJson := `{"cornflower":{"name":"cornflower","host":"blue"},"green":{"name":"green","host":"grass"},"black":{"name":"black","host":"hole"}}`
+			expectedJson := `{"black":{"name":"black","host":"hole"},"cornflower":{"name":"cornflower","host":"blue"},"green":{"name":"green","host":"grass"}}`
 			deployment := getTestingDeployment(cr)
 			service := getTestingService(cr)
 			objects := []client.Object{
