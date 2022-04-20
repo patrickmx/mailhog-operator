@@ -57,8 +57,7 @@ func (r *MailhogInstanceReconciler) ensureCrValid(ctx context.Context, cr *mailh
 // checkOverlappingMounts returns an error if a forbidden mount path is used as maildir path
 func checkOverlappingMounts(cr *mailhogv1alpha1.MailhogInstance) error {
 	if userPath := cr.Spec.Settings.StorageMaildir.Path; userPath != "" {
-		// TODO use "`" for regex to not need escaping
-		conflictPathRegex := regexp.MustCompile("^\\/(usr|mailhog)?(\\/)?((settings)\\/?(files)?|(local)\\/?(bin)?\\/?(MailHog)?)?$")
+		conflictPathRegex := regexp.MustCompile(`^/(usr|mailhog)?(/)?((settings)/?(files)?|(local)/?(bin)?/?(MailHog)?)?$`)
 		if matches := conflictPathRegex.MatchString(userPath); matches {
 			return errConflictingMount
 		}
