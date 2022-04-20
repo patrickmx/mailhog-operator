@@ -176,7 +176,7 @@ var _ = Describe("MailhogInstance controller", func() {
 		})
 	})
 
-	Context("reconcile with a mailhog cr that needs a configmap", func() {
+	Context("reconcile with a mailhog cr that needs a configmap for ui password", func() {
 		It("should create the configmap", func() {
 			cr := getTestingCr(nsname, image, mailhogv1alpha1.NoTrafficInlet, mailhogv1alpha1.DeploymentBacking)
 			cr.Spec.Settings.Files = &mailhogv1alpha1.MailhogFilesSpec{
@@ -203,6 +203,45 @@ var _ = Describe("MailhogInstance controller", func() {
 			err = k8sClient.Get(ctx, nsname, createdConfigMap)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(createdConfigMap.Data[settingsFilePasswordsName]).ToNot(BeEmpty())
+		})
+	})
+
+	Context("reconcile with a mailhog cr that needs a configmap for smtp upstream", func() {
+		It("should create the configmap correctly formatted", func() {
+			cr := getTestingCr(nsname, image, mailhogv1alpha1.NoTrafficInlet, mailhogv1alpha1.DeploymentBacking)
+			cr.Spec.Settings.Files = &mailhogv1alpha1.MailhogFilesSpec{
+				SmtpUpstreams: []mailhogv1alpha1.MailhogUpstreamSpec{
+					{
+						Name: "cornflower",
+						Host: "blue",
+					},
+					{
+						Name: "green",
+						Host: "grass",
+					},
+					{
+						Name: "black",
+						Host: "hole",
+					},
+				},
+			}
+			expectedJson := `{"cornflower":{"name":"cornflower","host":"blue"},"green":{"name":"green","host":"grass"},"black":{"name":"black","host":"hole"}}`
+			deployment := getTestingDeployment(cr)
+			service := getTestingService(cr)
+			objects := []client.Object{
+				cr, deployment, service,
+			}
+			k8sClient = fake.NewClientBuilder().WithScheme(scheme).WithObjects(objects...).Build()
+
+			r := &MailhogInstanceReconciler{Client: k8sClient, Scheme: scheme}
+			res, err := r.Reconcile(ctx, req)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(res).Should(Equal(reconcile.Result{RequeueAfter: requeueTime}))
+
+			createdConfigMap := &corev1.ConfigMap{}
+			err = k8sClient.Get(ctx, nsname, createdConfigMap)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(createdConfigMap.Data[settingsFileUpstreamsName]).To(Equal(expectedJson))
 		})
 	})
 
