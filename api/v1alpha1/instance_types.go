@@ -76,8 +76,8 @@ type MailhogInstanceSpec struct {
 	//
 	//+kubebuilder:validation:Required
 	//+kubebuilder:default:="none"
-	//+kubebuilder:validation:Enum=none;route
-	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Expose Mailhog with",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:select:route","urn:alm:descriptor:com.tectonic.ui:select:none"}
+	//+kubebuilder:validation:Enum=none;route;ingress
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Expose Mailhog with",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:select:route","urn:alm:descriptor:com.tectonic.ui:select:none","urn:alm:descriptor:com.tectonic.ui:select:ingress"}
 	WebTrafficInlet TrafficInletResource `json:"webTrafficInlet,omitempty"`
 }
 
@@ -167,13 +167,32 @@ type MailhogInstanceSettingsSpec struct {
 	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Web ContextRoot",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text"}
 	WebPath string `json:"webPath,omitempty"`
 
-	// IngressClass will set the kubernetes.io/ingress.class of created k8s ingresses
+	// Ingress allows for k8s ingress related configuration
+	//
+	//+kubebuilder:validation:Optional
+	//+optional
+	//+nullable
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Ingress Settings",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:fieldDependency:webTrafficInlet:ingress"}
+	Ingress IngressSpec `json:"ingress,omitempty"`
+}
+
+// IngressSpec allows for k8s ingress related configuration
+type IngressSpec struct {
+	// Class will set the kubernetes.io/ingress.class of created k8s ingresses
 	//
 	//+kubebuilder:validation:Optional
 	//+optional
 	//+nullable
 	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Ingress Class",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text","urn:alm:descriptor:com.tectonic.ui:fieldDependency:webTrafficInlet:ingress"}
-	IngressClass string `json:"ingressClass,omitempty"`
+	Class string `json:"class,omitempty"`
+
+	// Host used for mailhog's ingress rule
+	//
+	//+kubebuilder:validation:Optional
+	//+optional
+	//+nullable
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Hostname",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text","urn:alm:descriptor:com.tectonic.ui:fieldDependency:webTrafficInlet:ingress"}
+	Host string `json:"ingressClass,omitempty"`
 }
 
 // AffinitySpec offers pod placement configuration

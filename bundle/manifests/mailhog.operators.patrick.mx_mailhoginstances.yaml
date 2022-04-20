@@ -1016,11 +1016,20 @@ spec:
                     format: hostname
                     nullable: true
                     type: string
-                  ingressClass:
-                    description: IngressClass will set the kubernetes.io/ingress.class
-                      of created k8s ingresses
+                  ingress:
+                    description: Ingress allows for k8s ingress related configuration
                     nullable: true
-                    type: string
+                    properties:
+                      class:
+                        description: Class will set the kubernetes.io/ingress.class
+                          of created k8s ingresses
+                        nullable: true
+                        type: string
+                      ingressClass:
+                        description: Host used for mailhog's ingress rule
+                        nullable: true
+                        type: string
+                    type: object
                   jim:
                     description: Jim is the chaos monkey
                     nullable: true
@@ -1169,6 +1178,7 @@ spec:
                 enum:
                 - none
                 - route
+                - ingress
                 type: string
             type: object
           status:

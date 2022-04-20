@@ -172,10 +172,21 @@ spec:
         path: settings.hostname
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:text
-      - description: IngressClass will set the kubernetes.io/ingress.class of created
-          k8s ingresses
+      - description: Ingress allows for k8s ingress related configuration
+        displayName: Ingress Settings
+        path: settings.ingress
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:fieldDependency:webTrafficInlet:ingress
+      - description: Class will set the kubernetes.io/ingress.class of created k8s
+          ingresses
         displayName: Ingress Class
-        path: settings.ingressClass
+        path: settings.ingress.class
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:text
+        - urn:alm:descriptor:com.tectonic.ui:fieldDependency:webTrafficInlet:ingress
+      - description: Host used for mailhog's ingress rule
+        displayName: Hostname
+        path: settings.ingress.ingressClass
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:text
         - urn:alm:descriptor:com.tectonic.ui:fieldDependency:webTrafficInlet:ingress
@@ -305,6 +316,7 @@ spec:
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:select:route
         - urn:alm:descriptor:com.tectonic.ui:select:none
+        - urn:alm:descriptor:com.tectonic.ui:select:ingress
       statusDescriptors:
       - description: Error is used to signal illegal CR specs
         displayName: Error Message

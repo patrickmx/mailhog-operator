@@ -74,6 +74,7 @@ const (
 	spanRoute      = "route"
 	spanDeployment = "deployment"
 	spanConfigMap  = "configMap"
+	spanIgress     = "ingress"
 
 	crGetNotFound = "cr not found, probably it was deleted"
 	crGetFailed   = "failed to get cr"

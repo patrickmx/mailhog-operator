@@ -9,12 +9,12 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 )
 
-// TODO allow setting spec.tls.secretName and spec.rules..host
+// TODO allow setting spec.tls.secretName
 // TODO add test
 
 func ensureIngress(ctx context.Context, r *MailhogInstanceReconciler, cr *mailhogv1alpha1.MailhogInstance) (err error) {
 	name := types.NamespacedName{Name: cr.Name, Namespace: cr.Namespace}
-	logger := r.logger.WithValues(span, "ingress")
+	logger := r.logger.WithValues(span, spanIgress)
 
 	if cr.Spec.WebTrafficInlet == mailhogv1alpha1.IngressTrafficInlet {
 
@@ -50,7 +50,7 @@ func ensureIngress(ctx context.Context, r *MailhogInstanceReconciler, cr *mailho
 
 func ingressNew(cr *mailhogv1alpha1.MailhogInstance) (newIngress *networkingv1.Ingress) {
 	meta := CreateMetaMaker(cr)
-	class := cr.Spec.Settings.IngressClass
+	class := cr.Spec.Settings.Ingress.Class
 	prefix := networkingv1.PathTypePrefix
 	rules := networkingv1.HTTPIngressRuleValue{
 		Paths: []networkingv1.HTTPIngressPath{
@@ -75,6 +75,7 @@ func ingressNew(cr *mailhogv1alpha1.MailhogInstance) (newIngress *networkingv1.I
 			IngressClassName: &class,
 			Rules: []networkingv1.IngressRule{
 				{
+					Host: cr.Spec.Settings.Ingress.Host,
 					IngressRuleValue: networkingv1.IngressRuleValue{
 						HTTP: &rules,
 					},
