@@ -1022,7 +1022,8 @@ spec:
                     properties:
                       class:
                         description: Class will set the kubernetes.io/ingress.class
-                          of created k8s ingresses
+                          of created k8s ingresses leaving empty will use the default
+                          class
                         nullable: true
                         type: string
                       ingressClass:

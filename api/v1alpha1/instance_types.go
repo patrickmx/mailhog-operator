@@ -179,6 +179,7 @@ type MailhogInstanceSettingsSpec struct {
 // IngressSpec allows for k8s ingress related configuration
 type IngressSpec struct {
 	// Class will set the kubernetes.io/ingress.class of created k8s ingresses
+	// leaving empty will use the default class
 	//
 	//+kubebuilder:validation:Optional
 	//+optional

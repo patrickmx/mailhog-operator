@@ -178,7 +178,7 @@ spec:
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:fieldDependency:webTrafficInlet:ingress
       - description: Class will set the kubernetes.io/ingress.class of created k8s
-          ingresses
+          ingresses leaving empty will use the default class
         displayName: Ingress Class
         path: settings.ingress.class
         x-descriptors:

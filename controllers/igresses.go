@@ -47,7 +47,6 @@ func ensureIngress(ctx context.Context, r *MailhogInstanceReconciler, cr *mailho
 
 func ingressNew(cr *mailhogv1alpha1.MailhogInstance) (newIngress *networkingv1.Ingress) {
 	meta := CreateMetaMaker(cr)
-	class := cr.Spec.Settings.Ingress.Class
 	prefix := networkingv1.PathTypePrefix
 	rules := networkingv1.HTTPIngressRuleValue{
 		Paths: []networkingv1.HTTPIngressPath{
@@ -69,7 +68,6 @@ func ingressNew(cr *mailhogv1alpha1.MailhogInstance) (newIngress *networkingv1.I
 	ingress := &networkingv1.Ingress{
 		ObjectMeta: meta.GetMeta(),
 		Spec: networkingv1.IngressSpec{
-			IngressClassName: &class,
 			Rules: []networkingv1.IngressRule{
 				{
 					Host: cr.Spec.Settings.Ingress.Host,
@@ -79,6 +77,9 @@ func ingressNew(cr *mailhogv1alpha1.MailhogInstance) (newIngress *networkingv1.I
 				},
 			},
 		},
+	}
+	if class := cr.Spec.Settings.Ingress.Class; class != "" {
+		ingress.Spec.IngressClassName = &class
 	}
 	if secretName := cr.Spec.Settings.Ingress.TlsSecret; secretName != "" {
 		secret := networkingv1.IngressTLS{
