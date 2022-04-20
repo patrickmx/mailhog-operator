@@ -9,18 +9,19 @@ import (
 	mailhogv1alpha1 "goimports.patrick.mx/mailhog-operator/api/v1alpha1"
 )
 
+var crStatusChecks = []func(*mailhogv1alpha1.MailhogInstance) error{
+	checkOverlappingMounts,
+	checkMissingSettings,
+	checkSmtpUpstreams,
+	checkJimFloats,
+	checkWebPath,
+}
+
 // ensureCrValid ensures no invalid CRs are processed
 func ensureCrValid(ctx context.Context, r *MailhogInstanceReconciler, cr *mailhogv1alpha1.MailhogInstance) (err error) {
 	logger := r.logger.WithValues(span, spanCrValid)
 
-	checks := []func(*mailhogv1alpha1.MailhogInstance) error{
-		checkOverlappingMounts,
-		checkMissingSettings,
-		checkSmtpUpstreams,
-		checkJimFloats,
-		checkWebPath,
-	}
-	for _, check := range checks {
+	for _, check := range crStatusChecks {
 		if err = check(cr); err != nil {
 			cr.Status.Error = err.Error()
 			if err := r.Status().Update(ctx, cr); err != nil {
