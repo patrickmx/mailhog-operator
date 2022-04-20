@@ -8,11 +8,10 @@ import (
 )
 
 type metaMaker struct {
-	Name               string
-	Namespace          string
-	Labels             map[string]string
-	Annotations        map[string]string
-	IsDeploymentConfig bool
+	Name        string
+	Namespace   string
+	Labels      map[string]string
+	Annotations map[string]string
 }
 
 // CreateMetaMaker returns a new ObjectMeta helper for the given CR
@@ -23,10 +22,6 @@ func CreateMetaMaker(cr *mailhogv1alpha1.MailhogInstance) *metaMaker {
 	}
 	mm.Labels = defaultLabelsForCr(cr.Name)
 	mm.Annotations = make(map[string]string)
-
-	if cr.Spec.BackingResource == mailhogv1alpha1.DeploymentConfigBacking {
-		mm.IsDeploymentConfig = true
-	}
 
 	// https://openshift.github.io/openshift-origin-design/designs/developer/topology/#7-application-group
 	if label := cr.Labels[partOfLabel]; label != "" {
@@ -71,30 +66,25 @@ func CreateMetaMaker(cr *mailhogv1alpha1.MailhogInstance) *metaMaker {
 }
 
 // GetMeta returns the ObjectMeta of the CR embedded in the MetaMaker
-func (mm *metaMaker) GetMeta(withDCLabel bool) metav1.ObjectMeta {
-	meta := metav1.ObjectMeta{
+func (mm *metaMaker) GetMeta() metav1.ObjectMeta {
+	return metav1.ObjectMeta{
 		Name:        mm.Name,
 		Namespace:   mm.Namespace,
 		Labels:      mm.Labels,
 		Annotations: mm.Annotations,
 	}
-	if withDCLabel == true && mm.IsDeploymentConfig == true {
-		meta.Labels[dcLabel] = mm.Name
-	}
-	return meta
 }
 
 // GetLabels returns the map of label of the CR embedded in the MetaMaker
-func (mm *metaMaker) GetLabels(withDCLabel bool) map[string]string {
-	meta := mm.GetMeta(withDCLabel)
-	return meta.Labels
+func (mm *metaMaker) GetLabels() map[string]string {
+	return mm.GetMeta().Labels
 }
 
 // GetSelector returns the label selector of the CR embedded in the MetaMaker
-func (mm *metaMaker) GetSelector(withDCLabel bool) (selector string) {
+func (mm *metaMaker) GetSelector() (selector string) {
 	var selectors []string //nolint:prealloc
 
-	for k, v := range mm.GetLabels(withDCLabel) {
+	for k, v := range mm.GetLabels() {
 		selectors = append(selectors, k+"="+v)
 	}
 	return strings.Join(selectors, ",")

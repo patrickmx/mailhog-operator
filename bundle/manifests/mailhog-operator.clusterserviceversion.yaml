@@ -34,7 +34,7 @@ metadata:
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v3
     repository: https://github.com/patrickmx/mailhog-operator
     support: DIY
-  name: mailhog-operator.v0.1.22
+  name: mailhog-operator.v0.2.0
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -53,7 +53,7 @@ spec:
       - kind: Deployment
         name: ""
         version: v1
-      - kind: DeploymentConfig
+      - kind: Ingress
         name: ""
         version: v1
       - kind: Route
@@ -63,13 +63,6 @@ spec:
         name: ""
         version: v1
       specDescriptors:
-      - description: BackingResource controls if a deploymentConfig or deployment
-          is used
-        displayName: Deploy Mailhog with
-        path: backingResource
-        x-descriptors:
-        - urn:alm:descriptor:com.tectonic.ui:select:deployment
-        - urn:alm:descriptor:com.tectonic.ui:select:deploymentConfig
       - description: Image is the mailhog image to be used
         displayName: Mailhog Image
         path: image
@@ -179,6 +172,30 @@ spec:
         path: settings.hostname
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:text
+      - description: Ingress allows for k8s ingress related configuration
+        displayName: Ingress Settings
+        path: settings.ingress
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:fieldDependency:webTrafficInlet:ingress
+      - description: Class will set the kubernetes.io/ingress.class of created k8s
+          ingresses leaving empty will use the default class
+        displayName: Ingress Class
+        path: settings.ingress.class
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:text
+        - urn:alm:descriptor:com.tectonic.ui:fieldDependency:webTrafficInlet:ingress
+      - description: Host used for mailhog's ingress rule
+        displayName: Hostname
+        path: settings.ingress.ingressClass
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:text
+        - urn:alm:descriptor:com.tectonic.ui:fieldDependency:webTrafficInlet:ingress
+      - description: TlsSecret which will be used for this ingress
+        displayName: TLS Secret
+        path: settings.ingress.tlsSecret
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:text
+        - urn:alm:descriptor:com.tectonic.ui:fieldDependency:webTrafficInlet:ingress
       - description: Jim is the chaos monkey
         displayName: Jim / ChaosMonkey Config
         path: settings.jim
@@ -305,6 +322,7 @@ spec:
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:select:route
         - urn:alm:descriptor:com.tectonic.ui:select:none
+        - urn:alm:descriptor:com.tectonic.ui:select:ingress
       statusDescriptors:
       - description: Error is used to signal illegal CR specs
         displayName: Error Message
@@ -338,6 +356,8 @@ spec:
     * Inspired by MailCatcher, Mailhog is a SMTP server to prevent mails from leaving your non-productive environments
     * GUI & API access to the mails received by mailhog allows to quickly view what would be outgoing mails
     * The integrated chaos monkey jim allows to simulate connection failures between the app and the SMTP server
+    * MailHog is written in go and released under MIT, [check out the contributor list](https://github.com/mailhog/MailHog/graphs/contributors)
+    * [Image on Dockerhub](https://registry.hub.docker.com/r/mailhog/mailhog/)
     ### About the [mailhog-operator](https://github.com/patrickmx/mailhog-operator)
     * This operator was created to easily deploy mailhog into testing environments without having to rewrite deployments over and over again
     ### CR Examples
@@ -383,18 +403,6 @@ spec:
           verbs:
           - '*'
         - apiGroups:
-          - apps.openshift.io
-          resources:
-          - deploymentconfigs
-          verbs:
-          - '*'
-        - apiGroups:
-          - apps.openshift.io
-          resources:
-          - deploymentconfigs/status
-          verbs:
-          - '*'
-        - apiGroups:
           - mailhog.operators.patrick.mx
           resources:
           - mailhoginstances
@@ -416,6 +424,12 @@ spec:
           - mailhog.operators.patrick.mx
           resources:
           - mailhoginstances/status
+          verbs:
+          - '*'
+        - apiGroups:
+          - networking
+          resources:
+          - ingress
           verbs:
           - '*'
         - apiGroups:
@@ -453,7 +467,7 @@ spec:
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.annotations['olm.targetNamespaces']
-                image: ghcr.io/patrickmx/mailhog-operator:v0.1.22
+                image: ghcr.io/patrickmx/mailhog-operator:v0.2.0
                 imagePullPolicy: Always
                 livenessProbe:
                   httpGet:
@@ -560,4 +574,5 @@ spec:
   - mailhog-operator.v0.1.17
   - mailhog-operator.v0.1.18
   - mailhog-operator.v0.1.19
-  version: 0.1.22
+  - mailhog-operator.v0.1.22
+  version: 0.2.0

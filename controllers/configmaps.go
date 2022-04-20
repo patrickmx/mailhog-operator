@@ -3,7 +3,6 @@ package controllers
 import (
 	"context"
 	"encoding/json"
-	"strings"
 
 	mailhogv1alpha1 "goimports.patrick.mx/mailhog-operator/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
@@ -12,8 +11,7 @@ import (
 )
 
 // ensureConfigMap reconciles ConfigMap child objects
-func (r *MailhogInstanceReconciler) ensureConfigMap(ctx context.Context, cr *mailhogv1alpha1.MailhogInstance) *ReturnIndicator {
-	var err error
+func ensureConfigMap(ctx context.Context, r *MailhogInstanceReconciler, cr *mailhogv1alpha1.MailhogInstance) (err error) {
 	name := types.NamespacedName{Name: cr.Name, Namespace: cr.Namespace}
 	logger := r.logger.WithValues(span, spanConfigMap)
 
@@ -25,16 +23,12 @@ func (r *MailhogInstanceReconciler) ensureConfigMap(ctx context.Context, cr *mai
 				return r.create(ctx, cr, logger, cm, confMapCreate)
 			}
 			logger.Error(err, failedGetExisting)
-			return &ReturnIndicator{
-				Err: err,
-			}
+			return err
 		}
 		updatedCM, updateNeeded, err := r.configMapUpdates(cr, existingCM)
 		if err != nil {
 			logger.Error(err, failedUpdateCheck)
-			return &ReturnIndicator{
-				Err: err,
-			}
+			return err
 		} else if updateNeeded {
 			return r.update(ctx, cr, logger, updatedCM, confMapUpdate)
 		}
@@ -55,12 +49,12 @@ func (r *MailhogInstanceReconciler) configMapNew(cr *mailhogv1alpha1.MailhogInst
 	data := make(map[string]string)
 
 	if len(cr.Spec.Settings.Files.SmtpUpstreams) > 0 {
-		var serverLines []string
+		servers := make(map[string]mailhogv1alpha1.MailhogUpstreamSpec)
 		for _, server := range cr.Spec.Settings.Files.SmtpUpstreams {
-			text, _ := json.Marshal(server)
-			serverLines = append(serverLines, "\""+server.Name+"\":"+string(text))
+			servers[server.Name] = server
 		}
-		data[settingsFileUpstreamsName] = "{" + strings.Join(serverLines, ",") + "}"
+		serverBytes, _ := json.Marshal(servers)
+		data[settingsFileUpstreamsName] = string(serverBytes)
 	}
 
 	if len(cr.Spec.Settings.Files.WebUsers) > 0 {
@@ -74,7 +68,7 @@ func (r *MailhogInstanceReconciler) configMapNew(cr *mailhogv1alpha1.MailhogInst
 	meta := CreateMetaMaker(cr)
 	notImmutable := false
 	configMap := &corev1.ConfigMap{
-		ObjectMeta: meta.GetMeta(false),
+		ObjectMeta: meta.GetMeta(),
 		Immutable:  &notImmutable,
 		Data:       data,
 	}

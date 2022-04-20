@@ -44,14 +44,6 @@ spec:
           spec:
             description: MailhogInstanceSpec defines the desired state of MailhogInstance
             properties:
-              backingResource:
-                default: deployment
-                description: BackingResource controls if a deploymentConfig or deployment
-                  is used
-                enum:
-                - deployment
-                - deploymentConfig
-                type: string
               image:
                 default: mailhog/mailhog:latest
                 description: Image is the mailhog image to be used
@@ -1024,6 +1016,25 @@ spec:
                     format: hostname
                     nullable: true
                     type: string
+                  ingress:
+                    description: Ingress allows for k8s ingress related configuration
+                    nullable: true
+                    properties:
+                      class:
+                        description: Class will set the kubernetes.io/ingress.class
+                          of created k8s ingresses leaving empty will use the default
+                          class
+                        nullable: true
+                        type: string
+                      ingressClass:
+                        description: Host used for mailhog's ingress rule
+                        nullable: true
+                        type: string
+                      tlsSecret:
+                        description: TlsSecret which will be used for this ingress
+                        nullable: true
+                        type: string
+                    type: object
                   jim:
                     description: Jim is the chaos monkey
                     nullable: true
@@ -1172,6 +1183,7 @@ spec:
                 enum:
                 - none
                 - route
+                - ingress
                 type: string
             type: object
           status:

@@ -4,9 +4,10 @@ import (
 	"context"
 	"testing"
 
+	networkingv1 "k8s.io/api/networking/v1"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	ocappsv1 "github.com/openshift/api/apps/v1"
 	routev1 "github.com/openshift/api/route/v1"
 	mailhogv1alpha1 "goimports.patrick.mx/mailhog-operator/api/v1alpha1"
 	appsv1 "k8s.io/api/apps/v1"
@@ -48,8 +49,6 @@ var _ = BeforeSuite(func() {
 	Expect(err).NotTo(HaveOccurred())
 	err = routev1.AddToScheme(scheme)
 	Expect(err).NotTo(HaveOccurred())
-	err = ocappsv1.AddToScheme(scheme)
-	Expect(err).NotTo(HaveOccurred())
 })
 
 var _ = AfterSuite(func() {
@@ -72,7 +71,7 @@ var _ = Describe("MailhogInstance controller", func() {
 
 	Context("reconcile with a mailhog cr", func() {
 		It("should create a deployment", func() {
-			cr := getTestingCr(nsname, image, mailhogv1alpha1.NoTrafficInlet, mailhogv1alpha1.DeploymentBacking)
+			cr := getTestingCr(nsname, image, mailhogv1alpha1.NoTrafficInlet)
 			objects := []client.Object{
 				cr,
 			}
@@ -81,7 +80,7 @@ var _ = Describe("MailhogInstance controller", func() {
 			r := &MailhogInstanceReconciler{Client: k8sClient, Scheme: scheme}
 			res, err := r.Reconcile(ctx, req)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(res).Should(Equal(reconcile.Result{RequeueAfter: requeueTime}))
+			Expect(res).Should(Equal(reconcile.Result{}))
 
 			createdDeployment := &appsv1.Deployment{}
 			err = k8sClient.Get(ctx, nsname, createdDeployment)
@@ -90,29 +89,9 @@ var _ = Describe("MailhogInstance controller", func() {
 		})
 	})
 
-	Context("reconcile with a mailhog cr which uses a deploymentconfig", func() {
-		It("should create a deploymentconfig", func() {
-			cr := getTestingCr(nsname, image, mailhogv1alpha1.NoTrafficInlet, mailhogv1alpha1.DeploymentConfigBacking)
-			objects := []client.Object{
-				cr,
-			}
-			k8sClient = fake.NewClientBuilder().WithScheme(scheme).WithObjects(objects...).Build()
-
-			r := &MailhogInstanceReconciler{Client: k8sClient, Scheme: scheme}
-			res, err := r.Reconcile(ctx, req)
-			Expect(err).ToNot(HaveOccurred())
-			Expect(res).Should(Equal(reconcile.Result{RequeueAfter: requeueTime}))
-
-			createdDeploymentConfig := &ocappsv1.DeploymentConfig{}
-			err = k8sClient.Get(ctx, nsname, createdDeploymentConfig)
-			Expect(err).ToNot(HaveOccurred())
-			Expect(createdDeploymentConfig.Spec.Template.Spec.Containers[0].Image).Should(Equal(image))
-		})
-	})
-
 	Context("reconcile with a mailhog cr and a deployment", func() {
 		It("should create a service", func() {
-			cr := getTestingCr(nsname, image, mailhogv1alpha1.RouteTrafficInlet, mailhogv1alpha1.DeploymentBacking)
+			cr := getTestingCr(nsname, image, mailhogv1alpha1.RouteTrafficInlet)
 			deployment := getTestingDeployment(cr)
 			objects := []client.Object{
 				cr, deployment,
@@ -122,7 +101,7 @@ var _ = Describe("MailhogInstance controller", func() {
 			r := &MailhogInstanceReconciler{Client: k8sClient, Scheme: scheme}
 			res, err := r.Reconcile(ctx, req)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(res).Should(Equal(reconcile.Result{RequeueAfter: requeueTime}))
+			Expect(res).Should(Equal(reconcile.Result{}))
 
 			createdService := &corev1.Service{}
 			err = k8sClient.Get(ctx, nsname, createdService)
@@ -133,7 +112,7 @@ var _ = Describe("MailhogInstance controller", func() {
 
 	Context("reconcile with a mailhog cr, a deployment and a service", func() {
 		It("should create a route", func() {
-			cr := getTestingCr(nsname, image, mailhogv1alpha1.RouteTrafficInlet, mailhogv1alpha1.DeploymentBacking)
+			cr := getTestingCr(nsname, image, mailhogv1alpha1.RouteTrafficInlet)
 			deployment := getTestingDeployment(cr)
 			service := getTestingService(cr)
 			objects := []client.Object{
@@ -144,7 +123,7 @@ var _ = Describe("MailhogInstance controller", func() {
 			r := &MailhogInstanceReconciler{Client: k8sClient, Scheme: scheme}
 			res, err := r.Reconcile(ctx, req)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(res).Should(Equal(reconcile.Result{RequeueAfter: requeueTime}))
+			Expect(res).Should(Equal(reconcile.Result{}))
 
 			createdRoute := &routev1.Route{}
 			err = k8sClient.Get(ctx, nsname, createdRoute)
@@ -153,9 +132,31 @@ var _ = Describe("MailhogInstance controller", func() {
 		})
 	})
 
+	Context("reconcile with a mailhog cr, a deployment and a service", func() {
+		It("should create a ingress", func() {
+			cr := getTestingCr(nsname, image, mailhogv1alpha1.IngressTrafficInlet)
+			deployment := getTestingDeployment(cr)
+			service := getTestingService(cr)
+			objects := []client.Object{
+				cr, deployment, service,
+			}
+			k8sClient = fake.NewClientBuilder().WithScheme(scheme).WithObjects(objects...).Build()
+
+			r := &MailhogInstanceReconciler{Client: k8sClient, Scheme: scheme}
+			res, err := r.Reconcile(ctx, req)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(res).Should(Equal(reconcile.Result{}))
+
+			createdIngress := &networkingv1.Ingress{}
+			err = k8sClient.Get(ctx, nsname, createdIngress)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(createdIngress.Spec.Rules[0].HTTP.Paths[0].Path).To(Equal("/"))
+		})
+	})
+
 	Context("reconcile with a mailhog cr, when the route is deactivated but exists", func() {
 		It("should delete the route", func() {
-			cr := getTestingCr(nsname, image, mailhogv1alpha1.NoTrafficInlet, mailhogv1alpha1.DeploymentBacking)
+			cr := getTestingCr(nsname, image, mailhogv1alpha1.NoTrafficInlet)
 			deployment := getTestingDeployment(cr)
 			service := getTestingService(cr)
 			route := getTestingRoute(cr)
@@ -167,7 +168,7 @@ var _ = Describe("MailhogInstance controller", func() {
 			r := &MailhogInstanceReconciler{Client: k8sClient, Scheme: scheme}
 			res, err := r.Reconcile(ctx, req)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(res).Should(Equal(reconcile.Result{RequeueAfter: requeueTime}))
+			Expect(res).Should(Equal(reconcile.Result{}))
 
 			createdRoute := &routev1.Route{}
 			err = k8sClient.Get(ctx, nsname, createdRoute)
@@ -176,9 +177,9 @@ var _ = Describe("MailhogInstance controller", func() {
 		})
 	})
 
-	Context("reconcile with a mailhog cr that needs a configmap", func() {
+	Context("reconcile with a mailhog cr that needs a configmap for ui password", func() {
 		It("should create the configmap", func() {
-			cr := getTestingCr(nsname, image, mailhogv1alpha1.NoTrafficInlet, mailhogv1alpha1.DeploymentBacking)
+			cr := getTestingCr(nsname, image, mailhogv1alpha1.NoTrafficInlet)
 			cr.Spec.Settings.Files = &mailhogv1alpha1.MailhogFilesSpec{
 				WebUsers: []mailhogv1alpha1.MailhogWebUserSpec{
 					{
@@ -197,12 +198,51 @@ var _ = Describe("MailhogInstance controller", func() {
 			r := &MailhogInstanceReconciler{Client: k8sClient, Scheme: scheme}
 			res, err := r.Reconcile(ctx, req)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(res).Should(Equal(reconcile.Result{RequeueAfter: requeueTime}))
+			Expect(res).Should(Equal(reconcile.Result{}))
 
 			createdConfigMap := &corev1.ConfigMap{}
 			err = k8sClient.Get(ctx, nsname, createdConfigMap)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(createdConfigMap.Data[settingsFilePasswordsName]).ToNot(BeEmpty())
+		})
+	})
+
+	Context("reconcile with a mailhog cr that needs a configmap for smtp upstream", func() {
+		It("should create the configmap correctly formatted", func() {
+			cr := getTestingCr(nsname, image, mailhogv1alpha1.NoTrafficInlet)
+			cr.Spec.Settings.Files = &mailhogv1alpha1.MailhogFilesSpec{
+				SmtpUpstreams: []mailhogv1alpha1.MailhogUpstreamSpec{
+					{
+						Name: "cornflower",
+						Host: "blue",
+					},
+					{
+						Name: "green",
+						Host: "grass",
+					},
+					{
+						Name: "black",
+						Host: "hole",
+					},
+				},
+			}
+			expectedJson := `{"black":{"name":"black","host":"hole"},"cornflower":{"name":"cornflower","host":"blue"},"green":{"name":"green","host":"grass"}}`
+			deployment := getTestingDeployment(cr)
+			service := getTestingService(cr)
+			objects := []client.Object{
+				cr, deployment, service,
+			}
+			k8sClient = fake.NewClientBuilder().WithScheme(scheme).WithObjects(objects...).Build()
+
+			r := &MailhogInstanceReconciler{Client: k8sClient, Scheme: scheme}
+			res, err := r.Reconcile(ctx, req)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(res).Should(Equal(reconcile.Result{}))
+
+			createdConfigMap := &corev1.ConfigMap{}
+			err = k8sClient.Get(ctx, nsname, createdConfigMap)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(createdConfigMap.Data[settingsFileUpstreamsName]).To(Equal(expectedJson))
 		})
 	})
 
@@ -214,7 +254,7 @@ var _ = Describe("MailhogInstance controller", func() {
 				"/mailhog", "/mailhog/settings", "/mailhog/settings/files",
 			}
 			for _, path := range paths {
-				cr := getTestingCr(nsname, image, mailhogv1alpha1.NoTrafficInlet, mailhogv1alpha1.DeploymentBacking)
+				cr := getTestingCr(nsname, image, mailhogv1alpha1.NoTrafficInlet)
 				cr.Spec.Settings.Files = &mailhogv1alpha1.MailhogFilesSpec{
 					WebUsers: []mailhogv1alpha1.MailhogWebUserSpec{
 						{
@@ -244,7 +284,7 @@ var _ = Describe("MailhogInstance controller", func() {
 
 	Context("reconcile with a mailhog cr that specifies an illegal jim float", func() {
 		It("should return an error and refuse to proceed", func() {
-			cr := getTestingCr(nsname, image, mailhogv1alpha1.NoTrafficInlet, mailhogv1alpha1.DeploymentBacking)
+			cr := getTestingCr(nsname, image, mailhogv1alpha1.NoTrafficInlet)
 			cr.Spec.Settings.Jim.Invite = true
 			cr.Spec.Settings.Jim.Accept = "aaa"
 			objects := []client.Object{
@@ -268,7 +308,7 @@ var _ = Describe("MailhogInstance controller", func() {
 		It("should return an error and refuse to proceed", func() {
 			paths := []string{"/first", "/deep/below/", "last/"}
 			for _, path := range paths {
-				cr := getTestingCr(nsname, image, mailhogv1alpha1.NoTrafficInlet, mailhogv1alpha1.DeploymentBacking)
+				cr := getTestingCr(nsname, image, mailhogv1alpha1.NoTrafficInlet)
 				cr.Spec.Settings.WebPath = path
 				objects := []client.Object{
 					cr,
@@ -289,7 +329,7 @@ var _ = Describe("MailhogInstance controller", func() {
 	})
 })
 
-func getTestingCr(nsname types.NamespacedName, image string, inlet mailhogv1alpha1.TrafficInletResource, deployment mailhogv1alpha1.BackingResource) *mailhogv1alpha1.MailhogInstance {
+func getTestingCr(nsname types.NamespacedName, image string, inlet mailhogv1alpha1.TrafficInletResource) *mailhogv1alpha1.MailhogInstance {
 	return &mailhogv1alpha1.MailhogInstance{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: "mailhog.operators.patrick.mx/v1alpha1",
@@ -307,7 +347,6 @@ func getTestingCr(nsname types.NamespacedName, image string, inlet mailhogv1alph
 				Storage:  mailhogv1alpha1.MemoryStorage,
 			},
 			WebTrafficInlet: inlet,
-			BackingResource: deployment,
 		},
 	}
 }

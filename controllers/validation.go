@@ -3,50 +3,32 @@ package controllers
 import (
 	"context"
 	"errors"
-	"reflect"
 	"regexp"
 	"strconv"
 
 	mailhogv1alpha1 "goimports.patrick.mx/mailhog-operator/api/v1alpha1"
-	"k8s.io/apimachinery/pkg/types"
 )
 
+var crStatusChecks = []func(*mailhogv1alpha1.MailhogInstance) error{
+	checkOverlappingMounts,
+	checkMissingSettings,
+	checkSmtpUpstreams,
+	checkJimFloats,
+	checkWebPath,
+}
+
 // ensureCrValid ensures no invalid CRs are processed
-func (r *MailhogInstanceReconciler) ensureCrValid(ctx context.Context, cr *mailhogv1alpha1.MailhogInstance) *ReturnIndicator {
-	var err error
-	name := types.NamespacedName{Name: cr.Name, Namespace: cr.Namespace}
+func ensureCrValid(ctx context.Context, r *MailhogInstanceReconciler, cr *mailhogv1alpha1.MailhogInstance) (err error) {
 	logger := r.logger.WithValues(span, spanCrValid)
 
-	latestCr := &mailhogv1alpha1.MailhogInstance{}
-	if err := r.Get(ctx, name, latestCr); err != nil {
-		logger.Error(err, failedCrRefresh)
-		return &ReturnIndicator{
-			Err: err,
-		}
-	} else if !reflect.DeepEqual(cr, latestCr) {
-		logger.Info("cr changed")
-		return &ReturnIndicator{}
-	}
-
-	checks := []func(*mailhogv1alpha1.MailhogInstance) error{
-		checkOverlappingMounts,
-		checkMissingSettings,
-		checkSmtpUpstreams,
-		checkJimFloats,
-		checkWebPath,
-	}
-	for _, check := range checks {
+	for _, check := range crStatusChecks {
 		if err = check(cr); err != nil {
 			cr.Status.Error = err.Error()
 			if err := r.Status().Update(ctx, cr); err != nil {
 				logger.Error(err, failedCrUpdateStatus)
-				return &ReturnIndicator{
-					Err: err,
-				}
+				return err
 			}
-			return &ReturnIndicator{
-				Err: err,
-			}
+			return err
 		}
 	}
 
@@ -57,7 +39,7 @@ func (r *MailhogInstanceReconciler) ensureCrValid(ctx context.Context, cr *mailh
 // checkOverlappingMounts returns an error if a forbidden mount path is used as maildir path
 func checkOverlappingMounts(cr *mailhogv1alpha1.MailhogInstance) error {
 	if userPath := cr.Spec.Settings.StorageMaildir.Path; userPath != "" {
-		conflictPathRegex := regexp.MustCompile("^\\/(usr|mailhog)?(\\/)?((settings)\\/?(files)?|(local)\\/?(bin)?\\/?(MailHog)?)?$")
+		conflictPathRegex := regexp.MustCompile(`^/(usr|mailhog)?(/)?((settings)/?(files)?|(local)/?(bin)?/?(MailHog)?)?$`)
 		if matches := conflictPathRegex.MatchString(userPath); matches {
 			return errConflictingMount
 		}
@@ -98,7 +80,7 @@ func checkSmtpUpstreams(cr *mailhogv1alpha1.MailhogInstance) error {
 	return nil
 }
 
-// checkJimFloats returns an error if a a jim value can not be converted to a float
+// checkJimFloats returns an error if a jim value can not be converted to a float
 func checkJimFloats(cr *mailhogv1alpha1.MailhogInstance) error {
 	if cr.Spec.Settings.Jim.Invite == true {
 		fields := []string{

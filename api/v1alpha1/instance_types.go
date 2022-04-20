@@ -23,7 +23,6 @@ import (
 
 type (
 	StorageSetting       string
-	BackingResource      string
 	TrafficInletResource string
 )
 
@@ -37,17 +36,14 @@ const (
 	// MongoDBStorage incoming mails will be stored in a mongodb database
 	MongoDBStorage StorageSetting = "mongodb"
 
-	// DeploymentBacking mailhog will be deployed as a kubernetes deployment
-	DeploymentBacking BackingResource = "deployment"
-
-	// DeploymentConfigBacking mailhog will be deployed as an openshift DeploymentConfig
-	DeploymentConfigBacking BackingResource = "deploymentConfig"
-
 	// RouteTrafficInlet an openshift route will be created to allow gui/api access
 	RouteTrafficInlet TrafficInletResource = "route"
 
 	// NoTrafficInlet no external access to the gui/api will be provided
 	NoTrafficInlet TrafficInletResource = "none"
+
+	// IngressTrafficInlet a k8s ingress will be created for gui/api access
+	IngressTrafficInlet TrafficInletResource = "ingress"
 )
 
 // MailhogInstanceSpec defines the desired state of MailhogInstance
@@ -80,17 +76,9 @@ type MailhogInstanceSpec struct {
 	//
 	//+kubebuilder:validation:Required
 	//+kubebuilder:default:="none"
-	//+kubebuilder:validation:Enum=none;route
-	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Expose Mailhog with",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:select:route","urn:alm:descriptor:com.tectonic.ui:select:none"}
+	//+kubebuilder:validation:Enum=none;route;ingress
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Expose Mailhog with",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:select:route","urn:alm:descriptor:com.tectonic.ui:select:none","urn:alm:descriptor:com.tectonic.ui:select:ingress"}
 	WebTrafficInlet TrafficInletResource `json:"webTrafficInlet,omitempty"`
-
-	// BackingResource controls if a deploymentConfig or deployment is used
-	//
-	//+kubebuilder:validation:Required
-	//+kubebuilder:default:="deployment"
-	//+kubebuilder:validation:Enum=deployment;deploymentConfig
-	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Deploy Mailhog with",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:select:deployment","urn:alm:descriptor:com.tectonic.ui:select:deploymentConfig"}
-	BackingResource BackingResource `json:"backingResource,omitempty"`
 }
 
 // MailhogInstanceSettingsSpec are settings related to the mailhog instance
@@ -178,6 +166,42 @@ type MailhogInstanceSettingsSpec struct {
 	//+nullable
 	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Web ContextRoot",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text"}
 	WebPath string `json:"webPath,omitempty"`
+
+	// Ingress allows for k8s ingress related configuration
+	//
+	//+kubebuilder:validation:Optional
+	//+optional
+	//+nullable
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Ingress Settings",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:fieldDependency:webTrafficInlet:ingress"}
+	Ingress IngressSpec `json:"ingress,omitempty"`
+}
+
+// IngressSpec allows for k8s ingress related configuration
+type IngressSpec struct {
+	// Class will set the kubernetes.io/ingress.class of created k8s ingresses
+	// leaving empty will use the default class
+	//
+	//+kubebuilder:validation:Optional
+	//+optional
+	//+nullable
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Ingress Class",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text","urn:alm:descriptor:com.tectonic.ui:fieldDependency:webTrafficInlet:ingress"}
+	Class string `json:"class,omitempty"`
+
+	// Host used for mailhog's ingress rule
+	//
+	//+kubebuilder:validation:Optional
+	//+optional
+	//+nullable
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Hostname",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text","urn:alm:descriptor:com.tectonic.ui:fieldDependency:webTrafficInlet:ingress"}
+	Host string `json:"ingressClass,omitempty"`
+
+	// TlsSecret which will be used for this ingress
+	//
+	//+kubebuilder:validation:Optional
+	//+optional
+	//+nullable
+	//+operator-sdk:csv:customresourcedefinitions:type=spec,displayName="TLS Secret",xDescriptors={"urn:alm:descriptor:com.tectonic.ui:text","urn:alm:descriptor:com.tectonic.ui:fieldDependency:webTrafficInlet:ingress"}
+	TlsSecret string `json:"tlsSecret,omitempty"`
 }
 
 // AffinitySpec offers pod placement configuration
@@ -545,7 +569,7 @@ type PodStatus struct {
 //+kubebuilder:subresource:status
 //+kubebuilder:subresource:scale:specpath=.spec.replicas,statuspath=.status.podCount,selectorpath=.status.labelSelector
 //+operator-sdk:csv:customresourcedefinitions:displayName="Mailhog Instance"
-//+operator-sdk:csv:customresourcedefinitions:resources={{Service,v1},{Deployment,v1},{DeploymentConfig,v1},{Route,v1},{ConfigMap,v1}}
+//+operator-sdk:csv:customresourcedefinitions:resources={{Service,v1},{Deployment,v1},{Route,v1},{ConfigMap,v1},{Ingress,v1}}
 type MailhogInstance struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`

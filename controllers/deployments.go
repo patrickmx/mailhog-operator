@@ -11,40 +11,26 @@ import (
 )
 
 // ensureDeployment reconciles Deployment child objects
-func (r *MailhogInstanceReconciler) ensureDeployment(ctx context.Context, cr *mailhogv1alpha1.MailhogInstance) *ReturnIndicator {
-	var err error
+func ensureDeployment(ctx context.Context, r *MailhogInstanceReconciler, cr *mailhogv1alpha1.MailhogInstance) (err error) {
 	name := types.NamespacedName{Name: cr.Name, Namespace: cr.Namespace}
 	logger := r.logger.WithValues(span, spanDeployment)
 
-	if cr.Spec.BackingResource == mailhogv1alpha1.DeploymentBacking {
-
-		existingDeployment := &appsv1.Deployment{}
-		if err = r.Get(ctx, name, existingDeployment); err != nil {
-			if errors.IsNotFound(err) {
-				deployment := r.deploymentNew(cr)
-				return r.create(ctx, cr, logger, deployment, deploymentCreate)
-			}
-			logger.Error(err, failedGetExisting)
-			return &ReturnIndicator{
-				Err: err,
-			}
+	existingDeployment := &appsv1.Deployment{}
+	if err = r.Get(ctx, name, existingDeployment); err != nil {
+		if errors.IsNotFound(err) {
+			deployment := r.deploymentNew(cr)
+			return r.create(ctx, cr, logger, deployment, deploymentCreate)
 		}
+		logger.Error(err, failedGetExisting)
+		return err
+	}
 
-		updatedDeployment, updateNeeded, err := r.deploymentUpdates(cr, existingDeployment)
-		if err != nil {
-			logger.Error(err, failedUpdateCheck)
-			return &ReturnIndicator{
-				Err: err,
-			}
-		} else if updateNeeded {
-			return r.update(ctx, cr, logger, updatedDeployment, deploymentUpdate)
-		}
-	} else {
-
-		toBeDeletedDeployment := &appsv1.Deployment{}
-		if indicator := r.delete(ctx, name, toBeDeletedDeployment, logger, deploymentDelete); indicator != nil {
-			return indicator
-		}
+	updatedDeployment, updateNeeded, err := r.deploymentUpdates(cr, existingDeployment)
+	if err != nil {
+		logger.Error(err, failedUpdateCheck)
+		return err
+	} else if updateNeeded {
+		return r.update(ctx, cr, logger, updatedDeployment, deploymentUpdate)
 	}
 
 	logger.Info(stateEnsured)
@@ -58,11 +44,11 @@ func (r *MailhogInstanceReconciler) deploymentNew(cr *mailhogv1alpha1.MailhogIns
 	meta := CreateMetaMaker(cr)
 
 	deployment := &appsv1.Deployment{
-		ObjectMeta: meta.GetMeta(false),
+		ObjectMeta: meta.GetMeta(),
 		Spec: appsv1.DeploymentSpec{
 			Replicas: &replicas,
 			Selector: &metav1.LabelSelector{
-				MatchLabels: meta.GetLabels(false),
+				MatchLabels: meta.GetLabels(),
 			},
 			Template: template,
 		},

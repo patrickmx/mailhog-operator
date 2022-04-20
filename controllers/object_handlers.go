@@ -7,6 +7,7 @@ import (
 	"github.com/go-logr/logr"
 	"github.com/prometheus/client_golang/prometheus"
 	mailhogv1alpha1 "goimports.patrick.mx/mailhog-operator/api/v1alpha1"
+	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
@@ -20,33 +21,25 @@ func (r *MailhogInstanceReconciler) create(ctx context.Context,
 	logger logr.Logger,
 	obj client.Object,
 	tickFunc prometheus.Counter,
-) *ReturnIndicator {
-	var err error
-
+) (err error) {
 	if err = patch.DefaultAnnotator.SetLastAppliedAnnotation(obj); err != nil {
 		logger.Error(err, messageFailedGetInitialObject)
-		return &ReturnIndicator{
-			Err: err,
-		}
+		return err
 	}
 
 	if err = ctrl.SetControllerReference(cr, obj, r.Scheme); err != nil {
 		logger.Error(err, messageFailedSetOwnerRef)
-		return &ReturnIndicator{
-			Err: err,
-		}
+		return err
 	}
 
 	if err = r.Create(ctx, obj); err != nil {
 		logger.Error(err, messageFailedCreate)
-		return &ReturnIndicator{
-			Err: err,
-		}
+		return err
 	}
 
 	logger.Info(messageCreatedObject)
 	tickFunc.Inc()
-	return &ReturnIndicator{}
+	return nil
 }
 
 // delete tries to delete the given object
@@ -55,26 +48,19 @@ func (r *MailhogInstanceReconciler) delete(ctx context.Context,
 	obj client.Object,
 	logger logr.Logger,
 	tick prometheus.Counter,
-) *ReturnIndicator {
-	var err error
-
+) (err error) {
 	if err = r.Get(ctx, name, obj); err != nil {
 		if !errors.IsNotFound(err) {
 			logger.Error(err, messageFailedGetDeletingObject)
-			return &ReturnIndicator{
-				Err: err,
-			}
+			return err
 		}
 	} else {
 		if err = r.Delete(ctx, obj, deleteOptions(100)); err != nil {
 			logger.Error(err, messageFailedDelete)
-			return &ReturnIndicator{
-				Err: err,
-			}
+			return err
 		}
 		logger.Info(messageDeletedObject)
 		tick.Inc()
-		return &ReturnIndicator{}
 	}
 
 	return nil
@@ -94,37 +80,29 @@ func (r *MailhogInstanceReconciler) update(ctx context.Context,
 	logger logr.Logger,
 	obj client.Object,
 	tickFunc prometheus.Counter,
-) *ReturnIndicator {
-	var err error
-
+) (err error) {
 	if err = ctrl.SetControllerReference(cr, obj, r.Scheme); err != nil {
 		logger.Error(err, messageFailedSetOwnerRefUpdate)
-		return &ReturnIndicator{
-			Err: err,
-		}
+		return err
 	}
 	if err = r.Update(ctx, obj); err != nil {
-		if errors.IsInvalid(err) {
+		if errors.IsInvalid(err) && obj.GetObjectKind().GroupVersionKind() == appsv1.SchemeGroupVersion.WithKind("Deployment") {
 			if deleteErr := r.Delete(ctx, obj, deleteOptions(100)); deleteErr != nil {
 				logger.Error(deleteErr, messageFailedDeleteAfterInvalid)
-				return &ReturnIndicator{
-					Err: deleteErr,
-				}
+				return err
 			}
 			logger.Error(err, messageDeletedObjectAfterInvalid)
 			tickFunc.Inc()
-			return &ReturnIndicator{}
+			return nil
 		}
 		logger.Error(err, messageFailedUpdate)
-		return &ReturnIndicator{
-			Err: err,
-		}
+		return err
 	}
 	logger.Info(messageUpdated)
 	tickFunc.Inc()
 
-	r.Recorder.Event(obj, corev1.EventTypeNormal, "SuccessEvent", eventUpdated)
-	return &ReturnIndicator{}
+	r.Recorder.Event(cr, corev1.EventTypeNormal, "SuccessEvent", eventUpdated)
+	return nil
 }
 
 // checkPatch compares an object to its reference state
@@ -139,7 +117,7 @@ func checkPatch(oldO client.Object, newO client.Object) (updateNeeded bool, err 
 	}
 
 	if !patchResult.IsEmpty() {
-		if err := patch.DefaultAnnotator.SetLastAppliedAnnotation(newO); err != nil {
+		if err = patch.DefaultAnnotator.SetLastAppliedAnnotation(newO); err != nil {
 			return true, err
 		}
 		return true, nil
@@ -147,10 +125,3 @@ func checkPatch(oldO client.Object, newO client.Object) (updateNeeded bool, err 
 
 	return false, nil
 }
-
-type (
-	// ReturnIndicator is used to indicate to the main Reconcile if a Return / Requeue is needed or not
-	ReturnIndicator struct {
-		Err error
-	}
-)

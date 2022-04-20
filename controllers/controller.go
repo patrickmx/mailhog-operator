@@ -18,11 +18,9 @@ package controllers
 
 import (
 	"context"
-	"time"
 
 	"github.com/banzaicloud/k8s-objectmatcher/patch"
 	"github.com/go-logr/logr"
-	ocappsv1 "github.com/openshift/api/apps/v1"
 	routev1 "github.com/openshift/api/route/v1"
 	mailhogv1alpha1 "goimports.patrick.mx/mailhog-operator/api/v1alpha1"
 	appsv1 "k8s.io/api/apps/v1"
@@ -49,20 +47,16 @@ type MailhogInstanceReconciler struct {
 	logger   logr.Logger
 }
 
-// requeueTime default ReconcileAfter value is 10 seconds
-var requeueTime = time.Duration(10) * time.Second
-
 //+kubebuilder:rbac:groups=mailhog.operators.patrick.mx,resources=mailhoginstances,verbs=*
 //+kubebuilder:rbac:groups=mailhog.operators.patrick.mx,resources=mailhoginstances/status,verbs=*
 //+kubebuilder:rbac:groups=mailhog.operators.patrick.mx,resources=mailhoginstances/scale,verbs=*
 //+kubebuilder:rbac:groups=mailhog.operators.patrick.mx,resources=mailhoginstances/finalizers,verbs=*
 //+kubebuilder:rbac:groups=apps,resources=deployments,verbs=*
+//+kubebuilder:rbac:groups=networking,resources=ingress,verbs=*
 //+kubebuilder:rbac:groups="",resources=pods,verbs=get;list;watch
 //+kubebuilder:rbac:groups="",resources=services,verbs=*
 //+kubebuilder:rbac:groups="",resources=configmaps,verbs=*
 //+kubebuilder:rbac:groups=route.openshift.io,resources=routes,verbs=*
-//+kubebuilder:rbac:groups=apps.openshift.io,resources=deploymentconfigs,verbs=*
-//+kubebuilder:rbac:groups=apps.openshift.io,resources=deploymentconfigs/status,verbs=*
 //+kubebuilder:rbac:groups="",resources=events,verbs=create
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
@@ -85,26 +79,24 @@ func (r *MailhogInstanceReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 	}
 
 	// ensure child objects
-	assurances := []func(context.Context, *mailhogv1alpha1.MailhogInstance) *ReturnIndicator{
-		r.ensureCrValid,
-		r.ensureDeployment,
-		r.ensureDeploymentConfig,
-		r.ensureService,
-		r.ensureConfigMap,
-		r.ensureRoute,
-		r.ensureStatus,
-	}
-	for _, ensure := range assurances {
-		if ri := ensure(ctx, cr); ri != nil {
-			if ri.Err != nil {
-				return ctrl.Result{}, ri.Err
-			}
-			return ctrl.Result{RequeueAfter: requeueTime}, nil
+	for _, ensure := range controllerAssurances {
+		if err := ensure(ctx, r, cr); err != nil {
+			return ctrl.Result{}, err
 		}
 	}
 
 	r.logger.Info(reconcileFinished)
 	return ctrl.Result{}, nil
+}
+
+var controllerAssurances = []func(context.Context, *MailhogInstanceReconciler, *mailhogv1alpha1.MailhogInstance) error{
+	ensureCrValid,
+	ensureDeployment,
+	ensureService,
+	ensureConfigMap,
+	ensureRoute,
+	ensureIngress,
+	ensureStatus,
 }
 
 // findObjectsForPod is mapper to find which CR needs to be reconciled when a pod is updated
@@ -114,16 +106,16 @@ func (r *MailhogInstanceReconciler) findObjectsForPod(watchedPod client.Object) 
 	requests := make([]reconcile.Request, 0)
 
 	pod := &corev1.Pod{}
-	if err := r.Get(context.TODO(), types.NamespacedName{Namespace: ns, Name: name}, pod); err != nil {
-		return requests
+	if err := r.Get(context.TODO(), types.NamespacedName{Namespace: ns, Name: name}, pod); err == nil {
+		if belongsToCr := pod.Labels[crNameLabel]; belongsToCr != "" {
+			requests = append(requests, reconcile.Request{
+				NamespacedName: types.NamespacedName{
+					Namespace: ns,
+					Name:      belongsToCr,
+				},
+			})
+		}
 	}
-
-	requests = append(requests, reconcile.Request{
-		NamespacedName: types.NamespacedName{
-			Namespace: ns,
-			Name:      pod.Labels[crNameLabel],
-		},
-	})
 
 	return requests
 }
@@ -135,7 +127,6 @@ func (r *MailhogInstanceReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&mailhogv1alpha1.MailhogInstance{}).
 		Owns(&appsv1.Deployment{}).
-		Owns(&ocappsv1.DeploymentConfig{}).
 		Owns(&corev1.Service{}).
 		Owns(&routev1.Route{}).
 		Owns(&corev1.ConfigMap{}).

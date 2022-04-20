@@ -38,18 +38,6 @@ rules:
   verbs:
   - '*'
 - apiGroups:
-  - apps.openshift.io
-  resources:
-  - deploymentconfigs
-  verbs:
-  - '*'
-- apiGroups:
-  - apps.openshift.io
-  resources:
-  - deploymentconfigs/status
-  verbs:
-  - '*'
-- apiGroups:
   - mailhog.operators.patrick.mx
   resources:
   - mailhoginstances
@@ -71,6 +59,12 @@ rules:
   - mailhog.operators.patrick.mx
   resources:
   - mailhoginstances/status
+  verbs:
+  - '*'
+- apiGroups:
+  - networking
+  resources:
+  - ingress
   verbs:
   - '*'
 - apiGroups:

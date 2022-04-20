@@ -11,8 +11,7 @@ import (
 )
 
 // ensureService reconciles Service child objects
-func (r *MailhogInstanceReconciler) ensureService(ctx context.Context, cr *mailhogv1alpha1.MailhogInstance) *ReturnIndicator {
-	var err error
+func ensureService(ctx context.Context, r *MailhogInstanceReconciler, cr *mailhogv1alpha1.MailhogInstance) (err error) {
 	name := types.NamespacedName{Name: cr.Name, Namespace: cr.Namespace}
 	logger := r.logger.WithValues(span, spanService)
 
@@ -23,17 +22,13 @@ func (r *MailhogInstanceReconciler) ensureService(ctx context.Context, cr *mailh
 			return r.create(ctx, cr, logger, service, serviceCreate)
 		}
 		logger.Error(err, failedGetExisting)
-		return &ReturnIndicator{
-			Err: err,
-		}
+		return err
 	}
 
 	updatedService, updateNeeded, err := r.serviceUpdates(cr, existingService)
 	if err != nil {
 		logger.Error(err, failedUpdateCheck)
-		return &ReturnIndicator{
-			Err: err,
-		}
+		return err
 	} else if updateNeeded {
 		return r.update(ctx, cr, logger, updatedService, serviceUpdate)
 	}
@@ -47,9 +42,9 @@ func (r *MailhogInstanceReconciler) serviceNew(cr *mailhogv1alpha1.MailhogInstan
 	meta := CreateMetaMaker(cr)
 
 	service := &corev1.Service{
-		ObjectMeta: meta.GetMeta(false),
+		ObjectMeta: meta.GetMeta(),
 		Spec: corev1.ServiceSpec{
-			Selector: meta.GetLabels(true),
+			Selector: meta.GetLabels(),
 			Ports: []corev1.ServicePort{
 				{
 					Port: portSmtp,
