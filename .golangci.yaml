@@ -28,7 +28,6 @@ linters:
     - goconst
     - gocritic
     - gocyclo
-    - godox
     - goerr113
     - gofumpt
     - goheader

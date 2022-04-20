@@ -99,7 +99,7 @@ lint: manifests generate fmt vet sec golangci-lint ## run linter with normal set
 
 .PHONY: lint-strict
 lint-strict: manifests generate fmt vet sec golangci-lint ## run linter with more strict tips
-	$(GOLANGCILINT) run -E funlen,revive,dupl,lll,gocognit,cyclop
+	$(GOLANGCILINT) run -E funlen,revive,dupl,lll,gocognit,cyclop,godox
 
 ##@ Build
 
