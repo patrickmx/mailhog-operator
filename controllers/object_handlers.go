@@ -117,7 +117,7 @@ func checkPatch(oldO client.Object, newO client.Object) (updateNeeded bool, err 
 	}
 
 	if !patchResult.IsEmpty() {
-		if err := patch.DefaultAnnotator.SetLastAppliedAnnotation(newO); err != nil {
+		if err = patch.DefaultAnnotator.SetLastAppliedAnnotation(newO); err != nil {
 			return true, err
 		}
 		return true, nil
