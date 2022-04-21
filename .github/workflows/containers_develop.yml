@@ -65,7 +65,7 @@ jobs:
           layers: true
           labels: |
             org.opencontainers.image.source=https://github.com/patrickmx/mailhog-operator
-            org.opencontainers.image.title='Mailhog Operator'
+            org.opencontainers.image.title=Mailhog Operator - Config Bundle
             org.opencontainers.image.description=deploy mailhogs on crc / oc
           containerfiles: |
             ./bundle.Dockerfile
@@ -83,6 +83,24 @@ jobs:
 
       - name: Create catalog
         run: make catalog-build CATALOG_IMG=ghcr.io/patrickmx/mailhog-operator-catalog:develop BUNDLE_IMG=ghcr.io/patrickmx/mailhog-operator-bundle:develop
+
+      - name: Create labeled catalog dockerfile
+        run: |
+          cat <<EOF >catalog.Dockerfile
+          FROM ${{ env.CATALOG_IMAGE_NAME }}:develop
+          LABEL \
+            org.opencontainers.image.source="https://github.com/patrickmx/mailhog-operator" \
+            org.opencontainers.image.title="Mailhog Operator - Catalog Index" \
+            org.opencontainers.image.description="Mailhog Operator - OLM Bundle Catalog / Index Image"
+          EOF
+
+      - name: Add labels to catalog
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: ${{ env.CATALOG_IMAGE_NAME }}
+          tags: ${{ github.sha }} develop
+          containerfiles: |
+            ./catalog.Dockerfile
 
       - name: push catalog develop image to GHCR
         id: catalog-develop-push-to-ghcr
