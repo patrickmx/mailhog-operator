@@ -20,14 +20,14 @@ func ensureRoute(ctx context.Context, r *MailhogInstanceReconciler, cr *mailhogv
 		existingRoute := &routev1.Route{}
 		if err = r.Get(ctx, name, existingRoute); err != nil {
 			if errors.IsNotFound(err) {
-				route := r.routeNew(cr)
+				route := routeNew(cr)
 				return r.create(ctx, cr, logger, route, routeCreate)
 			}
 			logger.Error(err, failedGetExisting)
 			return err
 		}
 
-		updatedRoute, updateNeeded, err := r.routeUpdates(cr, existingRoute)
+		updatedRoute, updateNeeded, err := routeUpdates(cr, existingRoute)
 		if err != nil {
 			logger.Error(err, failedUpdateCheck)
 			return err
@@ -48,7 +48,7 @@ func ensureRoute(ctx context.Context, r *MailhogInstanceReconciler, cr *mailhogv
 }
 
 // routeNew returns a Route in the wanted state
-func (r *MailhogInstanceReconciler) routeNew(cr *mailhogv1alpha1.MailhogInstance) (newRoute *routev1.Route) {
+func routeNew(cr *mailhogv1alpha1.MailhogInstance) (newRoute *routev1.Route) {
 	meta := CreateMetaMaker(cr)
 
 	route := &routev1.Route{
@@ -75,8 +75,8 @@ func (r *MailhogInstanceReconciler) routeNew(cr *mailhogv1alpha1.MailhogInstance
 }
 
 // routeUpdates checks if a Route needs  to be updated
-func (r *MailhogInstanceReconciler) routeUpdates(cr *mailhogv1alpha1.MailhogInstance, oldRoute *routev1.Route) (updatedRoute *routev1.Route, updateNeeded bool, err error) {
-	newRoute := r.routeNew(cr)
+func routeUpdates(cr *mailhogv1alpha1.MailhogInstance, oldRoute *routev1.Route) (updatedRoute *routev1.Route, updateNeeded bool, err error) {
+	newRoute := routeNew(cr)
 
 	updateNeeded, err = checkPatch(oldRoute, newRoute)
 	if updateNeeded == true {

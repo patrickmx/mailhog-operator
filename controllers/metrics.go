@@ -62,7 +62,7 @@ var (
 	)
 	crValidationSuccess = prometheus.NewCounter(
 		prometheus.CounterOpts{
-			Name: "mailhog_cr_validation_sucess_total",
+			Name: "mailhog_cr_validation_success_total",
 			Help: "Number of times a cr has been validated successfully",
 		},
 	)

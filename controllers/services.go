@@ -18,14 +18,14 @@ func ensureService(ctx context.Context, r *MailhogInstanceReconciler, cr *mailho
 	existingService := &corev1.Service{}
 	if err = r.Get(ctx, name, existingService); err != nil {
 		if errors.IsNotFound(err) {
-			service := r.serviceNew(cr)
+			service := serviceNew(cr)
 			return r.create(ctx, cr, logger, service, serviceCreate)
 		}
 		logger.Error(err, failedGetExisting)
 		return err
 	}
 
-	updatedService, updateNeeded, err := r.serviceUpdates(cr, existingService)
+	updatedService, updateNeeded, err := serviceUpdates(cr, existingService)
 	if err != nil {
 		logger.Error(err, failedUpdateCheck)
 		return err
@@ -38,7 +38,7 @@ func ensureService(ctx context.Context, r *MailhogInstanceReconciler, cr *mailho
 }
 
 // serviceNew returns a Service in the wanted state
-func (r *MailhogInstanceReconciler) serviceNew(cr *mailhogv1alpha1.MailhogInstance) (newService *corev1.Service) {
+func serviceNew(cr *mailhogv1alpha1.MailhogInstance) (newService *corev1.Service) {
 	meta := CreateMetaMaker(cr)
 
 	service := &corev1.Service{
@@ -71,8 +71,8 @@ func (r *MailhogInstanceReconciler) serviceNew(cr *mailhogv1alpha1.MailhogInstan
 }
 
 // serviceUpdates checks if a Service needs  to be updated
-func (r *MailhogInstanceReconciler) serviceUpdates(cr *mailhogv1alpha1.MailhogInstance, oldService *corev1.Service) (updatedService *corev1.Service, updateNeeded bool, err error) {
-	newService := r.serviceNew(cr)
+func serviceUpdates(cr *mailhogv1alpha1.MailhogInstance, oldService *corev1.Service) (updatedService *corev1.Service, updateNeeded bool, err error) {
+	newService := serviceNew(cr)
 
 	updateNeeded, err = checkPatch(oldService, newService)
 	if updateNeeded == true {

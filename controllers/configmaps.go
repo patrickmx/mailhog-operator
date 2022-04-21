@@ -19,13 +19,13 @@ func ensureConfigMap(ctx context.Context, r *MailhogInstanceReconciler, cr *mail
 		existingCM := &corev1.ConfigMap{}
 		if err = r.Get(ctx, name, existingCM); err != nil {
 			if errors.IsNotFound(err) {
-				cm := r.configMapNew(cr)
+				cm := configMapNew(cr)
 				return r.create(ctx, cr, logger, cm, confMapCreate)
 			}
 			logger.Error(err, failedGetExisting)
 			return err
 		}
-		updatedCM, updateNeeded, err := r.configMapUpdates(cr, existingCM)
+		updatedCM, updateNeeded, err := configMapUpdates(cr, existingCM)
 		if err != nil {
 			logger.Error(err, failedUpdateCheck)
 			return err
@@ -45,7 +45,7 @@ func ensureConfigMap(ctx context.Context, r *MailhogInstanceReconciler, cr *mail
 }
 
 // configMapNew returns a ConfigMap in the wanted state
-func (r *MailhogInstanceReconciler) configMapNew(cr *mailhogv1alpha1.MailhogInstance) (newConfigMap *corev1.ConfigMap) {
+func configMapNew(cr *mailhogv1alpha1.MailhogInstance) (newConfigMap *corev1.ConfigMap) {
 	data := make(map[string]string)
 
 	if len(cr.Spec.Settings.Files.SmtpUpstreams) > 0 {
@@ -77,8 +77,8 @@ func (r *MailhogInstanceReconciler) configMapNew(cr *mailhogv1alpha1.MailhogInst
 }
 
 // configMapUpdates checks if a ConfigMap needs  to be updated
-func (r *MailhogInstanceReconciler) configMapUpdates(cr *mailhogv1alpha1.MailhogInstance, oldCM *corev1.ConfigMap) (updatedCM *corev1.ConfigMap, updateNeeded bool, err error) {
-	newCM := r.configMapNew(cr)
+func configMapUpdates(cr *mailhogv1alpha1.MailhogInstance, oldCM *corev1.ConfigMap) (updatedCM *corev1.ConfigMap, updateNeeded bool, err error) {
+	newCM := configMapNew(cr)
 
 	updateNeeded, err = checkPatch(oldCM, newCM)
 	if updateNeeded == true {

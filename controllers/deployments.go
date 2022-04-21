@@ -18,14 +18,14 @@ func ensureDeployment(ctx context.Context, r *MailhogInstanceReconciler, cr *mai
 	existingDeployment := &appsv1.Deployment{}
 	if err = r.Get(ctx, name, existingDeployment); err != nil {
 		if errors.IsNotFound(err) {
-			deployment := r.deploymentNew(cr)
+			deployment := deploymentNew(cr)
 			return r.create(ctx, cr, logger, deployment, deploymentCreate)
 		}
 		logger.Error(err, failedGetExisting)
 		return err
 	}
 
-	updatedDeployment, updateNeeded, err := r.deploymentUpdates(cr, existingDeployment)
+	updatedDeployment, updateNeeded, err := deploymentUpdates(cr, existingDeployment)
 	if err != nil {
 		logger.Error(err, failedUpdateCheck)
 		return err
@@ -38,7 +38,7 @@ func ensureDeployment(ctx context.Context, r *MailhogInstanceReconciler, cr *mai
 }
 
 // deploymentNew returns a Deployment in the wanted state
-func (r *MailhogInstanceReconciler) deploymentNew(cr *mailhogv1alpha1.MailhogInstance) (newDeployment *appsv1.Deployment) {
+func deploymentNew(cr *mailhogv1alpha1.MailhogInstance) (newDeployment *appsv1.Deployment) {
 	template := podTemplate(cr)
 	replicas := cr.Spec.Replicas
 	meta := CreateMetaMaker(cr)
@@ -58,8 +58,8 @@ func (r *MailhogInstanceReconciler) deploymentNew(cr *mailhogv1alpha1.MailhogIns
 }
 
 // deploymentUpdates checks if a Deployment needs  to be updated
-func (r *MailhogInstanceReconciler) deploymentUpdates(cr *mailhogv1alpha1.MailhogInstance, oldDeployment *appsv1.Deployment) (updatedDeployment *appsv1.Deployment, updateNeeded bool, err error) {
-	newDeployment := r.deploymentNew(cr)
+func deploymentUpdates(cr *mailhogv1alpha1.MailhogInstance, oldDeployment *appsv1.Deployment) (updatedDeployment *appsv1.Deployment, updateNeeded bool, err error) {
+	newDeployment := deploymentNew(cr)
 
 	updateNeeded, err = checkPatch(oldDeployment, newDeployment)
 	if updateNeeded == true {

@@ -92,7 +92,7 @@ var _ = Describe("MailhogInstance controller", func() {
 	Context("reconcile with a mailhog cr and a deployment", func() {
 		It("should create a service", func() {
 			cr := getTestingCr(nsname, image, mailhogv1alpha1.RouteTrafficInlet)
-			deployment := getTestingDeployment(cr)
+			deployment := deploymentNew(cr)
 			objects := []client.Object{
 				cr, deployment,
 			}
@@ -113,8 +113,8 @@ var _ = Describe("MailhogInstance controller", func() {
 	Context("reconcile with a mailhog cr, a deployment and a service", func() {
 		It("should create a route", func() {
 			cr := getTestingCr(nsname, image, mailhogv1alpha1.RouteTrafficInlet)
-			deployment := getTestingDeployment(cr)
-			service := getTestingService(cr)
+			deployment := deploymentNew(cr)
+			service := serviceNew(cr)
 			objects := []client.Object{
 				cr, deployment, service,
 			}
@@ -135,8 +135,8 @@ var _ = Describe("MailhogInstance controller", func() {
 	Context("reconcile with a mailhog cr, a deployment and a service", func() {
 		It("should create a ingress", func() {
 			cr := getTestingCr(nsname, image, mailhogv1alpha1.IngressTrafficInlet)
-			deployment := getTestingDeployment(cr)
-			service := getTestingService(cr)
+			deployment := deploymentNew(cr)
+			service := serviceNew(cr)
 			objects := []client.Object{
 				cr, deployment, service,
 			}
@@ -157,9 +157,9 @@ var _ = Describe("MailhogInstance controller", func() {
 	Context("reconcile with a mailhog cr, when the route is deactivated but exists", func() {
 		It("should delete the route", func() {
 			cr := getTestingCr(nsname, image, mailhogv1alpha1.NoTrafficInlet)
-			deployment := getTestingDeployment(cr)
-			service := getTestingService(cr)
-			route := getTestingRoute(cr)
+			deployment := deploymentNew(cr)
+			service := serviceNew(cr)
+			route := routeNew(cr)
 			objects := []client.Object{
 				cr, deployment, service, route,
 			}
@@ -188,8 +188,8 @@ var _ = Describe("MailhogInstance controller", func() {
 					},
 				},
 			}
-			deployment := getTestingDeployment(cr)
-			service := getTestingService(cr)
+			deployment := deploymentNew(cr)
+			service := serviceNew(cr)
 			objects := []client.Object{
 				cr, deployment, service,
 			}
@@ -227,8 +227,8 @@ var _ = Describe("MailhogInstance controller", func() {
 				},
 			}
 			expectedJson := `{"black":{"name":"black","host":"hole"},"cornflower":{"name":"cornflower","host":"blue"},"green":{"name":"green","host":"grass"}}`
-			deployment := getTestingDeployment(cr)
-			service := getTestingService(cr)
+			deployment := deploymentNew(cr)
+			service := serviceNew(cr)
 			objects := []client.Object{
 				cr, deployment, service,
 			}
@@ -349,22 +349,4 @@ func getTestingCr(nsname types.NamespacedName, image string, inlet mailhogv1alph
 			WebTrafficInlet: inlet,
 		},
 	}
-}
-
-func getTestingDeployment(cr *mailhogv1alpha1.MailhogInstance) *appsv1.Deployment {
-	k8sClient = fake.NewClientBuilder().WithScheme(scheme).Build()
-	r := &MailhogInstanceReconciler{Client: k8sClient, Scheme: scheme}
-	return r.deploymentNew(cr)
-}
-
-func getTestingService(cr *mailhogv1alpha1.MailhogInstance) *corev1.Service {
-	k8sClient = fake.NewClientBuilder().WithScheme(scheme).Build()
-	r := &MailhogInstanceReconciler{Client: k8sClient, Scheme: scheme}
-	return r.serviceNew(cr)
-}
-
-func getTestingRoute(cr *mailhogv1alpha1.MailhogInstance) *routev1.Route {
-	k8sClient = fake.NewClientBuilder().WithScheme(scheme).Build()
-	r := &MailhogInstanceReconciler{Client: k8sClient, Scheme: scheme}
-	return r.routeNew(cr)
 }
