@@ -211,8 +211,8 @@ app-clusterserviceversions: ## list all clusterserviceversions
 
 .PHONY: clean-leftover-bundles
 clean-leftover-bundles: ## clean some temp files that get left over when working with bundles
-	find . -name "bundle-*" -type d -exec rmdir {} \;
-	find . -name "bundle_*" -type d -exec rm -rf {} \;
+	find . -name "bundle-*" -type d -exec rmdir {} \; || true
+	find . -name "bundle_*" -type d -exec rm -rf {} \; || true
 
 ##@ Release
 
