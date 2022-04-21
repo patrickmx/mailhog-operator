@@ -280,6 +280,14 @@ GOFUMPT = $(shell pwd)/bin/gofumpt
 gofumpt: ## Download golangci-lint locally if necessary. https://golangci-lint.run/
 	$(call go-install-tool,$(GOFUMPT),mvdan.cc/gofumpt@latest)
 
+
+OPSDK_RELEASE_VERSION ?= v1.19.1
+OPSDK = $(shell pwd)/bin/operator-sdk
+.PHONY: operator-sdk
+operator-sdk:
+	ls $(OPSDK) || curl -L -o $(OPSDK) "https://github.com/operator-framework/operator-sdk/releases/download/${OPSDK_RELEASE_VERSION}/operator-sdk_linux_amd64"
+	chmod a+rx $(OPSDK)
+
 # go-get-tool will 'go get' any package $2 and install it to $1.
 PROJECT_DIR := $(shell dirname $(abspath $(lastword $(MAKEFILE_LIST))))
 define go-install-tool

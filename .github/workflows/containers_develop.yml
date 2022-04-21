@@ -124,3 +124,12 @@ jobs:
 
       - name: catalog develop successfully pushed
         run: echo "catalog develop image pushed to ${{ steps.catalog-develop-push-to-ghcr.outputs.registry-paths }}"
+
+      - name: Create k8s Kind Cluster
+        uses: helm/kind-action@v1.2.0
+
+      - name: get operator sdk, run scoreboard
+        run: |
+          make operator-sdk
+          operator-sdk scorecard ghcr.io/patrickmx/mailhog-operator-bundle:develop -o text --selector=test=basic-check-spec-test --wait-time 120s
+          operator-sdk scorecard ghcr.io/patrickmx/mailhog-operator-bundle:develop -o text --selector=suite=olm --wait-time 120s
