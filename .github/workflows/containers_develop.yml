@@ -36,6 +36,7 @@ jobs:
           layers: true
           labels: |
             org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.title=Mailhog Operator (Develop)
           containerfiles: |
             ./Dockerfile
 
@@ -67,7 +68,7 @@ jobs:
           layers: true
           labels: |
             org.opencontainers.image.source=https://github.com/patrickmx/mailhog-operator
-            org.opencontainers.image.title=Mailhog Operator - Config Bundle
+            org.opencontainers.image.title=Mailhog Operator - Config Bundle (Develop)
             org.opencontainers.image.description=deploy mailhogs on crc / oc
             org.opencontainers.image.revision=${{ github.sha }}
           containerfiles: |
@@ -100,7 +101,7 @@ jobs:
           FROM ${{ env.CATALOG_IMAGE_NAME }}:develop
           LABEL \
             org.opencontainers.image.source="https://github.com/patrickmx/mailhog-operator" \
-            org.opencontainers.image.title="Mailhog Operator - Catalog Index" \
+            org.opencontainers.image.title="Mailhog Operator - Catalog Index (Develop)" \
             org.opencontainers.image.description="Mailhog Operator - OLM Bundle Catalog / Index Image" \
             org.opencontainers.image.revision="${{ github.sha }}"
           EOF
