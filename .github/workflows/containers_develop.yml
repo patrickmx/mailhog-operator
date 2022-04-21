@@ -128,8 +128,11 @@ jobs:
       - name: Create k8s Kind Cluster
         uses: helm/kind-action@v1.2.0
 
-      - name: get operator sdk, run scoreboard
+      - name: get operator sdk
         run: |
           make operator-sdk
+
+      - name: run scoreboard
+        run: |
           operator-sdk scorecard ghcr.io/patrickmx/mailhog-operator-bundle:develop -o text --selector=test=basic-check-spec-test --wait-time 120s
           operator-sdk scorecard ghcr.io/patrickmx/mailhog-operator-bundle:develop -o text --selector=suite=olm --wait-time 120s
