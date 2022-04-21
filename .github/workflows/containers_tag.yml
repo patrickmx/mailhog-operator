@@ -133,13 +133,13 @@ jobs:
         run: |
           set -x
           echo -n "${{ env.MANAGER_IMAGE_NAME }}:${{github.ref_name}}: " > NOTES
-          buildah inspect ${{ env.MANAGER_IMAGE_NAME }}:${{github.ref_name}} | jq '.[0].Id' >> NOTES
+          podman inspect ${{ env.MANAGER_IMAGE_NAME }}:${{github.ref_name}} | jq '.[0].Id' >> NOTES
           echo "" >> NOTES
           echo -n "${{ env.BUNDLE_IMAGE_NAME }}:${{github.ref_name}}: " >> NOTES
-          buildah inspect ${{ env.BUNDLE_IMAGE_NAME }}:${{github.ref_name}} | jq '.[0].Id' >> NOTES
+          podman inspect ${{ env.BUNDLE_IMAGE_NAME }}:${{github.ref_name}} | jq '.[0].Id' >> NOTES
           echo "" >> NOTES
           echo -n "${{ env.CATALOG_IMAGE_NAME }}:${{github.ref_name}}: " >> NOTES
-          buildah inspect ${{ env.CATALOG_IMAGE_NAME }}:${{github.ref_name}} | jq '.[0].Id' >> NOTES
+          podman inspect ${{ env.CATALOG_IMAGE_NAME }}:${{github.ref_name}} | jq '.[0].Id' >> NOTES
           echo "" >> NOTES
 
       - uses: actions/upload-artifact@v3
