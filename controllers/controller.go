@@ -18,6 +18,7 @@ package controllers
 
 import (
 	"context"
+	"time"
 
 	"github.com/banzaicloud/k8s-objectmatcher/patch"
 	"github.com/go-logr/logr"
@@ -46,6 +47,9 @@ type MailhogInstanceReconciler struct {
 	Recorder record.EventRecorder
 	logger   logr.Logger
 }
+
+// requeueTime default ReconcileAfter value is 10 seconds
+var requeueTime = time.Duration(5) * time.Minute
 
 //+kubebuilder:rbac:groups=mailhog.operators.patrick.mx,resources=mailhoginstances,verbs=*
 //+kubebuilder:rbac:groups=mailhog.operators.patrick.mx,resources=mailhoginstances/status,verbs=*
@@ -81,7 +85,7 @@ func (r *MailhogInstanceReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 	// ensure child objects
 	for _, ensure := range controllerAssurances {
 		if err := ensure(ctx, r, cr); err != nil {
-			return ctrl.Result{}, err
+			return ctrl.Result{RequeueAfter: requeueTime}, err
 		}
 	}
 
