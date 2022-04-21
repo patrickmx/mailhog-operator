@@ -10,4 +10,3 @@ spec:
   settings:
     storage: memory
   webTrafficInlet: none
-  backingResource: deployment

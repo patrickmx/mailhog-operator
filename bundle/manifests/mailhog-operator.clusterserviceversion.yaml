@@ -14,7 +14,6 @@ metadata:
             "name": "mh0-sample"
           },
           "spec": {
-            "backingResource": "deployment",
             "image": "mailhog/mailhog:latest",
             "replicas": 1,
             "settings": {
