@@ -24,6 +24,7 @@ func ensureCrValid(ctx context.Context, r *MailhogInstanceReconciler, cr *mailho
 	for _, check := range crStatusChecks {
 		if err = check(cr); err != nil {
 			cr.Status.Error = err.Error()
+			crValidationFailure.Inc()
 			if err := r.Status().Update(ctx, cr); err != nil {
 				logger.Error(err, failedCrUpdateStatus)
 				return err
@@ -32,6 +33,7 @@ func ensureCrValid(ctx context.Context, r *MailhogInstanceReconciler, cr *mailho
 		}
 	}
 
+	crValidationSuccess.Inc()
 	logger.Info(stateEnsured)
 	return nil
 }

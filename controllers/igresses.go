@@ -19,7 +19,7 @@ func ensureIngress(ctx context.Context, r *MailhogInstanceReconciler, cr *mailho
 		if err = r.Get(ctx, name, existingIngress); err != nil {
 			if errors.IsNotFound(err) {
 				ingress := ingressNew(cr)
-				return r.create(ctx, cr, logger, ingress, routeCreate)
+				return r.create(ctx, cr, logger, ingress, ingressCreate)
 			}
 			logger.Error(err, failedGetExisting)
 			return err
@@ -30,13 +30,13 @@ func ensureIngress(ctx context.Context, r *MailhogInstanceReconciler, cr *mailho
 			logger.Error(err, failedUpdateCheck)
 			return err
 		} else if updateNeeded {
-			return r.update(ctx, cr, logger, updatedIngress, routeUpdate)
+			return r.update(ctx, cr, logger, updatedIngress, ingressUpdate)
 		}
 
 	} else {
 
 		toBeDeletedIngress := &networkingv1.Ingress{}
-		if err = r.delete(ctx, name, toBeDeletedIngress, logger, routeDelete); err != nil {
+		if err = r.delete(ctx, name, toBeDeletedIngress, logger, ingressDelete); err != nil {
 			return err
 		}
 	}

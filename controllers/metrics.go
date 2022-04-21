@@ -60,6 +60,18 @@ var (
 			Help: "Number of times a reconcile updated a cr",
 		},
 	)
+	crValidationSuccess = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Name: "mailhog_cr_validation_sucess_total",
+			Help: "Number of times a cr has been validated successfully",
+		},
+	)
+	crValidationFailure = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Name: "mailhog_cr_validation_failure_total",
+			Help: "Number of times a cr has failed validation",
+		},
+	)
 	confMapCreate = prometheus.NewCounter(
 		prometheus.CounterOpts{
 			Name: "mailhog_configmap_create_total",
@@ -78,12 +90,31 @@ var (
 			Help: "Number of times a reconcile deleted a ConfigMap",
 		},
 	)
+	ingressCreate = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Name: "mailhog_ingress_create_total",
+			Help: "Number of times a reconcile created an Ingress",
+		},
+	)
+	ingressUpdate = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Name: "mailhog_ingress_update_total",
+			Help: "Number of times a reconcile updated an Ingress",
+		},
+	)
+	ingressDelete = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Name: "mailhog_ingress_delete_total",
+			Help: "Number of times a reconcile deleted an Ingress",
+		},
+	)
 )
 
 func init() {
 	metrics.Registry.MustRegister(deploymentCreate, deploymentUpdate, deploymentDelete)
 	metrics.Registry.MustRegister(serviceCreate, serviceUpdate)
 	metrics.Registry.MustRegister(routeCreate, routeUpdate, routeDelete)
-	metrics.Registry.MustRegister(crUpdate)
+	metrics.Registry.MustRegister(crUpdate, crValidationSuccess, crValidationFailure)
 	metrics.Registry.MustRegister(confMapCreate, confMapUpdate, confMapDelete)
+	metrics.Registry.MustRegister(ingressCreate, ingressUpdate, ingressDelete)
 }
