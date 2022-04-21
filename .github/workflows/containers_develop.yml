@@ -63,6 +63,8 @@ jobs:
           image: ${{ env.BUNDLE_IMAGE_NAME }}
           tags: ${{ github.sha }} develop
           layers: true
+          labels: |
+            org.opencontainers.image.source="https://github.com/patrickmx/mailhog-operator"
           containerfiles: |
             ./bundle.Dockerfile
 
