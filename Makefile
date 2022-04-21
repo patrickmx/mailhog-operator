@@ -375,3 +375,13 @@ show-bundle-releases: ## show published bundle tags
 create-kustomize-release-patch: manifests kustomize
 	echo -e "- op: replace\n  path: /spec/skips\n  value:" > config/manifests/old-releases-patch.yaml
 	podman search --list-tags --format json ghcr.io/patrickmx/mailhog-operator-bundle | jq -r '[.[0].Tags[]|select(. | startswith("v"))|"    - mailhog-operator."+.][]' | grep -v $(VERSION)  >> config/manifests/old-releases-patch.yaml
+
+##@ Scoreboard
+
+.PHONY: scoreboard-basic-spec-test
+scoreboard-basic-spec-test: crc-login-admin
+	operator-sdk scorecard ghcr.io/patrickmx/mailhog-operator-bundle:develop -o text --selector=test=basic-check-spec-test --wait-time 100s
+
+.PHONY: scoreboard-olm-test
+scoreboard-olm-test: crc-login-admin
+	operator-sdk scorecard ghcr.io/patrickmx/mailhog-operator-bundle:develop -o text --selector=suite=olm --wait-time 100s
