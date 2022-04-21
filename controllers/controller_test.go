@@ -4,6 +4,8 @@ import (
 	"context"
 	"testing"
 
+	"k8s.io/client-go/tools/record"
+
 	networkingv1 "k8s.io/api/networking/v1"
 
 	. "github.com/onsi/ginkgo"
@@ -30,6 +32,7 @@ var (
 	cancel    context.CancelFunc
 	err       error
 	scheme    *runtime.Scheme
+	recorder  record.EventRecorder
 )
 
 func TestAPIs(t *testing.T) {
@@ -49,6 +52,8 @@ var _ = BeforeSuite(func() {
 	Expect(err).NotTo(HaveOccurred())
 	err = routev1.AddToScheme(scheme)
 	Expect(err).NotTo(HaveOccurred())
+
+	recorder = record.NewFakeRecorder(10)
 })
 
 var _ = AfterSuite(func() {
@@ -77,7 +82,7 @@ var _ = Describe("MailhogInstance controller", func() {
 			}
 			k8sClient = fake.NewClientBuilder().WithScheme(scheme).WithObjects(objects...).Build()
 
-			r := &MailhogInstanceReconciler{Client: k8sClient, Scheme: scheme}
+			r := &MailhogInstanceReconciler{Client: k8sClient, Scheme: scheme, Recorder: recorder}
 			res, err := r.Reconcile(ctx, req)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(res).Should(Equal(reconcile.Result{}))
@@ -98,7 +103,7 @@ var _ = Describe("MailhogInstance controller", func() {
 			}
 			k8sClient = fake.NewClientBuilder().WithScheme(scheme).WithObjects(objects...).Build()
 
-			r := &MailhogInstanceReconciler{Client: k8sClient, Scheme: scheme}
+			r := &MailhogInstanceReconciler{Client: k8sClient, Scheme: scheme, Recorder: recorder}
 			res, err := r.Reconcile(ctx, req)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(res).Should(Equal(reconcile.Result{}))
@@ -120,7 +125,7 @@ var _ = Describe("MailhogInstance controller", func() {
 			}
 			k8sClient = fake.NewClientBuilder().WithScheme(scheme).WithObjects(objects...).Build()
 
-			r := &MailhogInstanceReconciler{Client: k8sClient, Scheme: scheme}
+			r := &MailhogInstanceReconciler{Client: k8sClient, Scheme: scheme, Recorder: recorder}
 			res, err := r.Reconcile(ctx, req)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(res).Should(Equal(reconcile.Result{}))
@@ -142,7 +147,7 @@ var _ = Describe("MailhogInstance controller", func() {
 			}
 			k8sClient = fake.NewClientBuilder().WithScheme(scheme).WithObjects(objects...).Build()
 
-			r := &MailhogInstanceReconciler{Client: k8sClient, Scheme: scheme}
+			r := &MailhogInstanceReconciler{Client: k8sClient, Scheme: scheme, Recorder: recorder}
 			res, err := r.Reconcile(ctx, req)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(res).Should(Equal(reconcile.Result{}))
@@ -165,7 +170,7 @@ var _ = Describe("MailhogInstance controller", func() {
 			}
 			k8sClient = fake.NewClientBuilder().WithScheme(scheme).WithObjects(objects...).Build()
 
-			r := &MailhogInstanceReconciler{Client: k8sClient, Scheme: scheme}
+			r := &MailhogInstanceReconciler{Client: k8sClient, Scheme: scheme, Recorder: recorder}
 			res, err := r.Reconcile(ctx, req)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(res).Should(Equal(reconcile.Result{}))
@@ -195,7 +200,7 @@ var _ = Describe("MailhogInstance controller", func() {
 			}
 			k8sClient = fake.NewClientBuilder().WithScheme(scheme).WithObjects(objects...).Build()
 
-			r := &MailhogInstanceReconciler{Client: k8sClient, Scheme: scheme}
+			r := &MailhogInstanceReconciler{Client: k8sClient, Scheme: scheme, Recorder: recorder}
 			res, err := r.Reconcile(ctx, req)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(res).Should(Equal(reconcile.Result{}))
@@ -234,7 +239,7 @@ var _ = Describe("MailhogInstance controller", func() {
 			}
 			k8sClient = fake.NewClientBuilder().WithScheme(scheme).WithObjects(objects...).Build()
 
-			r := &MailhogInstanceReconciler{Client: k8sClient, Scheme: scheme}
+			r := &MailhogInstanceReconciler{Client: k8sClient, Scheme: scheme, Recorder: recorder}
 			res, err := r.Reconcile(ctx, req)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(res).Should(Equal(reconcile.Result{}))
@@ -269,7 +274,7 @@ var _ = Describe("MailhogInstance controller", func() {
 				}
 				k8sClient = fake.NewClientBuilder().WithScheme(scheme).WithObjects(objects...).Build()
 
-				r := &MailhogInstanceReconciler{Client: k8sClient, Scheme: scheme}
+				r := &MailhogInstanceReconciler{Client: k8sClient, Scheme: scheme, Recorder: recorder}
 				_, err := r.Reconcile(ctx, req)
 				Expect(err).To(HaveOccurred())
 
@@ -292,7 +297,7 @@ var _ = Describe("MailhogInstance controller", func() {
 			}
 			k8sClient = fake.NewClientBuilder().WithScheme(scheme).WithObjects(objects...).Build()
 
-			r := &MailhogInstanceReconciler{Client: k8sClient, Scheme: scheme}
+			r := &MailhogInstanceReconciler{Client: k8sClient, Scheme: scheme, Recorder: recorder}
 			_, err := r.Reconcile(ctx, req)
 			Expect(err).To(HaveOccurred())
 
@@ -315,7 +320,7 @@ var _ = Describe("MailhogInstance controller", func() {
 				}
 				k8sClient = fake.NewClientBuilder().WithScheme(scheme).WithObjects(objects...).Build()
 
-				r := &MailhogInstanceReconciler{Client: k8sClient, Scheme: scheme}
+				r := &MailhogInstanceReconciler{Client: k8sClient, Scheme: scheme, Recorder: recorder}
 				_, err := r.Reconcile(ctx, req)
 				Expect(err).To(HaveOccurred())
 

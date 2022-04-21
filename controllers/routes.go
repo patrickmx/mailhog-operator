@@ -38,7 +38,7 @@ func ensureRoute(ctx context.Context, r *MailhogInstanceReconciler, cr *mailhogv
 	} else {
 
 		toBeDeletedRoute := &routev1.Route{}
-		if err = r.delete(ctx, name, toBeDeletedRoute, logger, routeDelete); err != nil {
+		if err = r.delete(ctx, cr, name, toBeDeletedRoute, logger, routeDelete); err != nil {
 			return err
 		}
 	}

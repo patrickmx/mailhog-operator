@@ -36,7 +36,7 @@ func ensureIngress(ctx context.Context, r *MailhogInstanceReconciler, cr *mailho
 	} else {
 
 		toBeDeletedIngress := &networkingv1.Ingress{}
-		if err = r.delete(ctx, name, toBeDeletedIngress, logger, ingressDelete); err != nil {
+		if err = r.delete(ctx, cr, name, toBeDeletedIngress, logger, ingressDelete); err != nil {
 			return err
 		}
 	}

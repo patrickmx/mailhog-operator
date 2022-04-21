@@ -54,7 +54,9 @@ const (
 	messageFailedUpdate              = "failed to update object"
 	messageUpdated                   = "updated existing object"
 
-	eventUpdated = "updated by mailhog management"
+	eventCreated = "child resource create by mailhog-operator"
+	eventUpdated = "child resource updated by mailhog-operator"
+	eventDeleted = "child resource deleted by mailhog-operator"
 
 	failedGetExisting = "failed to get existing object"
 	failedUpdateCheck = "failed to check if object needs an update"

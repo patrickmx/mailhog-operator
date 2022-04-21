@@ -39,11 +39,14 @@ func (r *MailhogInstanceReconciler) create(ctx context.Context,
 
 	logger.Info(messageCreatedObject)
 	tickFunc.Inc()
+	msg := eventCreated + ": " + obj.GetObjectKind().GroupVersionKind().String()
+	r.Recorder.Event(cr, corev1.EventTypeNormal, "SuccessEvent", msg)
 	return nil
 }
 
 // delete tries to delete the given object
 func (r *MailhogInstanceReconciler) delete(ctx context.Context,
+	cr *mailhogv1alpha1.MailhogInstance,
 	name types.NamespacedName,
 	obj client.Object,
 	logger logr.Logger,
@@ -61,6 +64,8 @@ func (r *MailhogInstanceReconciler) delete(ctx context.Context,
 		}
 		logger.Info(messageDeletedObject)
 		tick.Inc()
+		msg := eventDeleted + ": " + obj.GetObjectKind().GroupVersionKind().String()
+		r.Recorder.Event(cr, corev1.EventTypeNormal, "SuccessEvent", msg)
 	}
 
 	return nil
@@ -101,7 +106,8 @@ func (r *MailhogInstanceReconciler) update(ctx context.Context,
 	logger.Info(messageUpdated)
 	tickFunc.Inc()
 
-	r.Recorder.Event(cr, corev1.EventTypeNormal, "SuccessEvent", eventUpdated)
+	msg := eventUpdated + ": " + obj.GetObjectKind().GroupVersionKind().String()
+	r.Recorder.Event(cr, corev1.EventTypeNormal, "SuccessEvent", msg)
 	return nil
 }
 

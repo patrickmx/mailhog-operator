@@ -35,7 +35,7 @@ func ensureConfigMap(ctx context.Context, r *MailhogInstanceReconciler, cr *mail
 
 	} else {
 		toBeDeletedCM := &corev1.ConfigMap{}
-		if indicator := r.delete(ctx, name, toBeDeletedCM, logger, confMapDelete); indicator != nil {
+		if indicator := r.delete(ctx, cr, name, toBeDeletedCM, logger, confMapDelete); indicator != nil {
 			return indicator
 		}
 	}
