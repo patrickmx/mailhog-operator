@@ -557,6 +557,7 @@ spec:
   - email: 97127469+patrickmx@users.noreply.github.com
     name: patrickmx
   maturity: alpha
+  minKubeVersion: "1.18"
   provider:
     name: patrickmx
     url: https://github.com/patrickmx
