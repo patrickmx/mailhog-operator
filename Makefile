@@ -326,6 +326,18 @@ bundle-run-develop: crc-start crc-login-admin bundle-clean ## install latest dev
 bundle-run-release: crc-start crc-login-admin bundle-clean ## install latest release bundle
 	operator-sdk run bundle ghcr.io/patrickmx/mailhog-operator-bundle:latest
 
+.PHONY: bundle-validate-operatorhub
+bundle-validate-operatorhub: bundle
+	operator-sdk bundle validate ./bundle --select-optional name=operatorhub
+
+.PHONY: bundle-validate-good-practices
+bundle-validate-good-practices: bundle
+	operator-sdk bundle validate ./bundle --select-optional name=good-practices
+
+.PHONY: bundle-validate-community
+bundle-validate-community: bundle
+	operator-sdk bundle validate ./bundle --select-optional name=community
+
 .PHONY: opm
 OPM = ./bin/opm
 opm: ## Download opm locally if necessary.
