@@ -1,0 +1,18 @@
+kind: Service
+apiVersion: v1
+  name: test1-mh
+  labels:
+    app: mailhog-kuttl
+spec:
+  ports:
+    - name: smtp
+      protocol: TCP
+      port: 1025
+      targetPort: 1025
+    - name: http
+      protocol: TCP
+      port: 8025
+      targetPort: 8025
+  type: ClusterIP
+status:
+  loadBalancer: {}

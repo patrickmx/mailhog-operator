@@ -409,3 +409,7 @@ scoreboard-olm-test: crc-login-admin
 .PHONY: scorecard-local
 scorecard-local: crc-login-admin bundle
 	operator-sdk scorecard bundle
+
+.PHONY: kuttl-local
+kuttl-local: crc-deploy
+	operator-sdk scorecard bundle --selector=suite=kuttlsuite --wait-time 200s -n kuttltests -s kuttl --verbose
