@@ -1,0 +1,17 @@
+kind: Ingress
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: test3-mh
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: test3-mh
+                port:
+                  name: http
+status:
+  loadBalancer: {}
