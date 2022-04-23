@@ -407,5 +407,5 @@ scoreboard-olm-test: crc-login-admin
 	operator-sdk scorecard ghcr.io/patrickmx/mailhog-operator-bundle:develop -o text --selector=suite=olm --wait-time 100s
 
 .PHONY: scorecard-local
-scorecard-local: crc-login-admin
+scorecard-local: crc-login-admin bundle
 	operator-sdk scorecard bundle
