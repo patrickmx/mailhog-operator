@@ -29,6 +29,7 @@ metadata:
     containerImage: ghcr.io/patrickmx/mailhog-operator:latest
     createdAt: "2022-04-18T16:30:00+00:00"
     description: Deploy mailhogs on the fly
+    olm.properties: '[{"type": "olm.maxOpenShiftVersion", "value": "4.10"}]'
     operators.operatorframework.io/builder: operator-sdk-v1.18.0+git
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v3
     repository: https://github.com/patrickmx/mailhog-operator

@@ -9,6 +9,7 @@ metadata:
     containerImage: ghcr.io/patrickmx/mailhog-operator:latest
     createdAt: "2022-04-18T16:30:00+00:00"
     description: Deploy mailhogs on the fly
+    olm.properties: '[{"type": "olm.maxOpenShiftVersion", "value": "4.10"}]'
     repository: https://github.com/patrickmx/mailhog-operator
     support: DIY
   name: mailhog-operator.v0.0.0
