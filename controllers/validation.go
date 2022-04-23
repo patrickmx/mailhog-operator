@@ -94,8 +94,10 @@ func checkJimFloats(cr *mailhogv1alpha1.MailhogInstance) error {
 			cr.Spec.Settings.Jim.LinkspeedAffect,
 		}
 		for _, field := range fields {
-			if _, err := strconv.ParseFloat(field, 64); err != nil {
-				return errJimNonFloatFound
+			if field != "" {
+				if _, err := strconv.ParseFloat(field, 64); err != nil {
+					return errJimNonFloatFound
+				}
 			}
 		}
 	}
