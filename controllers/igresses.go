@@ -57,8 +57,7 @@ func ingressNew(cr *mailhogv1alpha1.MailhogInstance) (newIngress *networkingv1.I
 					Service: &networkingv1.IngressServiceBackend{
 						Name: meta.Name,
 						Port: networkingv1.ServiceBackendPort{
-							Name:   portWebName,
-							Number: portWeb,
+							Name: portWebName,
 						},
 					},
 				},
