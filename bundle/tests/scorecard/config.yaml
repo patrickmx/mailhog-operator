@@ -65,6 +65,13 @@ stages:
     storage:
       spec:
         mountPath: {}
+  - image: quay.io/operator-framework/scorecard-test-kuttl:latest
+    labels:
+      suite: kuttlsuite
+      test: kuttltest1
+    storage:
+      spec:
+        mountPath: {}
 storage:
   spec:
     mountPath: {}
