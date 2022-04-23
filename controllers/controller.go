@@ -56,7 +56,7 @@ var requeueTime = time.Duration(5) * time.Minute
 //+kubebuilder:rbac:groups=mailhog.operators.patrick.mx,resources=mailhoginstances/scale,verbs=*
 //+kubebuilder:rbac:groups=mailhog.operators.patrick.mx,resources=mailhoginstances/finalizers,verbs=*
 //+kubebuilder:rbac:groups=apps,resources=deployments,verbs=*
-//+kubebuilder:rbac:groups=networking,resources=ingress,verbs=*
+//+kubebuilder:rbac:groups=networking.k8s.io,resources=ingresses,verbs=*
 //+kubebuilder:rbac:groups="",resources=pods,verbs=get;list;watch
 //+kubebuilder:rbac:groups="",resources=services,verbs=*
 //+kubebuilder:rbac:groups="",resources=configmaps,verbs=*
