@@ -1,0 +1,29 @@
+apiVersion: mailhog.operators.patrick.mx/v1alpha1
+kind: MailhogInstance
+metadata:
+  name: test2
+spec:
+  image: 'mailhog/mailhog:latest'
+  replicas: 1
+  settings:
+    files:
+      smtpUpstreams:
+        - email: tom@mailhog.local
+          host: mhi1-simple
+          name: mh1
+          port: '1025'
+          save: true
+        - email: jerry@mailhog.local
+          host: mhi2-dc
+          name: mh2
+          port: '1025'
+          save: true
+      webUsers:
+        - name: root
+          passwordHash: $2a$04$erImcj5XhZOONGjzbbqrN.YtHYb6eNn/GgKRIPh6YqDGIhVIuN0Y6
+    jim:
+      disconnect: '0.1'
+      invite: true
+      rejectRecipient: '0.2'
+    storage: memory
+  webTrafficInlet: none

@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test2
+  labels:
+    app: mailhog-kuttl
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/created-by: mailhog.operators.patrick.mx
+      app.kubernetes.io/instance: test2
+      app.kubernetes.io/managed-by: mailhog.operators.patrick.mx
+      app.openshift.io/runtime: golang
+      mailhoginstance_cr: test2
+      mailhogtype: mailhoginstance
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/created-by: mailhog.operators.patrick.mx
+        app.kubernetes.io/instance: test2
+        app.kubernetes.io/managed-by: mailhog.operators.patrick.mx
+        app.openshift.io/runtime: golang
+        mailhoginstance_cr: test2
+        mailhogtype: mailhoginstance
+    spec:
+      volumes:
+        - name: settings-files
+          configMap:
+            name: test2
+            defaultMode: 420
+      containers:
+        - name: mailhog
+          env:
+            - name: MH_SMTP_BIND_ADDR
+              value: '0.0.0.0:1025'
+            - name: MH_API_BIND_ADDR
+              value: '0.0.0.0:8025'
+            - name: MH_UI_BIND_ADDR
+              value: '0.0.0.0:8025'
+            - name: MH_STORAGE
+              value: memory
+            - name: MH_OUTGOING_SMTP
+              value: /mailhog/settings/files/upstream.servers.json
+            - name: MH_AUTH_FILE
+              value: /mailhog/settings/files/users.list.bcrypt
+          ports:
+            - name: http
+              containerPort: 8025
+              protocol: TCP
+            - name: smtp
+              containerPort: 1025
+              protocol: TCP
+          volumeMounts:
+            - name: settings-files
+              mountPath: /mailhog/settings/files
+          args:
+            - '-invite-jim'
+            - '-jim-disconnect=0.1'
+            - '-jim-reject-recipient=0.2'
+      automountServiceAccountToken: false
+status:
+  observedGeneration: 1
+  replicas: 1
+  updatedReplicas: 1
+  readyReplicas: 1
+  availableReplicas: 1
