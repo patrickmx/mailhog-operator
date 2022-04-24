@@ -1,4 +1,4 @@
-apiVersion: kuttl.dev/v1beta1
+apiVersion: kudo.dev/v1beta1
 kind: TestSuite
 parallel: 5
 timeout: 30
