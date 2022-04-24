@@ -1,0 +1,32 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: kuttlingresstest
+  labels:
+    app: mailhog-kuttl
+    app.kubernetes.io/created-by: mailhog.operators.patrick.mx
+    app.kubernetes.io/instance: kuttlingresstest
+    app.kubernetes.io/managed-by: mailhog.operators.patrick.mx
+    app.openshift.io/runtime: golang
+    mailhoginstance_cr: kuttlingresstest
+    mailhogtype: mailhoginstance
+spec:
+  ports:
+    - name: smtp
+      protocol: TCP
+      port: 1025
+      targetPort: 1025
+    - name: http
+      protocol: TCP
+      port: 8025
+      targetPort: 8025
+  selector:
+    app: mailhog-kuttl
+    app.kubernetes.io/created-by: mailhog.operators.patrick.mx
+    app.kubernetes.io/instance: kuttlingresstest
+    app.kubernetes.io/managed-by: mailhog.operators.patrick.mx
+    app.openshift.io/runtime: golang
+    mailhoginstance_cr: kuttlingresstest
+    mailhogtype: mailhoginstance
+status:
+  loadBalancer: {}

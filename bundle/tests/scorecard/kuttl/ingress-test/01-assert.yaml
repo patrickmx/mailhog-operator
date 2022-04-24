@@ -1,32 +1,39 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: t2-argsandcm
+  name: kuttlingresstest
   labels:
     app: mailhog-kuttl
+    app.kubernetes.io/created-by: mailhog.operators.patrick.mx
+    app.kubernetes.io/instance: kuttlingresstest
+    app.kubernetes.io/managed-by: mailhog.operators.patrick.mx
+    app.openshift.io/runtime: golang
+    mailhoginstance_cr: kuttlingresstest
+    mailhogtype: mailhoginstance
+spec:
   replicas: 1
   selector:
     matchLabels:
       app.kubernetes.io/created-by: mailhog.operators.patrick.mx
-      app.kubernetes.io/instance: t2-argsandcm
+      app.kubernetes.io/instance: kuttlingresstest
       app.kubernetes.io/managed-by: mailhog.operators.patrick.mx
       app.openshift.io/runtime: golang
-      mailhoginstance_cr: t2-argsandcm
+      mailhoginstance_cr: kuttlingresstest
       mailhogtype: mailhoginstance
   template:
     metadata:
       labels:
         app.kubernetes.io/created-by: mailhog.operators.patrick.mx
-        app.kubernetes.io/instance: t2-argsandcm
+        app.kubernetes.io/instance: kuttlingresstest
         app.kubernetes.io/managed-by: mailhog.operators.patrick.mx
         app.openshift.io/runtime: golang
-        mailhoginstance_cr: t2-argsandcm
+        mailhoginstance_cr: kuttlingresstest
         mailhogtype: mailhoginstance
     spec:
       volumes:
         - name: settings-files
           configMap:
-            name: test2
+            name: kuttlingresstest
             defaultMode: 420
       containers:
         - name: mailhog
@@ -43,6 +50,30 @@ metadata:
               value: /mailhog/settings/files/upstream.servers.json
             - name: MH_AUTH_FILE
               value: /mailhog/settings/files/users.list.bcrypt
+          readinessProbe:
+            tcpSocket:
+              port: 8025
+            initialDelaySeconds: 10
+            timeoutSeconds: 2
+            periodSeconds: 5
+            successThreshold: 1
+            failureThreshold: 3
+          livenessProbe:
+            tcpSocket:
+              port: 8025
+            initialDelaySeconds: 10
+            timeoutSeconds: 2
+            periodSeconds: 5
+            successThreshold: 1
+            failureThreshold: 3
+          startupProbe:
+            tcpSocket:
+              port: 8025
+            initialDelaySeconds: 10
+            timeoutSeconds: 2
+            periodSeconds: 5
+            successThreshold: 1
+            failureThreshold: 3
           ports:
             - name: http
               containerPort: 8025
@@ -53,6 +84,7 @@ metadata:
           volumeMounts:
             - name: settings-files
               mountPath: /mailhog/settings/files
+          image: 'mailhog/mailhog:latest'
           args:
             - '-invite-jim'
             - '-jim-disconnect=0.1'

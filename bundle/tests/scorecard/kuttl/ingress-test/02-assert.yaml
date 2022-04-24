@@ -1,0 +1,18 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: kuttlingresstest
+  labels:
+    app: mailhog-kuttl
+    app.kubernetes.io/created-by: mailhog.operators.patrick.mx
+    app.kubernetes.io/instance: kuttlingresstest
+    app.kubernetes.io/managed-by: mailhog.operators.patrick.mx
+    app.openshift.io/runtime: golang
+    mailhoginstance_cr: kuttlingresstest
+    mailhogtype: mailhoginstance
+immutable: false
+data:
+  upstream.servers.json: >-
+    {"mh1":{"name":"mh1","save":true,"email":"tom@mailhog.local","host":"mhi1-simple","port":"1025"},"mh2":{"name":"mh2","save":true,"email":"jerry@mailhog.local","host":"mhi2-dc","port":"1025"}}
+  users.list.bcrypt: |
+    root:$2a$04$erImcj5XhZOONGjzbbqrN.YtHYb6eNn/GgKRIPh6YqDGIhVIuN0Y6

@@ -1,7 +1,9 @@
 apiVersion: mailhog.operators.patrick.mx/v1alpha1
 kind: MailhogInstance
 metadata:
-  name: t2-argsandcm
+  name: kuttlingresstest
+  labels:
+    app: mailhog-kuttl
 spec:
   image: 'mailhog/mailhog:latest'
   replicas: 1
@@ -26,4 +28,4 @@ spec:
       invite: true
       rejectRecipient: '0.2'
     storage: memory
-  webTrafficInlet: none
+  webTrafficInlet: ingress
