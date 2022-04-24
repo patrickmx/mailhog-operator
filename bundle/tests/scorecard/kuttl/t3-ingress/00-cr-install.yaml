@@ -1,7 +1,7 @@
 apiVersion: mailhog.operators.patrick.mx/v1alpha1
 kind: MailhogInstance
 metadata:
-  name: test3-mh
+  name: t3-ingress
   labels:
     app: mailhog-kuttl
 spec:

@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: test1-mh
+  name: t1-simple
   labels:
     app: mailhog-kuttl
 spec:

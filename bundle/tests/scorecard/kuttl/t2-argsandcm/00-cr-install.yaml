@@ -1,7 +1,7 @@
 apiVersion: mailhog.operators.patrick.mx/v1alpha1
 kind: MailhogInstance
 metadata:
-  name: test2
+  name: t2-argsandcm
 spec:
   image: 'mailhog/mailhog:latest'
   replicas: 1

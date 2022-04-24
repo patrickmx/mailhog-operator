@@ -1,26 +1,26 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: test2
+  name: t2-argsandcm
   labels:
     app: mailhog-kuttl
   replicas: 1
   selector:
     matchLabels:
       app.kubernetes.io/created-by: mailhog.operators.patrick.mx
-      app.kubernetes.io/instance: test2
+      app.kubernetes.io/instance: t2-argsandcm
       app.kubernetes.io/managed-by: mailhog.operators.patrick.mx
       app.openshift.io/runtime: golang
-      mailhoginstance_cr: test2
+      mailhoginstance_cr: t2-argsandcm
       mailhogtype: mailhoginstance
   template:
     metadata:
       labels:
         app.kubernetes.io/created-by: mailhog.operators.patrick.mx
-        app.kubernetes.io/instance: test2
+        app.kubernetes.io/instance: t2-argsandcm
         app.kubernetes.io/managed-by: mailhog.operators.patrick.mx
         app.openshift.io/runtime: golang
-        mailhoginstance_cr: test2
+        mailhoginstance_cr: t2-argsandcm
         mailhogtype: mailhoginstance
     spec:
       volumes:

@@ -1,6 +1,6 @@
 kind: Service
 apiVersion: v1
-  name: test1-mh
+  name: t1-simple
   labels:
     app: mailhog-kuttl
 spec:
